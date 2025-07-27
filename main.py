@@ -1,0 +1,1663 @@
+import flet as ft
+import os
+import json
+from datetime import datetime
+from PIL import Image
+import shutil
+from utils.data_manager import DataManager
+
+class StudentRegistrationSystem:
+    def __init__(self):
+        # Initialize data manager
+        self.data_manager = DataManager()
+        
+        # Variables pour les champs
+        self.registration_no = ""
+        self.date = datetime.now().strftime("%d/%m/%Y")
+        self.full_name = ""
+        self.class_var = ""
+        self.date_of_birth = ""
+        self.religion = ""
+        self.gender = "Masculin"
+        self.skills = ""
+        self.father_name = ""
+        self.mother_name = ""
+        self.father_occupation = ""
+        self.mother_occupation = ""
+        
+        self.photo_path = None
+        self.current_page = "dashboard"
+        
+        # Variables UI
+        self.page = None
+        self.sidebar = None
+        self.main_content = None
+        self.selected_student_id = None
+        self.selected_teacher_id = None
+        
+    def main(self, page: ft.Page):
+        self.page = page
+        
+        # Configuration de la page
+        page.title = "École Sans Base - Gestion d'établissement"
+        page.theme_mode = ft.ThemeMode.LIGHT
+        page.window.width = 1400
+        page.window.height = 800
+        page.window.maximized = True
+        page.padding = 0
+        page.bgcolor = "#f8fafc"
+        
+        # Thème personnalisé moderne
+        page.theme = ft.Theme(
+            color_scheme=ft.ColorScheme(
+                primary="#4f46e5",
+                primary_container="#eef2ff",
+                secondary="#64748b",
+                surface="#ffffff",
+                background="#f8fafc",
+                error="#ef4444",
+                on_primary="#ffffff",
+                on_surface="#1e293b"
+            )
+        )
+        
+        # Initialiser la variable de sélection du menu
+        self.selected_menu_index = 0
+        
+        self.setup_layout()
+        page.update()
+    
+    def setup_layout(self):
+        """Configuration du layout principal"""
+        self.sidebar = self.create_sidebar()
+        self.main_content = ft.Container(
+            content=ft.Column([]),
+            expand=True,
+            bgcolor="#f8fafc",
+            padding=0
+        )
+        
+        # Layout principal
+        main_layout = ft.Row([
+            self.sidebar,
+            self.main_content
+        ], spacing=0, expand=True)
+        
+        self.page.add(main_layout)
+        self.show_dashboard()
+    
+    def create_sidebar(self):
+        """Créer la sidebar moderne"""
+        # Menu items avec icônes modernes
+        menu_items = [
+            ("dashboard", "Tableau de bord", ft.icons.DASHBOARD, self.show_dashboard),
+            ("student_registration", "Inscription élève", ft.icons.PERSON_ADD, self.show_student_registration),
+            ("student_management", "Gestion des élèves", ft.icons.GROUPS, self.show_student_management),
+            ("teacher_registration", "Inscription professeur", ft.icons.PERSON_ADD_ALT, self.show_teacher_registration),
+            ("teacher_management", "Gestion des professeurs", ft.icons.SCHOOL, self.show_teacher_management),
+            ("class_management", "Gestion des classes", ft.icons.CLASS_, self.show_class_management),
+            ("grade_management", "Gestion des notes", ft.icons.GRADE, self.show_grade_management),
+            ("schedule", "Emploi du temps", ft.icons.SCHEDULE, self.show_schedule),
+            ("attendance", "Gestion des présences", ft.icons.FACT_CHECK, self.show_attendance)
+        ]
+        
+        # Créer les boutons du menu
+        menu_buttons = []
+        for i, (page_id, label, icon, callback) in enumerate(menu_items):
+            is_selected = i == 0  # Premier élément sélectionné par défaut
+            
+            button = ft.Container(
+                content=ft.Row([
+                    ft.Icon(
+                        icon, 
+                        color="#ffffff" if is_selected else "#cbd5e1",
+                        size=20
+                    ),
+                    ft.Text(
+                        label,
+                        color="#ffffff" if is_selected else "#cbd5e1",
+                        size=13,
+                        weight=ft.FontWeight.W_500 if is_selected else ft.FontWeight.W_400
+                    )
+                ], spacing=12),
+                padding=ft.padding.symmetric(vertical=12, horizontal=16),
+                bgcolor="#6366f1" if is_selected else "transparent",
+                border_radius=8,
+                on_click=lambda e, cb=callback, idx=i: self.handle_menu_click(cb, idx),
+                width=248,
+                alignment=ft.alignment.center_left
+            )
+            menu_buttons.append(button)
+        
+        # Menu de navigation
+        navigation_menu = ft.Column(
+            controls=menu_buttons,
+            spacing=4,
+            tight=True
+        )
+        
+        # En-tête de la sidebar
+        header = ft.Container(
+            content=ft.Column([
+                ft.Container(height=24),
+                ft.Text(
+                    "École Sans Base",
+                    size=22,
+                    weight=ft.FontWeight.BOLD,
+                    color="#ffffff"
+                ),
+                ft.Text(
+                    "Gestion d'établissement",
+                    size=13,
+                    color="#cbd5e1",
+                    weight=ft.FontWeight.W_400
+                ),
+                ft.Container(height=32),
+            ]),
+            padding=ft.padding.all(24),
+            bgcolor="#4f46e5"
+        )
+        
+        sidebar_container = ft.Container(
+            content=ft.Column([
+                header,
+                ft.Container(
+                    content=navigation_menu,
+                    expand=True,
+                    bgcolor="#4f46e5",
+                    padding=ft.padding.all(16)
+                )
+            ], spacing=0),
+            width=280,
+            bgcolor="#4f46e5",
+            border=ft.border.only(right=ft.border.BorderSide(1, "#e2e8f0"))
+        )
+        
+        return sidebar_container
+    
+    def handle_menu_click(self, callback, index):
+        """Gérer le clic sur un élément du menu"""
+        # Mettre à jour la sélection visuelle
+        self.selected_menu_index = index
+        self.update_menu_selection()
+        
+        # Appeler la fonction correspondante
+        callback()
+    
+    def update_menu_selection(self):
+        """Mettre à jour la sélection du menu"""
+        # Recréer la sidebar avec la nouvelle sélection
+        self.sidebar.content.controls[1].content = self.create_navigation_menu()
+        self.page.update()
+    
+    def create_navigation_menu(self):
+        """Créer le menu de navigation avec la sélection actuelle"""
+        menu_items = [
+            ("dashboard", "Tableau de bord", ft.icons.DASHBOARD, self.show_dashboard),
+            ("student_registration", "Inscription élève", ft.icons.PERSON_ADD, self.show_student_registration),
+            ("student_management", "Gestion des élèves", ft.icons.GROUPS, self.show_student_management),
+            ("teacher_registration", "Inscription professeur", ft.icons.PERSON_ADD_ALT, self.show_teacher_registration),
+            ("teacher_management", "Gestion des professeurs", ft.icons.SCHOOL, self.show_teacher_management),
+            ("class_management", "Gestion des classes", ft.icons.CLASS_, self.show_class_management),
+            ("grade_management", "Gestion des notes", ft.icons.GRADE, self.show_grade_management),
+            ("schedule", "Emploi du temps", ft.icons.SCHEDULE, self.show_schedule),
+            ("attendance", "Gestion des présences", ft.icons.FACT_CHECK, self.show_attendance)
+        ]
+        
+        menu_buttons = []
+        for i, (page_id, label, icon, callback) in enumerate(menu_items):
+            is_selected = i == getattr(self, 'selected_menu_index', 0)
+            
+            button = ft.Container(
+                content=ft.Row([
+                    ft.Icon(
+                        icon, 
+                        color="#ffffff" if is_selected else "#cbd5e1",
+                        size=20
+                    ),
+                    ft.Text(
+                        label,
+                        color="#ffffff" if is_selected else "#cbd5e1",
+                        size=13,
+                        weight=ft.FontWeight.W_500 if is_selected else ft.FontWeight.W_400
+                    )
+                ], spacing=12),
+                padding=ft.padding.symmetric(vertical=12, horizontal=16),
+                bgcolor="#6366f1" if is_selected else "transparent",
+                border_radius=8,
+                on_click=lambda e, cb=callback, idx=i: self.handle_menu_click(cb, idx),
+                width=248,
+                alignment=ft.alignment.center_left
+            )
+            menu_buttons.append(button)
+        
+        return ft.Column(
+            controls=menu_buttons,
+            spacing=4,
+            tight=True
+        )
+    
+    def clear_main_content(self):
+        """Vider le contenu principal"""
+        self.main_content.content = ft.Column([])
+    
+    def create_stats_cards(self):
+        """Créer les cartes de statistiques modernes"""
+        students_count = len(self.data_manager.get_all_students())
+        teachers_count = len(self.data_manager.get_all_teachers())
+        classes_count = len(self.data_manager.get_all_classes())
+        
+        stats_data = [
+            (str(students_count), "Élèves inscrits", ft.icons.GROUPS, "#4f8fea"),
+            (str(teachers_count), "Professeurs actifs", ft.icons.SCHOOL, "#22c55e"),
+            (str(classes_count), "Classes disponibles", ft.icons.CLASS_, "#f59e0b")
+        ]
+        
+        cards = []
+        for number, label, icon, color in stats_data:
+            card = ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Row([
+                            ft.Container(
+                                content=ft.Icon(icon, color="white", size=22),
+                                bgcolor=color,
+                                border_radius=10,
+                                width=48,
+                                height=48,
+                                alignment=ft.alignment.center
+                            ),
+                        ]),
+                        ft.Container(height=16),
+                        ft.Text(
+                            number,
+                            size=32,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            label,
+                            size=13,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ]),
+                    padding=24,
+                    width=280
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+            cards.append(card)
+        
+        return ft.Row(cards, spacing=24)
+    
+    def show_dashboard(self):
+        """Afficher le tableau de bord"""
+        self.current_page = "dashboard"
+        self.clear_main_content()
+        
+        # En-tête moderne
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Tableau de bord",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Vue d'ensemble de votre établissement scolaire",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Statistiques
+        stats = ft.Container(
+            content=self.create_stats_cards(),
+            padding=ft.padding.symmetric(horizontal=32)
+        )
+        
+        # Carte de bienvenue moderne
+        welcome_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "🎓 Bienvenue dans votre système de gestion scolaire",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Utilisez le menu de navigation à gauche pour accéder aux différentes fonctionnalités :\n\n"
+                        "• Inscription élève : Enregistrer un nouvel élève\n"
+                        "• Gestion des élèves : Voir et modifier les informations des élèves\n"
+                        "• Gestion des professeurs : Gérer le personnel enseignant\n"
+                        "• Gestion des classes : Organiser les classes et emplois du temps",
+                        size=14,
+                        color="#64748b",
+                        weight=ft.FontWeight.W_400
+                    )
+                ]),
+                padding=28
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        welcome_container = ft.Container(
+            content=welcome_card,
+            padding=ft.padding.all(32)
+        )
+        
+        # Assembler le contenu
+        self.main_content.content = ft.Column([
+            header,
+            stats,
+            welcome_container
+        ], spacing=0)
+        
+        self.page.update()
+    
+    def show_student_registration(self):
+        """Afficher le formulaire d'inscription des élèves"""
+        self.current_page = "student_registration"
+        self.clear_main_content()
+        
+        # En-tête
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Inscription élève",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Enregistrer un nouvel élève dans le système",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Formulaire
+        form_content = self.create_registration_form()
+        
+        # Assembler le contenu
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=form_content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def create_registration_form(self):
+        """Créer le formulaire d'inscription complet"""
+        # Générer automatiquement le numéro d'inscription
+        students = self.data_manager.get_all_students()
+        next_id = len(students) + 1
+        auto_reg_no = f"STU{next_id:04d}"
+        
+        # Champs de saisie modernes
+        self.reg_no_field = ft.TextField(
+            label="Numéro d'inscription",
+            value=auto_reg_no,
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            read_only=True
+        )
+        
+        self.date_field = ft.TextField(
+            label="Date d'inscription",
+            value=self.date,
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            read_only=True
+        )
+        
+        self.name_field = ft.TextField(
+            label="Nom complet *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.class_dropdown = ft.Dropdown(
+            label="Classe *",
+            options=[
+                ft.dropdown.Option("CP"),
+                ft.dropdown.Option("CE1"),
+                ft.dropdown.Option("CE2"),
+                ft.dropdown.Option("CM1"),
+                ft.dropdown.Option("CM2"),
+                ft.dropdown.Option("6ème"),
+                ft.dropdown.Option("5ème"),
+                ft.dropdown.Option("4ème"),
+                ft.dropdown.Option("3ème"),
+                ft.dropdown.Option("2nde"),
+                ft.dropdown.Option("1ère"),
+                ft.dropdown.Option("Terminale"),
+            ],
+            bgcolor="#ffffff",
+            border_radius=8
+        )
+        
+        self.dob_field = ft.TextField(
+            label="Date de naissance *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            hint_text="JJ/MM/AAAA"
+        )
+        
+        self.religion_field = ft.TextField(
+            label="Religion",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.gender_dropdown = ft.Dropdown(
+            label="Genre *",
+            options=[
+                ft.dropdown.Option("Masculin"),
+                ft.dropdown.Option("Féminin"),
+            ],
+            value="Masculin",
+            bgcolor="#ffffff",
+            border_radius=8
+        )
+        
+        self.skills_field = ft.TextField(
+            label="Compétences/Intérêts",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            multiline=True,
+            min_lines=2,
+            max_lines=3
+        )
+        
+        self.father_name_field = ft.TextField(
+            label="Nom du père *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.mother_name_field = ft.TextField(
+            label="Nom de la mère *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.father_occupation_field = ft.TextField(
+            label="Profession du père",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.mother_occupation_field = ft.TextField(
+            label="Profession de la mère",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        # Section photo
+        self.photo_display = ft.Container(
+            content=ft.Icon(ft.icons.PERSON, size=80, color="#94a3b8"),
+            width=120,
+            height=120,
+            bgcolor="#f8fafc",
+            border_radius=8,
+            border=ft.border.all(2, "#e2e8f0"),
+            alignment=ft.alignment.center
+        )
+        
+        photo_picker = ft.FilePicker(
+            on_result=self.on_photo_selected
+        )
+        self.page.overlay.append(photo_picker)
+        
+        photo_button = ft.ElevatedButton(
+            "Choisir une photo",
+            icon=ft.icons.PHOTO_CAMERA,
+            on_click=lambda _: photo_picker.pick_files(
+                allow_multiple=False,
+                file_type=ft.FilePickerFileType.IMAGE
+            ),
+            bgcolor="#ffffff",
+            color="#4f46e5"
+        )
+        
+        # Boutons d'action
+        save_button = ft.ElevatedButton(
+            "Enregistrer l'élève",
+            icon=ft.icons.SAVE,
+            on_click=self.save_student,
+            bgcolor="#4f46e5",
+            color="#ffffff",
+            height=48
+        )
+        
+        reset_button = ft.OutlinedButton(
+            "Réinitialiser",
+            icon=ft.icons.REFRESH,
+            on_click=self.reset_form,
+            height=48
+        )
+        
+        # Layout du formulaire
+        form_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Informations personnelles",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    
+                    # Section photo et informations de base
+                    ft.Row([
+                        ft.Column([
+                            self.photo_display,
+                            ft.Container(height=8),
+                            photo_button
+                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                        
+                        ft.Container(width=32),
+                        
+                        ft.Column([
+                            ft.Row([
+                                ft.Container(self.reg_no_field, expand=1),
+                                ft.Container(width=16),
+                                ft.Container(self.date_field, expand=1)
+                            ]),
+                            ft.Container(height=16),
+                            self.name_field,
+                            ft.Container(height=16),
+                            ft.Row([
+                                ft.Container(self.class_dropdown, expand=1),
+                                ft.Container(width=16),
+                                ft.Container(self.dob_field, expand=1)
+                            ]),
+                            ft.Container(height=16),
+                            ft.Row([
+                                ft.Container(self.gender_dropdown, expand=1),
+                                ft.Container(width=16),
+                                ft.Container(self.religion_field, expand=1)
+                            ])
+                        ], expand=True)
+                    ]),
+                    
+                    ft.Container(height=24),
+                    ft.Divider(color="#e2e8f0"),
+                    ft.Container(height=16),
+                    
+                    ft.Text(
+                        "Informations familiales",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    
+                    ft.Row([
+                        ft.Container(self.father_name_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.mother_name_field, expand=1)
+                    ]),
+                    ft.Container(height=16),
+                    ft.Row([
+                        ft.Container(self.father_occupation_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.mother_occupation_field, expand=1)
+                    ]),
+                    ft.Container(height=16),
+                    self.skills_field,
+                    
+                    ft.Container(height=32),
+                    ft.Row([
+                        save_button,
+                        ft.Container(width=16),
+                        reset_button
+                    ], alignment=ft.MainAxisAlignment.START)
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        return form_card
+    
+    def on_photo_selected(self, e: ft.FilePickerResultEvent):
+        """Gérer la sélection de photo"""
+        if e.files:
+            file = e.files[0]
+            # Copier le fichier vers le dossier photos
+            os.makedirs("photos/students", exist_ok=True)
+            
+            # Générer un nom unique pour la photo
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_extension = os.path.splitext(file.name)[1]
+            new_filename = f"student_{timestamp}{file_extension}"
+            new_path = f"photos/students/{new_filename}"
+            
+            try:
+                shutil.copy2(file.path, new_path)
+                self.photo_path = new_path
+                
+                # Afficher l'aperçu de la photo
+                self.photo_display.content = ft.Image(
+                    src=new_path,
+                    width=120,
+                    height=120,
+                    fit=ft.ImageFit.COVER,
+                    border_radius=8
+                )
+                self.page.update()
+                
+            except Exception as ex:
+                self.show_snackbar(f"Erreur lors du téléchargement de la photo: {str(ex)}", error=True)
+    
+    def save_student(self, e):
+        """Enregistrer un nouvel élève"""
+        # Validation des champs obligatoires
+        if not self.name_field.value:
+            self.show_snackbar("Le nom complet est obligatoire", error=True)
+            return
+        
+        if not self.class_dropdown.value:
+            self.show_snackbar("La classe est obligatoire", error=True)
+            return
+        
+        if not self.dob_field.value:
+            self.show_snackbar("La date de naissance est obligatoire", error=True)
+            return
+        
+        if not self.father_name_field.value:
+            self.show_snackbar("Le nom du père est obligatoire", error=True)
+            return
+        
+        if not self.mother_name_field.value:
+            self.show_snackbar("Le nom de la mère est obligatoire", error=True)
+            return
+        
+        # Créer l'objet étudiant
+        student_data = {
+            "id": self.reg_no_field.value,
+            "registration_no": self.reg_no_field.value,
+            "date_inscription": self.date_field.value,
+            "nom_complet": self.name_field.value,
+            "classe": self.class_dropdown.value,
+            "date_naissance": self.dob_field.value,
+            "religion": self.religion_field.value or "",
+            "genre": self.gender_dropdown.value,
+            "competences": self.skills_field.value or "",
+            "nom_pere": self.father_name_field.value,
+            "nom_mere": self.mother_name_field.value,
+            "profession_pere": self.father_occupation_field.value or "",
+            "profession_mere": self.mother_occupation_field.value or "",
+            "photo_path": self.photo_path,
+            "date_creation": datetime.now().isoformat()
+        }
+        
+        # Sauvegarder l'élève
+        if self.data_manager.add_student(student_data):
+            self.show_snackbar("Élève enregistré avec succès!")
+            self.reset_form(None)
+        else:
+            self.show_snackbar("Erreur lors de l'enregistrement", error=True)
+    
+    def reset_form(self, e):
+        """Réinitialiser le formulaire"""
+        self.name_field.value = ""
+        self.class_dropdown.value = None
+        self.dob_field.value = ""
+        self.religion_field.value = ""
+        self.gender_dropdown.value = "Masculin"
+        self.skills_field.value = ""
+        self.father_name_field.value = ""
+        self.mother_name_field.value = ""
+        self.father_occupation_field.value = ""
+        self.mother_occupation_field.value = ""
+        self.photo_path = None
+        
+        # Réinitialiser l'affichage de la photo
+        self.photo_display.content = ft.Icon(ft.icons.PERSON, size=80, color="#94a3b8")
+        
+        # Générer un nouveau numéro d'inscription
+        students = self.data_manager.get_all_students()
+        next_id = len(students) + 1
+        self.reg_no_field.value = f"STU{next_id:04d}"
+        
+        self.page.update()
+    
+    def show_student_management(self):
+        """Afficher la gestion des élèves"""
+        self.current_page = "student_management"
+        self.clear_main_content()
+        
+        # En-tête
+        header = ft.Container(
+            content=ft.Row([
+                ft.Column([
+                    ft.Text(
+                        "Gestion des élèves",
+                        size=28,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Text(
+                        "Consulter et modifier les informations des élèves",
+                        size=15,
+                        color="#64748b",
+                        weight=ft.FontWeight.W_400
+                    )
+                ], expand=True),
+                ft.ElevatedButton(
+                    "Nouvel élève",
+                    icon=ft.icons.ADD,
+                    on_click=lambda _: self.show_student_registration(),
+                    bgcolor="#4f46e5",
+                    color="#ffffff"
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Table des élèves
+        students_table = self.create_students_table()
+        
+        # Assembler le contenu
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=students_table,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def create_students_table(self):
+        """Créer le tableau des élèves"""
+        students = self.data_manager.get_all_students()
+        
+        if not students:
+            return ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon(ft.icons.GROUPS, size=64, color="#94a3b8"),
+                        ft.Container(height=16),
+                        ft.Text(
+                            "Aucun élève enregistré",
+                            size=18,
+                            weight=ft.FontWeight.BOLD,
+                            color="#64748b"
+                        ),
+                        ft.Text(
+                            "Commencez par ajouter votre premier élève",
+                            size=14,
+                            color="#94a3b8"
+                        )
+                    ], 
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=64,
+                    alignment=ft.alignment.center
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+        
+        # Créer les lignes du tableau
+        rows = []
+        for student in students:
+            rows.append(
+                ft.DataRow([
+                    ft.DataCell(ft.Text(student.get("registration_no", ""), size=12)),
+                    ft.DataCell(ft.Text(student.get("nom_complet", ""), size=12, weight=ft.FontWeight.W_500)),
+                    ft.DataCell(ft.Text(student.get("classe", ""), size=12)),
+                    ft.DataCell(ft.Text(student.get("date_naissance", ""), size=12)),
+                    ft.DataCell(ft.Text(student.get("genre", ""), size=12)),
+                    ft.DataCell(
+                        ft.Row([
+                            ft.IconButton(
+                                icon=ft.icons.EDIT,
+                                icon_color="#4f46e5",
+                                tooltip="Modifier",
+                                on_click=lambda e, student_id=student.get("id"): self.edit_student(student_id)
+                            ),
+                            ft.IconButton(
+                                icon=ft.icons.DELETE,
+                                icon_color="#ef4444",
+                                tooltip="Supprimer",
+                                on_click=lambda e, student_id=student.get("id"): self.delete_student(student_id)
+                            )
+                        ], spacing=0)
+                    )
+                ])
+            )
+        
+        data_table = ft.DataTable(
+            columns=[
+                ft.DataColumn(ft.Text("N° Inscription", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Nom complet", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Classe", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12))
+            ],
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            heading_row_color="#f8fafc"
+        )
+        
+        return ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(students)} élève(s)",
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        )
+                    ]),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=data_table,
+                        border_radius=8,
+                        bgcolor="#ffffff"
+                    )
+                ]),
+                padding=24
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+    
+    def edit_student(self, student_id):
+        """Modifier un élève"""
+        student = self.data_manager.get_student(student_id)
+        if student:
+            # Pré-remplir le formulaire avec les données existantes
+            self.selected_student_id = student_id
+            self.show_student_registration()
+            
+            # Remplir les champs après affichage
+            self.reg_no_field.value = student.get("registration_no", "")
+            self.date_field.value = student.get("date_inscription", "")
+            self.name_field.value = student.get("nom_complet", "")
+            self.class_dropdown.value = student.get("classe", "")
+            self.dob_field.value = student.get("date_naissance", "")
+            self.religion_field.value = student.get("religion", "")
+            self.gender_dropdown.value = student.get("genre", "Masculin")
+            self.skills_field.value = student.get("competences", "")
+            self.father_name_field.value = student.get("nom_pere", "")
+            self.mother_name_field.value = student.get("nom_mere", "")
+            self.father_occupation_field.value = student.get("profession_pere", "")
+            self.mother_occupation_field.value = student.get("profession_mere", "")
+            
+            # Charger la photo si elle existe
+            if student.get("photo_path") and os.path.exists(student.get("photo_path")):
+                self.photo_path = student.get("photo_path")
+                self.photo_display.content = ft.Image(
+                    src=self.photo_path,
+                    width=120,
+                    height=120,
+                    fit=ft.ImageFit.COVER,
+                    border_radius=8
+                )
+            
+            self.page.update()
+    
+    def delete_student(self, student_id):
+        """Supprimer un élève"""
+        def confirm_delete(e):
+            if self.data_manager.delete_student(student_id):
+                self.show_snackbar("Élève supprimé avec succès!")
+                self.show_student_management()
+            else:
+                self.show_snackbar("Erreur lors de la suppression", error=True)
+            dialog.open = False
+            self.page.update()
+        
+        def cancel_delete(e):
+            dialog.open = False
+            self.page.update()
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmer la suppression"),
+            content=ft.Text("Êtes-vous sûr de vouloir supprimer cet élève ? Cette action est irréversible."),
+            actions=[
+                ft.TextButton("Annuler", on_click=cancel_delete),
+                ft.TextButton("Supprimer", on_click=confirm_delete, style=ft.ButtonStyle(color="#ef4444"))
+            ]
+        )
+        
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+    
+    def show_teacher_registration(self):
+        """Afficher le formulaire d'inscription des professeurs"""
+        self.current_page = "teacher_registration"
+        self.clear_main_content()
+        
+        # En-tête
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Inscription professeur",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Enregistrer un nouveau professeur dans le système",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Formulaire professeur
+        form_content = self.create_teacher_form()
+        
+        # Assembler le contenu
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=form_content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def create_teacher_form(self):
+        """Créer le formulaire d'inscription professeur"""
+        # Générer automatiquement l'ID professeur
+        teachers = self.data_manager.get_all_teachers()
+        next_id = len(teachers) + 1
+        auto_teacher_id = f"PROF{next_id:04d}"
+        
+        # Champs de saisie
+        self.teacher_id_field = ft.TextField(
+            label="ID Professeur",
+            value=auto_teacher_id,
+            bgcolor="#ffffff",
+            border_radius=8,
+            read_only=True
+        )
+        
+        self.teacher_name_field = ft.TextField(
+            label="Nom complet *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.teacher_subject_field = ft.TextField(
+            label="Matière enseignée *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.teacher_email_field = ft.TextField(
+            label="Email",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.teacher_phone_field = ft.TextField(
+            label="Téléphone",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        self.teacher_qualification_field = ft.TextField(
+            label="Qualifications",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            multiline=True,
+            min_lines=2,
+            max_lines=3
+        )
+        
+        # Boutons d'action
+        save_teacher_button = ft.ElevatedButton(
+            "Enregistrer le professeur",
+            icon=ft.icons.SAVE,
+            on_click=self.save_teacher,
+            bgcolor="#4f46e5",
+            color="#ffffff",
+            height=48
+        )
+        
+        reset_teacher_button = ft.OutlinedButton(
+            "Réinitialiser",
+            icon=ft.icons.REFRESH,
+            on_click=self.reset_teacher_form,
+            height=48
+        )
+        
+        # Layout du formulaire
+        form_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Informations du professeur",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    
+                    ft.Row([
+                        ft.Container(self.teacher_id_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.teacher_name_field, expand=1)
+                    ]),
+                    ft.Container(height=16),
+                    ft.Row([
+                        ft.Container(self.teacher_subject_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.teacher_email_field, expand=1)
+                    ]),
+                    ft.Container(height=16),
+                    ft.Row([
+                        ft.Container(self.teacher_phone_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(width=200)  # Spacer
+                    ]),
+                    ft.Container(height=16),
+                    self.teacher_qualification_field,
+                    
+                    ft.Container(height=32),
+                    ft.Row([
+                        save_teacher_button,
+                        ft.Container(width=16),
+                        reset_teacher_button
+                    ], alignment=ft.MainAxisAlignment.START)
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        return form_card
+    
+    def save_teacher(self, e):
+        """Enregistrer un nouveau professeur"""
+        # Validation
+        if not self.teacher_name_field.value:
+            self.show_snackbar("Le nom du professeur est obligatoire", error=True)
+            return
+        
+        if not self.teacher_subject_field.value:
+            self.show_snackbar("La matière enseignée est obligatoire", error=True)
+            return
+        
+        # Créer l'objet professeur
+        teacher_data = {
+            "id": self.teacher_id_field.value,
+            "nom_complet": self.teacher_name_field.value,
+            "matiere": self.teacher_subject_field.value,
+            "email": self.teacher_email_field.value or "",
+            "telephone": self.teacher_phone_field.value or "",
+            "qualifications": self.teacher_qualification_field.value or "",
+            "date_creation": datetime.now().isoformat()
+        }
+        
+        # Sauvegarder le professeur
+        if self.data_manager.add_teacher(teacher_data):
+            self.show_snackbar("Professeur enregistré avec succès!")
+            self.reset_teacher_form(None)
+        else:
+            self.show_snackbar("Erreur lors de l'enregistrement", error=True)
+    
+    def reset_teacher_form(self, e):
+        """Réinitialiser le formulaire professeur"""
+        self.teacher_name_field.value = ""
+        self.teacher_subject_field.value = ""
+        self.teacher_email_field.value = ""
+        self.teacher_phone_field.value = ""
+        self.teacher_qualification_field.value = ""
+        
+        # Générer un nouvel ID
+        teachers = self.data_manager.get_all_teachers()
+        next_id = len(teachers) + 1
+        self.teacher_id_field.value = f"PROF{next_id:04d}"
+        
+        self.page.update()
+    
+    def show_teacher_management(self):
+        """Afficher la gestion des professeurs"""
+        self.current_page = "teacher_management"
+        self.clear_main_content()
+        
+        # En-tête
+        header = ft.Container(
+            content=ft.Row([
+                ft.Column([
+                    ft.Text(
+                        "Gestion des professeurs",
+                        size=28,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Text(
+                        "Consulter et modifier les informations des professeurs",
+                        size=15,
+                        color="#64748b",
+                        weight=ft.FontWeight.W_400
+                    )
+                ], expand=True),
+                ft.ElevatedButton(
+                    "Nouveau professeur",
+                    icon=ft.icons.ADD,
+                    on_click=lambda _: self.show_teacher_registration(),
+                    bgcolor="#4f46e5",
+                    color="#ffffff"
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Table des professeurs
+        teachers_table = self.create_teachers_table()
+        
+        # Assembler le contenu
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=teachers_table,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def create_teachers_table(self):
+        """Créer le tableau des professeurs"""
+        teachers = self.data_manager.get_all_teachers()
+        
+        if not teachers:
+            return ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon(ft.icons.SCHOOL, size=64, color="#94a3b8"),
+                        ft.Container(height=16),
+                        ft.Text(
+                            "Aucun professeur enregistré",
+                            size=18,
+                            weight=ft.FontWeight.BOLD,
+                            color="#64748b"
+                        ),
+                        ft.Text(
+                            "Commencez par ajouter votre premier professeur",
+                            size=14,
+                            color="#94a3b8"
+                        )
+                    ], 
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=64,
+                    alignment=ft.alignment.center
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+        
+        # Créer les lignes du tableau
+        rows = []
+        for teacher in teachers:
+            rows.append(
+                ft.DataRow([
+                    ft.DataCell(ft.Text(teacher.get("id", ""), size=12)),
+                    ft.DataCell(ft.Text(teacher.get("nom_complet", ""), size=12, weight=ft.FontWeight.W_500)),
+                    ft.DataCell(ft.Text(teacher.get("matiere", ""), size=12)),
+                    ft.DataCell(ft.Text(teacher.get("email", ""), size=12)),
+                    ft.DataCell(ft.Text(teacher.get("telephone", ""), size=12)),
+                    ft.DataCell(
+                        ft.Row([
+                            ft.IconButton(
+                                icon=ft.icons.EDIT,
+                                icon_color="#4f46e5",
+                                tooltip="Modifier",
+                                on_click=lambda e, teacher_id=teacher.get("id"): self.edit_teacher(teacher_id)
+                            ),
+                            ft.IconButton(
+                                icon=ft.icons.DELETE,
+                                icon_color="#ef4444",
+                                tooltip="Supprimer",
+                                on_click=lambda e, teacher_id=teacher.get("id"): self.delete_teacher(teacher_id)
+                            )
+                        ], spacing=0)
+                    )
+                ])
+            )
+        
+        data_table = ft.DataTable(
+            columns=[
+                ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Nom complet", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Matière", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Email", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Téléphone", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12))
+            ],
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            heading_row_color="#f8fafc"
+        )
+        
+        return ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(teachers)} professeur(s)",
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        )
+                    ]),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=data_table,
+                        border_radius=8,
+                        bgcolor="#ffffff"
+                    )
+                ]),
+                padding=24
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+    
+    def edit_teacher(self, teacher_id):
+        """Modifier un professeur"""
+        teacher = self.data_manager.get_teacher(teacher_id)
+        if teacher:
+            self.selected_teacher_id = teacher_id
+            self.show_teacher_registration()
+            
+            # Remplir les champs
+            self.teacher_id_field.value = teacher.get("id", "")
+            self.teacher_name_field.value = teacher.get("nom_complet", "")
+            self.teacher_subject_field.value = teacher.get("matiere", "")
+            self.teacher_email_field.value = teacher.get("email", "")
+            self.teacher_phone_field.value = teacher.get("telephone", "")
+            self.teacher_qualification_field.value = teacher.get("qualifications", "")
+            
+            self.page.update()
+    
+    def delete_teacher(self, teacher_id):
+        """Supprimer un professeur"""
+        def confirm_delete(e):
+            if self.data_manager.delete_teacher(teacher_id):
+                self.show_snackbar("Professeur supprimé avec succès!")
+                self.show_teacher_management()
+            else:
+                self.show_snackbar("Erreur lors de la suppression", error=True)
+            dialog.open = False
+            self.page.update()
+        
+        def cancel_delete(e):
+            dialog.open = False
+            self.page.update()
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmer la suppression"),
+            content=ft.Text("Êtes-vous sûr de vouloir supprimer ce professeur ? Cette action est irréversible."),
+            actions=[
+                ft.TextButton("Annuler", on_click=cancel_delete),
+                ft.TextButton("Supprimer", on_click=confirm_delete, style=ft.ButtonStyle(color="#ef4444"))
+            ]
+        )
+        
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+    
+    def show_class_management(self):
+        """Afficher la gestion des classes"""
+        self.current_page = "class_management"
+        self.clear_main_content()
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Gestion des classes",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Organiser les classes et affecter les professeurs",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Contenu de gestion des classes
+        content = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "🏫 Gestion des classes",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Cette section permettra de :\n\n"
+                        "• Créer et organiser les classes\n"
+                        "• Affecter les professeurs aux classes\n"
+                        "• Gérer les emplois du temps\n"
+                        "• Suivre les effectifs par classe",
+                        size=14,
+                        color="#64748b"
+                    )
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def show_grade_management(self):
+        """Afficher la gestion des notes"""
+        self.current_page = "grade_management"
+        self.clear_main_content()
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Gestion des notes",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Saisir et consulter les notes des élèves",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        content = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "📊 Gestion des notes",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Cette section permettra de :\n\n"
+                        "• Saisir les notes par matière\n"
+                        "• Calculer les moyennes\n"
+                        "• Générer les bulletins\n"
+                        "• Suivre les progressions",
+                        size=14,
+                        color="#64748b"
+                    )
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def show_schedule(self):
+        """Afficher l'emploi du temps"""
+        self.current_page = "schedule"
+        self.clear_main_content()
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Emploi du temps",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Gérer les horaires et plannings",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        content = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "📅 Emploi du temps",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Cette section permettra de :\n\n"
+                        "• Créer les emplois du temps\n"
+                        "• Affecter les créneaux aux professeurs\n"
+                        "• Gérer les salles de classe\n"
+                        "• Planifier les examens",
+                        size=14,
+                        color="#64748b"
+                    )
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def show_attendance(self):
+        """Afficher la gestion des présences"""
+        self.current_page = "attendance"
+        self.clear_main_content()
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Gestion des présences",
+                    size=28,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Text(
+                    "Suivre les présences et absences",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
+                )
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        content = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "✅ Gestion des présences",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Cette section permettra de :\n\n"
+                        "• Prendre les présences quotidiennes\n"
+                        "• Justifier les absences\n"
+                        "• Générer des rapports d'assiduité\n"
+                        "• Alerter les parents",
+                        size=14,
+                        color="#64748b"
+                    )
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def show_snackbar(self, message: str, error: bool = False):
+        """Afficher un message de notification"""
+        color = "#ef4444" if error else "#10b981"
+        icon = ft.icons.ERROR if error else ft.icons.CHECK_CIRCLE
+        
+        snackbar = ft.SnackBar(
+            content=ft.Row([
+                ft.Icon(icon, color="white", size=20),
+                ft.Text(message, color="white", weight=ft.FontWeight.W_500)
+            ]),
+            bgcolor=color,
+            duration=3000
+        )
+        
+        self.page.snack_bar = snackbar
+        snackbar.open = True
+        self.page.update()
+
+def main(page: ft.Page):
+    app = StudentRegistrationSystem()
+    app.main(page)
+
+if __name__ == "__main__":
+    ft.app(target=main, port=5000, view=ft.AppView.WEB_BROWSER)
