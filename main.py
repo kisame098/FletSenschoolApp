@@ -360,11 +360,16 @@ class StudentRegistrationSystem:
             padding=ft.padding.all(32)
         )
         
-        # Assembler le contenu
+        # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
             header,
-            stats,
-            welcome_container
+            ft.Container(
+                content=ft.Column([
+                    stats,
+                    welcome_container
+                ], scroll=ft.ScrollMode.AUTO),
+                expand=True
+            )
         ], spacing=0)
         
         self.page.update()
@@ -391,11 +396,13 @@ class StudentRegistrationSystem:
         # Formulaire
         form_content = self.create_registration_form()
         
-        # Assembler le contenu
+        # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=form_content,
+                content=ft.Column([
+                    form_content
+                ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
             )
@@ -694,11 +701,13 @@ class StudentRegistrationSystem:
         # Table des élèves
         students_table = self.create_students_table()
         
-        # Assembler le contenu
+        # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=students_table,
+                content=ft.Column([
+                    students_table
+                ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
             )
@@ -900,11 +909,13 @@ class StudentRegistrationSystem:
         # Formulaire professeur
         form_content = self.create_teacher_form()
         
-        # Assembler le contenu
+        # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=form_content,
+                content=ft.Column([
+                    form_content
+                ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
             )
@@ -1117,11 +1128,13 @@ class StudentRegistrationSystem:
         # Table des professeurs
         teachers_table = self.create_teachers_table()
         
-        # Assembler le contenu
+        # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=teachers_table,
+                content=ft.Column([
+                    teachers_table
+                ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
             )
