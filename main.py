@@ -162,7 +162,9 @@ class StudentRegistrationSystem:
             content=ft.Column([
                 header,
                 ft.Container(
-                    content=navigation_menu,
+                    content=ft.Column([
+                        navigation_menu
+                    ], scroll=ft.ScrollMode.AUTO),
                     expand=True,
                     bgcolor="#4f46e5",
                     padding=ft.padding.all(16)
@@ -376,16 +378,10 @@ class StudentRegistrationSystem:
         header = ft.Container(
             content=ft.Column([
                 ft.Text(
-                    "Inscription élève",
+                    "Inscription d'un élève",
                     size=28,
                     weight=ft.FontWeight.BOLD,
                     color="#1e293b"
-                ),
-                ft.Text(
-                    "Enregistrer un nouvel élève dans le système",
-                    size=15,
-                    color="#64748b",
-                    weight=ft.FontWeight.W_400
                 )
             ]),
             padding=ft.padding.all(32),
@@ -408,43 +404,78 @@ class StudentRegistrationSystem:
         self.page.update()
     
     def create_registration_form(self):
-        """Créer le formulaire d'inscription complet"""
-        # Générer automatiquement le numéro d'inscription
-        students = self.data_manager.get_all_students()
-        next_id = len(students) + 1
-        auto_reg_no = f"STU{next_id:04d}"
-        
-        # Champs de saisie modernes
-        self.reg_no_field = ft.TextField(
-            label="Numéro d'inscription",
-            value=auto_reg_no,
+        """Créer le formulaire d'inscription selon le design spécifié"""
+        # Champs de saisie selon le design de l'image
+        self.prenom_field = ft.TextField(
+            label="Prénom *",
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            read_only=True
+            expand=True
         )
         
-        self.date_field = ft.TextField(
-            label="Date d'inscription",
-            value=self.date,
+        self.nom_field = ft.TextField(
+            label="Nom *",
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            read_only=True
+            expand=True
         )
         
-        self.name_field = ft.TextField(
-            label="Nom complet *",
+        self.dob_field = ft.TextField(
+            label="Date de naissance *",
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
-            focused_border_color="#4f46e5"
+            focused_border_color="#4f46e5",
+            hint_text="jj/mm/aaaa",
+            expand=True
         )
         
-        self.class_dropdown = ft.Dropdown(
+        self.lieu_naissance_field = ft.TextField(
+            label="Lieu de naissance *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        self.numero_eleve_field = ft.TextField(
+            label="Numéro d'élève",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        self.telephone_parent_field = ft.TextField(
+            label="Téléphone parent *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        self.genre_dropdown = ft.Dropdown(
+            label="Genre *",
+            options=[
+                ft.dropdown.Option("Masculin"),
+                ft.dropdown.Option("Féminin"),
+            ],
+            value="Masculin",
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        self.classe_dropdown = ft.Dropdown(
             label="Classe *",
+            hint_text="Sélectionner une classe",
             options=[
                 ft.dropdown.Option("CP"),
                 ft.dropdown.Option("CE1"),
@@ -460,203 +491,67 @@ class StudentRegistrationSystem:
                 ft.dropdown.Option("Terminale"),
             ],
             bgcolor="#ffffff",
-            border_radius=8
-        )
-        
-        self.dob_field = ft.TextField(
-            label="Date de naissance *",
-            bgcolor="#ffffff",
             border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5",
-            hint_text="JJ/MM/AAAA"
+            expand=True
         )
         
-        self.religion_field = ft.TextField(
-            label="Religion",
-            bgcolor="#ffffff",
-            border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5"
-        )
-        
-        self.gender_dropdown = ft.Dropdown(
-            label="Genre *",
-            options=[
-                ft.dropdown.Option("Masculin"),
-                ft.dropdown.Option("Féminin"),
-            ],
-            value="Masculin",
-            bgcolor="#ffffff",
-            border_radius=8
-        )
-        
-        self.skills_field = ft.TextField(
-            label="Compétences/Intérêts",
-            bgcolor="#ffffff",
-            border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5",
-            multiline=True,
-            min_lines=2,
-            max_lines=3
-        )
-        
-        self.father_name_field = ft.TextField(
-            label="Nom du père *",
-            bgcolor="#ffffff",
-            border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5"
-        )
-        
-        self.mother_name_field = ft.TextField(
-            label="Nom de la mère *",
-            bgcolor="#ffffff",
-            border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5"
-        )
-        
-        self.father_occupation_field = ft.TextField(
-            label="Profession du père",
-            bgcolor="#ffffff",
-            border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5"
-        )
-        
-        self.mother_occupation_field = ft.TextField(
-            label="Profession de la mère",
-            bgcolor="#ffffff",
-            border_radius=8,
-            border_color="#e2e8f0",
-            focused_border_color="#4f46e5"
-        )
-        
-        # Section photo
-        self.photo_display = ft.Container(
-            content=ft.Text("📷", size=80, color="#94a3b8"),
-            width=120,
-            height=120,
-            bgcolor="#f8fafc",
-            border_radius=8,
-            border=ft.border.all(2, "#e2e8f0"),
-            alignment=ft.alignment.center
-        )
-        
-        photo_picker = ft.FilePicker(
-            on_result=self.on_photo_selected
-        )
-        self.page.overlay.append(photo_picker)
-        
-        photo_button = ft.ElevatedButton(
-            "Choisir une photo",
-            icon="📷",
-            on_click=lambda _: photo_picker.pick_files(
-                allow_multiple=False,
-                file_type=ft.FilePickerFileType.IMAGE
-            ),
-            bgcolor="#ffffff",
-            color="#4f46e5"
-        )
-        
-        # Boutons d'action
-        save_button = ft.ElevatedButton(
-            "Enregistrer l'élève",
-            icon="📷",
-            on_click=self.save_student,
-            bgcolor="#4f46e5",
+        # Bouton d'inscription
+        submit_button = ft.ElevatedButton(
+            "👤 Inscrire l'élève",
+            bgcolor="#4285f4",
             color="#ffffff",
-            height=48
+            height=48,
+            width=200,
+            on_click=self.save_student,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=8)
+            )
         )
         
-        reset_button = ft.OutlinedButton(
-            "Réinitialiser",
-            icon="📷",
-            on_click=self.reset_form,
-            height=48
-        )
-        
-        # Layout du formulaire
+        # Créer le formulaire selon le design de l'image
         form_card = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    ft.Text(
-                        "Informations personnelles",
-                        size=18,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b"
-                    ),
-                    ft.Container(height=16),
-                    
-                    # Section photo et informations de base
+                    # Première ligne - Prénom et Nom
                     ft.Row([
-                        ft.Column([
-                            self.photo_display,
-                            ft.Container(height=8),
-                            photo_button
-                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                        
-                        ft.Container(width=32),
-                        
-                        ft.Column([
-                            ft.Row([
-                                ft.Container(self.reg_no_field, expand=1),
-                                ft.Container(width=16),
-                                ft.Container(self.date_field, expand=1)
-                            ]),
-                            ft.Container(height=16),
-                            self.name_field,
-                            ft.Container(height=16),
-                            ft.Row([
-                                ft.Container(self.class_dropdown, expand=1),
-                                ft.Container(width=16),
-                                ft.Container(self.dob_field, expand=1)
-                            ]),
-                            ft.Container(height=16),
-                            ft.Row([
-                                ft.Container(self.gender_dropdown, expand=1),
-                                ft.Container(width=16),
-                                ft.Container(self.religion_field, expand=1)
-                            ])
-                        ], expand=True)
-                    ]),
-                    
-                    ft.Container(height=24),
-                    ft.Divider(color="#e2e8f0"),
-                    ft.Container(height=16),
-                    
-                    ft.Text(
-                        "Informations familiales",
-                        size=18,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b"
-                    ),
-                    ft.Container(height=16),
-                    
-                    ft.Row([
-                        ft.Container(self.father_name_field, expand=1),
+                        ft.Container(self.prenom_field, expand=1),
                         ft.Container(width=16),
-                        ft.Container(self.mother_name_field, expand=1)
+                        ft.Container(self.nom_field, expand=1)
                     ]),
-                    ft.Container(height=16),
-                    ft.Row([
-                        ft.Container(self.father_occupation_field, expand=1),
-                        ft.Container(width=16),
-                        ft.Container(self.mother_occupation_field, expand=1)
-                    ]),
-                    ft.Container(height=16),
-                    self.skills_field,
+                    ft.Container(height=20),
                     
-                    ft.Container(height=32),
+                    # Deuxième ligne - Date de naissance et Lieu de naissance
                     ft.Row([
-                        save_button,
+                        ft.Container(self.dob_field, expand=1),
                         ft.Container(width=16),
-                        reset_button
+                        ft.Container(self.lieu_naissance_field, expand=1)
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Troisième ligne - Numéro d'élève et Téléphone parent
+                    ft.Row([
+                        ft.Container(self.numero_eleve_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.telephone_parent_field, expand=1)
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Quatrième ligne - Genre et Classe
+                    ft.Row([
+                        ft.Container(self.genre_dropdown, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.classe_dropdown, expand=1)
+                    ]),
+                    ft.Container(height=30),
+                    
+                    # Bouton d'inscription
+                    ft.Row([
+                        submit_button
                     ], alignment=ft.MainAxisAlignment.START)
                 ]),
-                padding=32
+                padding=40,
+                bgcolor="#ffffff",
+                border_radius=12
             ),
             elevation=0,
             surface_tint_color="#ffffff",
@@ -698,11 +593,15 @@ class StudentRegistrationSystem:
     def save_student(self, e):
         """Enregistrer un nouvel élève"""
         # Validation des champs obligatoires
-        if not self.name_field.value:
-            self.show_snackbar("Le nom complet est obligatoire", error=True)
+        if not self.prenom_field.value:
+            self.show_snackbar("Le prénom est obligatoire", error=True)
             return
         
-        if not self.class_dropdown.value:
+        if not self.nom_field.value:
+            self.show_snackbar("Le nom est obligatoire", error=True)
+            return
+        
+        if not self.classe_dropdown.value:
             self.show_snackbar("La classe est obligatoire", error=True)
             return
         
@@ -710,61 +609,51 @@ class StudentRegistrationSystem:
             self.show_snackbar("La date de naissance est obligatoire", error=True)
             return
         
-        if not self.father_name_field.value:
-            self.show_snackbar("Le nom du père est obligatoire", error=True)
+        if not self.lieu_naissance_field.value:
+            self.show_snackbar("Le lieu de naissance est obligatoire", error=True)
             return
         
-        if not self.mother_name_field.value:
-            self.show_snackbar("Le nom de la mère est obligatoire", error=True)
+        if not self.telephone_parent_field.value:
+            self.show_snackbar("Le téléphone parent est obligatoire", error=True)
             return
+        
+        # Générer automatiquement le numéro d'inscription
+        students = self.data_manager.get_all_students()
+        next_id = len(students) + 1
+        auto_reg_no = f"STU{next_id:04d}"
         
         # Créer l'objet étudiant
         student_data = {
-            "id": self.reg_no_field.value,
-            "registration_no": self.reg_no_field.value,
-            "date_inscription": self.date_field.value,
-            "nom_complet": self.name_field.value,
-            "classe": self.class_dropdown.value,
+            "id": auto_reg_no,
+            "prenom": self.prenom_field.value,
+            "nom": self.nom_field.value,
+            "nom_complet": f"{self.prenom_field.value} {self.nom_field.value}",
             "date_naissance": self.dob_field.value,
-            "religion": self.religion_field.value or "",
-            "genre": self.gender_dropdown.value,
-            "competences": self.skills_field.value or "",
-            "nom_pere": self.father_name_field.value,
-            "nom_mere": self.mother_name_field.value,
-            "profession_pere": self.father_occupation_field.value or "",
-            "profession_mere": self.mother_occupation_field.value or "",
-            "photo_path": self.photo_path,
+            "lieu_naissance": self.lieu_naissance_field.value,
+            "numero_eleve": self.numero_eleve_field.value or auto_reg_no,
+            "telephone_parent": self.telephone_parent_field.value,
+            "genre": self.genre_dropdown.value,
+            "classe": self.classe_dropdown.value,
             "date_creation": datetime.now().isoformat()
         }
         
         # Sauvegarder l'élève
         if self.data_manager.add_student(student_data):
-            self.show_snackbar("Élève enregistré avec succès!")
+            self.show_snackbar("Élève inscrit avec succès!")
             self.reset_form(None)
         else:
-            self.show_snackbar("Erreur lors de l'enregistrement", error=True)
+            self.show_snackbar("Erreur lors de l'inscription", error=True)
     
     def reset_form(self, e):
         """Réinitialiser le formulaire"""
-        self.name_field.value = ""
-        self.class_dropdown.value = None
+        self.prenom_field.value = ""
+        self.nom_field.value = ""
         self.dob_field.value = ""
-        self.religion_field.value = ""
-        self.gender_dropdown.value = "Masculin"
-        self.skills_field.value = ""
-        self.father_name_field.value = ""
-        self.mother_name_field.value = ""
-        self.father_occupation_field.value = ""
-        self.mother_occupation_field.value = ""
-        self.photo_path = None
-        
-        # Réinitialiser l'affichage de la photo
-        self.photo_display.content = ft.Text("📷", size=80, color="#94a3b8")
-        
-        # Générer un nouveau numéro d'inscription
-        students = self.data_manager.get_all_students()
-        next_id = len(students) + 1
-        self.reg_no_field.value = f"STU{next_id:04d}"
+        self.lieu_naissance_field.value = ""
+        self.numero_eleve_field.value = ""
+        self.telephone_parent_field.value = ""
+        self.genre_dropdown.value = "Masculin"
+        self.classe_dropdown.value = None
         
         self.page.update()
     
