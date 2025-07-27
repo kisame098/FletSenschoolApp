@@ -90,15 +90,15 @@ class StudentRegistrationSystem:
         """Créer la sidebar moderne"""
         # Menu items avec icônes modernes
         menu_items = [
-            ("dashboard", "Tableau de bord", ft.icons.DASHBOARD, self.show_dashboard),
-            ("student_registration", "Inscription élève", ft.icons.PERSON_ADD, self.show_student_registration),
-            ("student_management", "Gestion des élèves", ft.icons.GROUPS, self.show_student_management),
-            ("teacher_registration", "Inscription professeur", ft.icons.PERSON_ADD_ALT, self.show_teacher_registration),
-            ("teacher_management", "Gestion des professeurs", ft.icons.SCHOOL, self.show_teacher_management),
-            ("class_management", "Gestion des classes", ft.icons.CLASS_, self.show_class_management),
-            ("grade_management", "Gestion des notes", ft.icons.GRADE, self.show_grade_management),
-            ("schedule", "Emploi du temps", ft.icons.SCHEDULE, self.show_schedule),
-            ("attendance", "Gestion des présences", ft.icons.FACT_CHECK, self.show_attendance)
+            ("dashboard", "Tableau de bord", "📊", self.show_dashboard),
+            ("student_registration", "Inscription élève", "👤", self.show_student_registration),
+            ("student_management", "Gestion des élèves", "👥", self.show_student_management),
+            ("teacher_registration", "Inscription professeur", "👨‍🏫", self.show_teacher_registration),
+            ("teacher_management", "Gestion des professeurs", "🏫", self.show_teacher_management),
+            ("class_management", "Gestion des classes", "🏛️", self.show_class_management),
+            ("grade_management", "Gestion des notes", "📝", self.show_grade_management),
+            ("schedule", "Emploi du temps", "📅", self.show_schedule),
+            ("attendance", "Gestion des présences", "✅", self.show_attendance)
         ]
         
         # Créer les boutons du menu
@@ -108,7 +108,7 @@ class StudentRegistrationSystem:
             
             button = ft.Container(
                 content=ft.Row([
-                    ft.Icon(
+                    ft.Text(
                         icon, 
                         color="#ffffff" if is_selected else "#cbd5e1",
                         size=20
@@ -193,15 +193,15 @@ class StudentRegistrationSystem:
     def create_navigation_menu(self):
         """Créer le menu de navigation avec la sélection actuelle"""
         menu_items = [
-            ("dashboard", "Tableau de bord", ft.icons.DASHBOARD, self.show_dashboard),
-            ("student_registration", "Inscription élève", ft.icons.PERSON_ADD, self.show_student_registration),
-            ("student_management", "Gestion des élèves", ft.icons.GROUPS, self.show_student_management),
-            ("teacher_registration", "Inscription professeur", ft.icons.PERSON_ADD_ALT, self.show_teacher_registration),
-            ("teacher_management", "Gestion des professeurs", ft.icons.SCHOOL, self.show_teacher_management),
-            ("class_management", "Gestion des classes", ft.icons.CLASS_, self.show_class_management),
-            ("grade_management", "Gestion des notes", ft.icons.GRADE, self.show_grade_management),
-            ("schedule", "Emploi du temps", ft.icons.SCHEDULE, self.show_schedule),
-            ("attendance", "Gestion des présences", ft.icons.FACT_CHECK, self.show_attendance)
+            ("dashboard", "Tableau de bord", "📊", self.show_dashboard),
+            ("student_registration", "Inscription élève", "👤", self.show_student_registration),
+            ("student_management", "Gestion des élèves", "👥", self.show_student_management),
+            ("teacher_registration", "Inscription professeur", "👨‍🏫", self.show_teacher_registration),
+            ("teacher_management", "Gestion des professeurs", "🏫", self.show_teacher_management),
+            ("class_management", "Gestion des classes", "🏛️", self.show_class_management),
+            ("grade_management", "Gestion des notes", "📝", self.show_grade_management),
+            ("schedule", "Emploi du temps", "📅", self.show_schedule),
+            ("attendance", "Gestion des présences", "✅", self.show_attendance)
         ]
         
         menu_buttons = []
@@ -210,7 +210,7 @@ class StudentRegistrationSystem:
             
             button = ft.Container(
                 content=ft.Row([
-                    ft.Icon(
+                    ft.Text(
                         icon, 
                         color="#ffffff" if is_selected else "#cbd5e1",
                         size=20
@@ -248,9 +248,9 @@ class StudentRegistrationSystem:
         classes_count = len(self.data_manager.get_all_classes())
         
         stats_data = [
-            (str(students_count), "Élèves inscrits", ft.icons.GROUPS, "#4f8fea"),
-            (str(teachers_count), "Professeurs actifs", ft.icons.SCHOOL, "#22c55e"),
-            (str(classes_count), "Classes disponibles", ft.icons.CLASS_, "#f59e0b")
+            (str(students_count), "Élèves inscrits", "👥", "#4f8fea"),
+            (str(teachers_count), "Professeurs actifs", "🏫", "#22c55e"),
+            (str(classes_count), "Classes disponibles", "🏛️", "#f59e0b")
         ]
         
         cards = []
@@ -260,7 +260,7 @@ class StudentRegistrationSystem:
                     content=ft.Column([
                         ft.Row([
                             ft.Container(
-                                content=ft.Icon(icon, color="white", size=22),
+                                content=ft.Text(icon, color="white", size=22),
                                 bgcolor=color,
                                 border_radius=10,
                                 width=48,
@@ -536,7 +536,7 @@ class StudentRegistrationSystem:
         
         # Section photo
         self.photo_display = ft.Container(
-            content=ft.Icon(ft.icons.PERSON, size=80, color="#94a3b8"),
+            content=ft.Text("📷", size=80, color="#94a3b8"),
             width=120,
             height=120,
             bgcolor="#f8fafc",
@@ -552,7 +552,7 @@ class StudentRegistrationSystem:
         
         photo_button = ft.ElevatedButton(
             "Choisir une photo",
-            icon=ft.icons.PHOTO_CAMERA,
+            icon="📷",
             on_click=lambda _: photo_picker.pick_files(
                 allow_multiple=False,
                 file_type=ft.FilePickerFileType.IMAGE
@@ -564,7 +564,7 @@ class StudentRegistrationSystem:
         # Boutons d'action
         save_button = ft.ElevatedButton(
             "Enregistrer l'élève",
-            icon=ft.icons.SAVE,
+            icon="📷",
             on_click=self.save_student,
             bgcolor="#4f46e5",
             color="#ffffff",
@@ -573,7 +573,7 @@ class StudentRegistrationSystem:
         
         reset_button = ft.OutlinedButton(
             "Réinitialiser",
-            icon=ft.icons.REFRESH,
+            icon="📷",
             on_click=self.reset_form,
             height=48
         )
@@ -759,7 +759,7 @@ class StudentRegistrationSystem:
         self.photo_path = None
         
         # Réinitialiser l'affichage de la photo
-        self.photo_display.content = ft.Icon(ft.icons.PERSON, size=80, color="#94a3b8")
+        self.photo_display.content = ft.Text("📷", size=80, color="#94a3b8")
         
         # Générer un nouveau numéro d'inscription
         students = self.data_manager.get_all_students()
@@ -792,7 +792,7 @@ class StudentRegistrationSystem:
                 ], expand=True),
                 ft.ElevatedButton(
                     "Nouvel élève",
-                    icon=ft.icons.ADD,
+                    icon="📷",
                     on_click=lambda _: self.show_student_registration(),
                     bgcolor="#4f46e5",
                     color="#ffffff"
@@ -825,7 +825,7 @@ class StudentRegistrationSystem:
             return ft.Card(
                 content=ft.Container(
                     content=ft.Column([
-                        ft.Icon(ft.icons.GROUPS, size=64, color="#94a3b8"),
+                        ft.Text("👥", size=64, color="#94a3b8"),
                         ft.Container(height=16),
                         ft.Text(
                             "Aucun élève enregistré",
@@ -861,13 +861,13 @@ class StudentRegistrationSystem:
                     ft.DataCell(
                         ft.Row([
                             ft.IconButton(
-                                icon=ft.icons.EDIT,
+                                icon="📷",
                                 icon_color="#4f46e5",
                                 tooltip="Modifier",
                                 on_click=lambda e, student_id=student.get("id"): self.edit_student(student_id)
                             ),
                             ft.IconButton(
-                                icon=ft.icons.DELETE,
+                                icon="📷",
                                 icon_color="#ef4444",
                                 tooltip="Supprimer",
                                 on_click=lambda e, student_id=student.get("id"): self.delete_student(student_id)
@@ -1085,7 +1085,7 @@ class StudentRegistrationSystem:
         # Boutons d'action
         save_teacher_button = ft.ElevatedButton(
             "Enregistrer le professeur",
-            icon=ft.icons.SAVE,
+            icon="📷",
             on_click=self.save_teacher,
             bgcolor="#4f46e5",
             color="#ffffff",
@@ -1094,7 +1094,7 @@ class StudentRegistrationSystem:
         
         reset_teacher_button = ft.OutlinedButton(
             "Réinitialiser",
-            icon=ft.icons.REFRESH,
+            icon="📷",
             on_click=self.reset_teacher_form,
             height=48
         )
@@ -1215,7 +1215,7 @@ class StudentRegistrationSystem:
                 ], expand=True),
                 ft.ElevatedButton(
                     "Nouveau professeur",
-                    icon=ft.icons.ADD,
+                    icon="📷",
                     on_click=lambda _: self.show_teacher_registration(),
                     bgcolor="#4f46e5",
                     color="#ffffff"
@@ -1248,7 +1248,7 @@ class StudentRegistrationSystem:
             return ft.Card(
                 content=ft.Container(
                     content=ft.Column([
-                        ft.Icon(ft.icons.SCHOOL, size=64, color="#94a3b8"),
+                        ft.Text("🏫", size=64, color="#94a3b8"),
                         ft.Container(height=16),
                         ft.Text(
                             "Aucun professeur enregistré",
@@ -1284,13 +1284,13 @@ class StudentRegistrationSystem:
                     ft.DataCell(
                         ft.Row([
                             ft.IconButton(
-                                icon=ft.icons.EDIT,
+                                icon="📷",
                                 icon_color="#4f46e5",
                                 tooltip="Modifier",
                                 on_click=lambda e, teacher_id=teacher.get("id"): self.edit_teacher(teacher_id)
                             ),
                             ft.IconButton(
-                                icon=ft.icons.DELETE,
+                                icon="📷",
                                 icon_color="#ef4444",
                                 tooltip="Supprimer",
                                 on_click=lambda e, teacher_id=teacher.get("id"): self.delete_teacher(teacher_id)
@@ -1640,11 +1640,11 @@ class StudentRegistrationSystem:
     def show_snackbar(self, message: str, error: bool = False):
         """Afficher un message de notification"""
         color = "#ef4444" if error else "#10b981"
-        icon = ft.icons.ERROR if error else ft.icons.CHECK_CIRCLE
+        icon = "❌" if error else "✅"
         
         snackbar = ft.SnackBar(
             content=ft.Row([
-                ft.Icon(icon, color="white", size=20),
+                ft.Text(icon, color="white", size=20),
                 ft.Text(message, color="white", weight=ft.FontWeight.W_500)
             ]),
             bgcolor=color,
