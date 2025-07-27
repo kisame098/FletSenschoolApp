@@ -460,7 +460,7 @@ class StudentRegistrationSystem:
                 last_date=datetime.now(),
                 on_change=self.on_date_change,
             )
-            if hasattr(self, 'page') and self.page:
+            if hasattr(self, 'page') and self.page and hasattr(self.page, 'overlay'):
                 self.page.overlay.append(self.date_picker)
         
         self.lieu_naissance_field = ft.TextField(
@@ -1508,9 +1508,13 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.dialog = dialog
-        dialog.open = True
-        self.page.update()
+        try:
+            self.page.dialog = dialog
+            dialog.open = True
+            self.page.update()
+        except Exception as ex:
+            print(f"Erreur dialog: {ex}")
+            self.show_snackbar("Erreur lors de l'ouverture du dialog", error=True)
     
     def show_edit_class_dialog(self, classe):
         """Afficher le dialog de modification de classe"""
@@ -1553,9 +1557,13 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.dialog = dialog
-        dialog.open = True
-        self.page.update()
+        try:
+            self.page.dialog = dialog
+            dialog.open = True
+            self.page.update()
+        except Exception as ex:
+            print(f"Erreur dialog édition: {ex}")
+            self.show_snackbar("Erreur lors de l'ouverture du dialog", error=True)
     
     def create_class(self, e):
         """Créer une nouvelle classe"""
@@ -1622,9 +1630,13 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.dialog = dialog
-        dialog.open = True
-        self.page.update()
+        try:
+            self.page.dialog = dialog
+            dialog.open = True
+            self.page.update()
+        except Exception as ex:
+            print(f"Erreur dialog suppression: {ex}")
+            self.show_snackbar("Erreur lors de l'ouverture du dialog", error=True)
     
     def delete_class(self, classe):
         """Supprimer une classe"""
@@ -1638,7 +1650,7 @@ class StudentRegistrationSystem:
     
     def close_class_dialog(self, e):
         """Fermer le dialog de classe"""
-        if hasattr(self, 'page') and self.page.dialog:
+        if hasattr(self, 'page') and self.page and hasattr(self.page, 'dialog') and self.page.dialog:
             self.page.dialog.open = False
             self.page.update()
     
