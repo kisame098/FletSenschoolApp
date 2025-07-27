@@ -477,15 +477,16 @@ class StudentRegistrationSystem:
         next_id = len(students)
         
         self.student_id_field = ft.TextField(
-            label="ID Élève",
+            label="ID",
             value=str(next_id),
             bgcolor="#f8fafc",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#e2e8f0",
-            expand=True,
+            width=80,
             read_only=True,
-            text_style=ft.TextStyle(color="#64748b", weight=ft.FontWeight.BOLD)
+            text_style=ft.TextStyle(color="#64748b", weight=ft.FontWeight.BOLD),
+            text_align=ft.TextAlign.CENTER
         )
         
         self.numero_eleve_field = ft.TextField(
@@ -552,37 +553,17 @@ class StudentRegistrationSystem:
             )
         )
         
-        # Zone encadrée pour l'ID élève
-        id_section = ft.Container(
-            content=ft.Column([
-                ft.Text(
-                    "Identifiant élève",
-                    size=14,
-                    weight=ft.FontWeight.BOLD,
-                    color="#1e293b"
-                ),
-                ft.Container(height=8),
-                self.student_id_field
-            ]),
-            padding=16,
-            bgcolor="#fff7ed",
-            border_radius=8,
-            border=ft.border.all(2, "#fb923c")
-        )
-        
         # Créer le formulaire selon le design de l'image
         form_card = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    # Zone ID encadrée en haut
-                    id_section,
-                    ft.Container(height=24),
-                    
-                    # Première ligne - Prénom et Nom
+                    # Première ligne - Prénom, Nom et ID (petit à droite)
                     ft.Row([
                         ft.Container(self.prenom_field, expand=1),
                         ft.Container(width=16),
-                        ft.Container(self.nom_field, expand=1)
+                        ft.Container(self.nom_field, expand=1),
+                        ft.Container(width=16),
+                        self.student_id_field  # Petit champ fixe à droite
                     ]),
                     ft.Container(height=20),
                     
@@ -871,8 +852,9 @@ class StudentRegistrationSystem:
             
             row_cells = [
                 ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
-                ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)),
                 ft.DataCell(ft.Text(student.get("nom_complet", ""), size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("telephone_parent", ""), size=12)),
             ]
             
             # Ajouter la colonne classe seulement si "Toutes les classes" est sélectionné
@@ -907,8 +889,9 @@ class StudentRegistrationSystem:
         # Colonnes (sans classe si classe spécifique sélectionnée)
         columns = [
             ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("N° Inscription", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Nom complet", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("N° Élève", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("N° Parent", weight=ft.FontWeight.BOLD, size=12)),
         ]
         
         if selected_class == "Toutes les classes":
