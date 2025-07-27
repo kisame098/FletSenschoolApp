@@ -7,11 +7,15 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 ## Recent Changes
 
 ### Dernières améliorations (27/07/2025)
-- **Gestion complète des classes**: Système complet de création, modification et suppression des classes
-- **Interface de date améliorée**: Formatage automatique et calendrier pour les dates de naissance  
-- **Correction scrollbar sidebar**: Résolution du problème de défilement dans le menu de navigation
-- **Validation des classes**: Seules les classes créées dans "Gestion des classes" sont disponibles pour l'inscription
-- **Compteur d'élèves**: Affichage du nombre d'élèves par classe
+- **Système de popups complet**: Tous les dialogs utilisent maintenant `page.open()` pour un affichage correct
+- **ID élève automatique**: Champ ID séquentiel (0, 1, 2...) non-modifiable avec zone encadrée orange
+- **Gestion des élèves avancée**: 
+  - Sélecteur de classe avec filtrage des élèves par classe
+  - Suppression de la colonne classe quand une classe spécifique est sélectionnée
+  - Scrollbars horizontal et vertical pour la table des élèves
+  - Tri automatique des élèves par ID
+- **Correction des erreurs IconButton**: Remplacement des icones invalides par des icones Material Design
+- **Interface utilisateur améliorée**: Zone ID encadrée en orange dans le formulaire d'inscription
 
 ## User Preferences
 

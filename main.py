@@ -472,6 +472,22 @@ class StudentRegistrationSystem:
             expand=True
         )
         
+        # Champ ID auto-généré (non modifiable)
+        students = self.data_manager.get_all_students()
+        next_id = len(students)
+        
+        self.student_id_field = ft.TextField(
+            label="ID Élève",
+            value=str(next_id),
+            bgcolor="#f8fafc",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#e2e8f0",
+            expand=True,
+            read_only=True,
+            text_style=ft.TextStyle(color="#64748b", weight=ft.FontWeight.BOLD)
+        )
+        
         self.numero_eleve_field = ft.TextField(
             label="Numéro d'élève",
             bgcolor="#ffffff",
@@ -536,10 +552,32 @@ class StudentRegistrationSystem:
             )
         )
         
+        # Zone encadrée pour l'ID élève
+        id_section = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Identifiant élève",
+                    size=14,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Container(height=8),
+                self.student_id_field
+            ]),
+            padding=16,
+            bgcolor="#fff7ed",
+            border_radius=8,
+            border=ft.border.all(2, "#fb923c")
+        )
+        
         # Créer le formulaire selon le design de l'image
         form_card = ft.Card(
             content=ft.Container(
                 content=ft.Column([
+                    # Zone ID encadrée en haut
+                    id_section,
+                    ft.Container(height=24),
+                    
                     # Première ligne - Prénom et Nom
                     ft.Row([
                         ft.Container(self.prenom_field, expand=1),
@@ -656,21 +694,20 @@ class StudentRegistrationSystem:
             self.show_snackbar("Le téléphone parent est obligatoire", error=True)
             return
         
-        # Générer automatiquement le numéro d'inscription
-        students = self.data_manager.get_all_students()
-        next_id = len(students) + 1
-        auto_reg_no = f"STU{next_id:04d}"
+        # Utiliser l'ID séquentiel
+        student_id = int(self.student_id_field.value)
         
         # Créer l'objet étudiant
         student_data = {
-            "id": auto_reg_no,
-            "prenom": self.prenom_field.value,
-            "nom": self.nom_field.value,
-            "nom_complet": f"{self.prenom_field.value} {self.nom_field.value}",
+            "id": student_id,
+            "student_id": student_id,  # ID séquentiel pour affichage
+            "prenom": self.prenom_field.value.strip(),
+            "nom": self.nom_field.value.strip(),
+            "nom_complet": f"{self.prenom_field.value.strip()} {self.nom_field.value.strip()}",
             "date_naissance": self.dob_field.value,
-            "lieu_naissance": self.lieu_naissance_field.value,
-            "numero_eleve": self.numero_eleve_field.value or auto_reg_no,
-            "telephone_parent": self.telephone_parent_field.value,
+            "lieu_naissance": self.lieu_naissance_field.value.strip(),
+            "numero_eleve": self.numero_eleve_field.value.strip() if self.numero_eleve_field.value else f"E{student_id:03d}",
+            "telephone_parent": self.telephone_parent_field.value.strip(),
             "genre": self.genre_dropdown.value,
             "classe": self.classe_dropdown.value,
             "date_creation": datetime.now().isoformat()
@@ -684,7 +721,7 @@ class StudentRegistrationSystem:
             self.show_snackbar("Erreur lors de l'inscription", error=True)
     
     def reset_form(self, e):
-        """Réinitialiser le formulaire"""
+        """Réinitialiser le formulaire""" 
         self.prenom_field.value = ""
         self.nom_field.value = ""
         self.dob_field.value = ""
@@ -694,6 +731,11 @@ class StudentRegistrationSystem:
         self.genre_dropdown.value = "Masculin"
         self.classe_dropdown.value = None
         
+        # Mettre à jour l'ID pour le prochain élève
+        students = self.data_manager.get_all_students()
+        next_id = len(students)
+        self.student_id_field.value = str(next_id)
+        
         self.page.update()
     
     def show_student_management(self):
@@ -701,51 +743,226 @@ class StudentRegistrationSystem:
         self.current_page = "student_management"
         self.clear_main_content()
         
+        # Récupérer les classes disponibles
+        classes = self.data_manager.get_all_classes()
+        class_options = [ft.dropdown.Option("Toutes les classes")]
+        
+        if classes:
+            for classe in classes:
+                class_options.append(ft.dropdown.Option(classe.get("nom", "")))
+        
+        # Sélecteur de classe
+        self.class_filter_dropdown = ft.Dropdown(
+            label="Sélectionner une classe",
+            options=class_options,
+            value="Toutes les classes",
+            bgcolor="#ffffff",
+            border_radius=8,
+            width=250,
+            on_change=self.filter_students_by_class
+        )
+        
         # En-tête
         header = ft.Container(
-            content=ft.Row([
-                ft.Column([
-                    ft.Text(
-                        "Gestion des élèves",
-                        size=28,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b"
-                    ),
-                    ft.Text(
-                        "Consulter et modifier les informations des élèves",
-                        size=15,
-                        color="#64748b",
-                        weight=ft.FontWeight.W_400
+            content=ft.Column([
+                ft.Row([
+                    ft.Column([
+                        ft.Text(
+                            "Gestion des élèves",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Consulter et modifier les informations des élèves",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True),
+                    ft.ElevatedButton(
+                        "Nouvel élève",
+                        icon="person_add",
+                        on_click=lambda _: self.show_student_registration(),
+                        bgcolor="#4f46e5",
+                        color="#ffffff"
                     )
-                ], expand=True),
-                ft.ElevatedButton(
-                    "Nouvel élève",
-                    icon="📷",
-                    on_click=lambda _: self.show_student_registration(),
-                    bgcolor="#4f46e5",
-                    color="#ffffff"
-                )
+                ]),
+                ft.Container(height=20),
+                ft.Row([
+                    self.class_filter_dropdown
+                ])
             ]),
             padding=ft.padding.all(32),
             bgcolor="#f8fafc"
         )
         
-        # Table des élèves
-        students_table = self.create_students_table()
+        # Table des élèves (sera mise à jour par le filtre)
+        self.students_table_container = ft.Container()
+        self.filter_students_by_class(None)  # Charger tous les élèves initialement
         
         # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=ft.Column([
-                    students_table
-                ], scroll=ft.ScrollMode.AUTO),
+                content=self.students_table_container,
                 padding=ft.padding.all(32),
                 expand=True
             )
         ])
         
         self.page.update()
+    
+    def filter_students_by_class(self, e):
+        """Filtrer les élèves par classe sélectionnée"""
+        selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
+        
+        if selected_class == "Toutes les classes":
+            students = self.data_manager.get_all_students()
+        else:
+            students = self.data_manager.get_students_by_class(selected_class)
+        
+        # Trier les étudiants par ID
+        students.sort(key=lambda x: x.get("student_id", x.get("id", 0)))
+        
+        # Créer la table avec scrollbars
+        students_table = self.create_filtered_students_table(students, selected_class)
+        self.students_table_container.content = students_table
+        
+        if hasattr(self, 'page') and self.page:
+            self.page.update()
+    
+    def create_filtered_students_table(self, students, selected_class):
+        """Créer la table des élèves filtrée avec scrollbars"""
+        
+        if not students:
+            return ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon("school", size=64, color="#cbd5e1"),
+                        ft.Container(height=16),
+                        ft.Text(
+                            f"Aucun élève trouvé" + (f" dans la classe '{selected_class}'" if selected_class != "Toutes les classes" else ""),
+                            size=16,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=16),
+                        ft.ElevatedButton(
+                            "Inscrire un élève",
+                            icon="person_add",
+                            on_click=lambda _: self.show_student_registration(),
+                            bgcolor="#4f46e5",
+                            color="#ffffff"
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=40,
+                    alignment=ft.alignment.center
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+        
+        # Créer les lignes du tableau (sans colonne classe si classe spécifique sélectionnée)
+        rows = []
+        for student in students:
+            student_id = student.get("student_id", student.get("id", ""))
+            
+            row_cells = [
+                ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
+                ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("nom_complet", ""), size=12, weight=ft.FontWeight.W_500)),
+            ]
+            
+            # Ajouter la colonne classe seulement si "Toutes les classes" est sélectionné
+            if selected_class == "Toutes les classes":
+                row_cells.append(ft.DataCell(ft.Text(student.get("classe", ""), size=12)))
+            
+            row_cells.extend([
+                ft.DataCell(ft.Text(student.get("date_naissance", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("genre", ""), size=12)),
+                ft.DataCell(
+                    ft.Row([
+                        ft.IconButton(
+                            icon="edit",
+                            icon_color="#4f46e5",
+                            tooltip="Modifier",
+                            icon_size=16,
+                            on_click=lambda e, student_id=student.get("id"): self.edit_student(student_id)
+                        ),
+                        ft.IconButton(
+                            icon="delete",
+                            icon_color="#ef4444",
+                            tooltip="Supprimer",
+                            icon_size=16,
+                            on_click=lambda e, student_id=student.get("id"): self.delete_student(student_id)
+                        )
+                    ], spacing=0)
+                )
+            ])
+            
+            rows.append(ft.DataRow(row_cells))
+        
+        # Colonnes (sans classe si classe spécifique sélectionnée)
+        columns = [
+            ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("N° Inscription", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Nom complet", weight=ft.FontWeight.BOLD, size=12)),
+        ]
+        
+        if selected_class == "Toutes les classes":
+            columns.append(ft.DataColumn(ft.Text("Classe", weight=ft.FontWeight.BOLD, size=12)))
+        
+        columns.extend([
+            ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12))
+        ])
+        
+        data_table = ft.DataTable(
+            columns=columns,
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            heading_row_color="#f8fafc"
+        )
+        
+        # Container avec scrollbars horizontal et vertical
+        scrollable_table = ft.Container(
+            content=data_table,
+            border_radius=8,
+            bgcolor="#ffffff",
+            padding=0
+        )
+        
+        return ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(students)} élève(s)" + (f" - Classe: {selected_class}" if selected_class != "Toutes les classes" else ""),
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        )
+                    ]),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=scrollable_table,
+                        height=400,  # Hauteur fixe pour permettre le scroll vertical
+                        border_radius=8,
+                        clip_behavior=ft.ClipBehavior.HARD_EDGE
+                    )
+                ], scroll=ft.ScrollMode.AUTO),
+                padding=24
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
     
     def create_students_table(self):
         """Créer le tableau des élèves"""

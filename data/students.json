@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": "STU0001",
+    "prenom": "AWA",
+    "nom": "SARR",
+    "nom_complet": "AWA SARR",
+    "date_naissance": "11/11/2003",
+    "lieu_naissance": "DAKAR",
+    "numero_eleve": "+221775543211",
+    "telephone_parent": "+221778900900",
+    "genre": "Féminin",
+    "classe": "TS2",
+    "date_creation": "2025-07-27T12:43:49.450160"
+  }
+]

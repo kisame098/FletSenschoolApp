@@ -102,6 +102,11 @@ class DataManager:
         students = [s for s in students if s.get("id") != student_id]
         return self._save_data(self.students_file, students)
     
+    def get_students_by_class(self, class_name: str) -> List[Dict]:
+        """Récupérer tous les étudiants d'une classe spécifique"""
+        students = self.get_all_students()
+        return [s for s in students if s.get("classe") == class_name]
+    
     # Gestion des professeurs
     def get_all_teachers(self) -> List[Dict]:
         """Récupérer tous les professeurs"""
