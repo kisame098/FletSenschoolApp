@@ -1470,103 +1470,54 @@ class StudentRegistrationSystem:
         )
     
     def show_create_class_dialog(self, e):
-        """Afficher le formulaire de création de classe dans l'interface principale"""
+        """Afficher le popup de création de classe"""
         print("show_create_class_dialog appelé")
         
-        # Créer le formulaire de création de classe dans l'interface principale
         self.class_name_field = ft.TextField(
             label="Nom de la classe *",
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=400,
+            width=300,
             autofocus=True
         )
         
-        # Formulaire de création inline
-        create_form = ft.Card(
+        self.create_class_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Créer une nouvelle classe"),
             content=ft.Container(
                 content=ft.Column([
-                    ft.Row([
-                        ft.Text(
-                            "Créer une nouvelle classe",
-                            size=20,
-                            weight=ft.FontWeight.BOLD,
-                            color="#1e293b"
-                        ),
-                        ft.IconButton(
-                            icon="close",
-                            icon_color="#64748b",
-                            tooltip="Fermer",
-                            on_click=self.cancel_create_class
-                        )
-                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    ft.Container(height=16),
                     self.class_name_field,
                     ft.Container(height=8),
                     ft.Text(
                         "Saisissez le nom de la classe (ex: CP, CE1, 6ème, etc.)",
                         size=12,
                         color="#64748b"
-                    ),
-                    ft.Container(height=20),
-                    ft.Row([
-                        ft.ElevatedButton(
-                            "Annuler",
-                            bgcolor="#64748b",
-                            color="#ffffff",
-                            on_click=self.cancel_create_class
-                        ),
-                        ft.ElevatedButton(
-                            "Créer la classe",
-                            bgcolor="#4f46e5",
-                            color="#ffffff",
-                            on_click=self.create_class
-                        )
-                    ], alignment=ft.MainAxisAlignment.END, spacing=12)
-                ]),
-                padding=24,
-                bgcolor="#ffffff"
+                    )
+                ], tight=True),
+                width=300,
+                height=120
             ),
-            elevation=4,
-            color="#ffffff"
+            actions=[
+                ft.TextButton("Annuler", on_click=self.close_create_class_dialog),
+                ft.ElevatedButton(
+                    "Créer",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    on_click=self.create_class
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        # Remplacer le contenu principal par le formulaire
-        self.main_content.content = ft.Column([
-            ft.Container(
-                content=ft.Column([
-                    ft.Text(
-                        "Gestion des classes",
-                        size=28,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b"
-                    ),
-                    ft.Text(
-                        "Créer une nouvelle classe",
-                        size=15,
-                        color="#64748b",
-                        weight=ft.FontWeight.W_400
-                    )
-                ]),
-                padding=ft.padding.all(32),
-                bgcolor="#f8fafc"
-            ),
-            ft.Container(
-                content=create_form,
-                padding=ft.padding.all(32),
-                expand=True
-            )
-        ])
-        
-        print("Formulaire de création affiché")
-        self.page.update()
+        print("Ouverture du popup...")
+        self.page.open(self.create_class_dialog)
     
-    def cancel_create_class(self, e):
-        """Annuler la création de classe et retourner à la liste"""
-        print("Annulation création classe")
-        self.show_class_management()
+    def close_create_class_dialog(self, e):
+        """Fermer le popup de création de classe"""
+        print("Fermeture popup création classe")
+        self.page.close(self.create_class_dialog)
     
     def create_class(self, e):
         """Créer une nouvelle classe"""
@@ -1590,14 +1541,18 @@ class StudentRegistrationSystem:
         
         if self.data_manager.add_class(class_data):
             self.show_snackbar("Classe créée avec succès!")
-            print("Classe sauvegardée, retour à la liste")
-            self.show_class_management()
+            print("Classe sauvegardée, fermeture popup")
+            self.page.close(self.create_class_dialog)
+            self.load_classes()  # Recharger la liste des classes
+            self.page.update()
         else:
             self.show_snackbar("Une classe avec ce nom existe déjà", error=True)
     
     def show_edit_class_dialog(self, classe):
-        """Afficher le dialog de modification de classe"""
+        """Afficher le popup de modification de classe"""
+        print(f"show_edit_class_dialog appelé pour {classe['nom']}")
         self.editing_class = classe
+        
         self.class_name_field = ft.TextField(
             label="Nom de la classe *",
             value=classe.get("nom", ""),
@@ -1605,12 +1560,13 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=300
+            width=300,
+            autofocus=True
         )
         
-        dialog = ft.AlertDialog(
+        self.edit_class_dialog = ft.AlertDialog(
             modal=True,
-            title=ft.Text("Modifier la classe"),
+            title=ft.Text(f"Modifier la classe '{classe['nom']}'"),
             content=ft.Container(
                 content=ft.Column([
                     self.class_name_field,
@@ -1625,7 +1581,7 @@ class StudentRegistrationSystem:
                 height=120
             ),
             actions=[
-                ft.TextButton("Annuler", on_click=self.close_class_dialog),
+                ft.TextButton("Annuler", on_click=self.close_edit_class_dialog),
                 ft.ElevatedButton(
                     "Modifier",
                     bgcolor="#4f46e5",
@@ -1636,36 +1592,13 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        try:
-            self.page.dialog = dialog
-            dialog.open = True
-            self.page.update()
-        except Exception as ex:
-            print(f"Erreur dialog édition: {ex}")
-            self.show_snackbar("Erreur lors de l'ouverture du dialog", error=True)
+        print("Ouverture du popup de modification...")
+        self.page.open(self.edit_class_dialog)
     
-    def create_class(self, e):
-        """Créer une nouvelle classe"""
-        if not self.class_name_field.value:
-            self.show_snackbar("Le nom de la classe est obligatoire", error=True)
-            return
-        
-        # Générer un ID unique basé sur le nom
-        class_id = self.class_name_field.value.upper().replace(" ", "_")
-        
-        class_data = {
-            "id": class_id,
-            "nom": self.class_name_field.value,
-            "date_creation": datetime.now().isoformat()
-        }
-        
-        if self.data_manager.add_class(class_data):
-            self.show_snackbar("Classe créée avec succès!")
-            self.close_class_dialog(e)
-            self.load_classes()
-            self.page.update()
-        else:
-            self.show_snackbar("Une classe avec ce nom existe déjà", error=True)
+    def close_edit_class_dialog(self, e):
+        """Fermer le popup de modification de classe"""
+        print("Fermeture popup modification classe")
+        self.page.close(self.edit_class_dialog)
     
     def update_class(self, e):
         """Mettre à jour une classe existante"""
@@ -1681,25 +1614,28 @@ class StudentRegistrationSystem:
         
         if self.data_manager.update_class(self.editing_class["id"], class_data):
             self.show_snackbar("Classe modifiée avec succès!")
-            print("Classe modifiée, retour à la liste")
-            self.show_class_management()
+            print("Classe modifiée, fermeture popup")
+            self.page.close(self.edit_class_dialog)
+            self.load_classes()  # Recharger la liste des classes
+            self.page.update()
         else:
             self.show_snackbar("Erreur lors de la modification", error=True)
     
     def confirm_delete_class(self, classe):
         """Confirmer la suppression d'une classe"""
+        print(f"confirm_delete_class appelé pour {classe['nom']}")
         student_count = self.data_manager.get_students_count_in_class(classe.get("nom", ""))
         
         message = f"Êtes-vous sûr de vouloir supprimer la classe '{classe.get('nom', '')}'?"
         if student_count > 0:
             message += f"\n\nAttention: Cette classe contient {student_count} élève(s). Ils devront être réassignés à d'autres classes."
         
-        dialog = ft.AlertDialog(
+        self.delete_class_dialog = ft.AlertDialog(
             modal=True,
             title=ft.Text("Confirmer la suppression"),
             content=ft.Text(message),
             actions=[
-                ft.TextButton("Annuler", on_click=self.close_class_dialog),
+                ft.TextButton("Annuler", on_click=self.close_delete_class_dialog),
                 ft.ElevatedButton(
                     "Supprimer",
                     bgcolor="#ef4444",
@@ -1710,20 +1646,22 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        try:
-            self.page.dialog = dialog
-            dialog.open = True
-            self.page.update()
-        except Exception as ex:
-            print(f"Erreur dialog suppression: {ex}")
-            self.show_snackbar("Erreur lors de l'ouverture du dialog", error=True)
+        print("Ouverture du popup de confirmation de suppression...")
+        self.page.open(self.delete_class_dialog)
+    
+    def close_delete_class_dialog(self, e):
+        """Fermer le popup de confirmation de suppression"""
+        print("Fermeture popup suppression classe")
+        self.page.close(self.delete_class_dialog)
     
     def delete_class(self, classe):
         """Supprimer une classe"""
+        print(f"Suppression de la classe {classe['nom']}")
         if self.data_manager.delete_class(classe["id"]):
             self.show_snackbar("Classe supprimée avec succès!")
-            self.close_class_dialog(None)
-            self.load_classes()
+            print("Classe supprimée, fermeture popup")
+            self.page.close(self.delete_class_dialog)
+            self.load_classes()  # Recharger la liste des classes
             self.page.update()
         else:
             self.show_snackbar("Erreur lors de la suppression", error=True)
