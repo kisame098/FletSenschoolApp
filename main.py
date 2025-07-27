@@ -502,26 +502,25 @@ class StudentRegistrationSystem:
             expand=True
         )
         
+        # Récupérer les classes créées
+        classes = self.data_manager.get_all_classes()
+        class_options = []
+        
+        if classes:
+            for classe in classes:
+                class_options.append(ft.dropdown.Option(classe.get("nom", "")))
+        else:
+            # Si aucune classe n'existe, afficher un message d'aide
+            class_options.append(ft.dropdown.Option("Aucune classe disponible"))
+        
         self.classe_dropdown = ft.Dropdown(
             label="Classe *",
-            hint_text="Sélectionner une classe",
-            options=[
-                ft.dropdown.Option("CP"),
-                ft.dropdown.Option("CE1"),
-                ft.dropdown.Option("CE2"),
-                ft.dropdown.Option("CM1"),
-                ft.dropdown.Option("CM2"),
-                ft.dropdown.Option("6ème"),
-                ft.dropdown.Option("5ème"),
-                ft.dropdown.Option("4ème"),
-                ft.dropdown.Option("3ème"),
-                ft.dropdown.Option("2nde"),
-                ft.dropdown.Option("1ère"),
-                ft.dropdown.Option("Terminale"),
-            ],
+            hint_text="Sélectionner une classe" if classes else "Créez d'abord des classes dans 'Gestion des classes'",
+            options=class_options,
             bgcolor="#ffffff",
             border_radius=8,
-            expand=True
+            expand=True,
+            disabled=not classes  # Désactiver si aucune classe n'existe
         )
         
         # Bouton d'inscription
@@ -641,8 +640,8 @@ class StudentRegistrationSystem:
             self.show_snackbar("Le nom est obligatoire", error=True)
             return
         
-        if not self.classe_dropdown.value:
-            self.show_snackbar("La classe est obligatoire", error=True)
+        if not self.classe_dropdown.value or self.classe_dropdown.value == "Aucune classe disponible":
+            self.show_snackbar("Veuillez sélectionner une classe valide ou créer des classes dans 'Gestion des classes'", error=True)
             return
         
         if not self.dob_field.value:
@@ -1328,63 +1327,320 @@ class StudentRegistrationSystem:
         self.current_page = "class_management"
         self.clear_main_content()
         
+        # En-tête
         header = ft.Container(
-            content=ft.Column([
-                ft.Text(
-                    "Gestion des classes",
-                    size=28,
-                    weight=ft.FontWeight.BOLD,
-                    color="#1e293b"
-                ),
-                ft.Text(
-                    "Organiser les classes et affecter les professeurs",
-                    size=15,
-                    color="#64748b",
-                    weight=ft.FontWeight.W_400
+            content=ft.Row([
+                ft.Column([
+                    ft.Text(
+                        "Gestion des classes",
+                        size=28,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Text(
+                        "Créer et gérer les classes de l'établissement",
+                        size=15,
+                        color="#64748b",
+                        weight=ft.FontWeight.W_400
+                    )
+                ], expand=True),
+                ft.ElevatedButton(
+                    "➕ Créer une classe",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    height=40,
+                    on_click=self.show_create_class_dialog,
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=8)
+                    )
                 )
-            ]),
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             padding=ft.padding.all(32),
             bgcolor="#f8fafc"
         )
         
-        # Contenu de gestion des classes
-        content = ft.Card(
+        # Liste des classes
+        self.classes_list = ft.Column(
+            spacing=12,
+            scroll=ft.ScrollMode.AUTO
+        )
+        
+        # Charger les classes existantes
+        self.load_classes()
+        
+        # Contenu principal
+        content = ft.Container(
+            content=self.classes_list,
+            padding=ft.padding.all(32),
+            expand=True
+        )
+        
+        self.main_content.content = ft.Column([
+            header,
+            content
+        ])
+        
+        self.page.update()
+    
+    def load_classes(self):
+        """Charger et afficher la liste des classes"""
+        classes = self.data_manager.get_all_classes()
+        self.classes_list.controls.clear()
+        
+        if not classes:
+            # Message si aucune classe n'existe
+            empty_message = ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon("school", size=48, color="#94a3b8"),
+                        ft.Text(
+                            "Aucune classe créée",
+                            size=18,
+                            weight=ft.FontWeight.BOLD,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Text(
+                            "Cliquez sur 'Créer une classe' pour commencer",
+                            size=14,
+                            color="#94a3b8",
+                            text_align=ft.TextAlign.CENTER
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=16),
+                    padding=40,
+                    alignment=ft.alignment.center
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+            self.classes_list.controls.append(empty_message)
+        else:
+            for classe in classes:
+                student_count = self.data_manager.get_students_count_in_class(classe.get("nom", ""))
+                class_card = self.create_class_card(classe, student_count)
+                self.classes_list.controls.append(class_card)
+    
+    def create_class_card(self, classe, student_count):
+        """Créer une carte pour une classe"""
+        return ft.Card(
             content=ft.Container(
-                content=ft.Column([
-                    ft.Text(
-                        "🏫 Gestion des classes",
-                        size=18,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b"
-                    ),
-                    ft.Container(height=16),
-                    ft.Text(
-                        "Cette section permettra de :\n\n"
-                        "• Créer et organiser les classes\n"
-                        "• Affecter les professeurs aux classes\n"
-                        "• Gérer les emplois du temps\n"
-                        "• Suivre les effectifs par classe",
-                        size=14,
-                        color="#64748b"
-                    )
-                ]),
-                padding=32
+                content=ft.Row([
+                    # Informations de la classe
+                    ft.Column([
+                        ft.Text(
+                            classe.get("nom", ""),
+                            size=18,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            f"{student_count} élève(s)",
+                            size=14,
+                            color="#64748b"
+                        ),
+                        ft.Text(
+                            f"Créée le: {classe.get('date_creation', 'Date inconnue')[:10] if classe.get('date_creation') else 'Date inconnue'}",
+                            size=12,
+                            color="#94a3b8"
+                        )
+                    ], expand=True),
+                    
+                    # Actions
+                    ft.Row([
+                        ft.IconButton(
+                            icon="edit",
+                            icon_color="#4f46e5",
+                            tooltip="Modifier la classe",
+                            on_click=lambda e, c=classe: self.show_edit_class_dialog(c)
+                        ),
+                        ft.IconButton(
+                            icon="delete",
+                            icon_color="#ef4444",
+                            tooltip="Supprimer la classe",
+                            on_click=lambda e, c=classe: self.confirm_delete_class(c)
+                        )
+                    ], spacing=8)
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                padding=24
             ),
             elevation=0,
             surface_tint_color="#ffffff",
             color="#ffffff"
         )
+    
+    def show_create_class_dialog(self, e):
+        """Afficher le dialog de création de classe"""
+        self.class_name_field = ft.TextField(
+            label="Nom de la classe *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=300
+        )
         
-        self.main_content.content = ft.Column([
-            header,
-            ft.Container(
-                content=content,
-                padding=ft.padding.all(32),
-                expand=True
-            )
-        ])
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Créer une nouvelle classe"),
+            content=ft.Container(
+                content=ft.Column([
+                    self.class_name_field,
+                    ft.Container(height=8),
+                    ft.Text(
+                        "Saisissez le nom de la classe (ex: CP, CE1, 6ème, etc.)",
+                        size=12,
+                        color="#64748b"
+                    )
+                ], tight=True),
+                width=300,
+                height=120
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=self.close_class_dialog),
+                ft.ElevatedButton(
+                    "Créer",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    on_click=self.create_class
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
         
+        self.page.dialog = dialog
+        dialog.open = True
         self.page.update()
+    
+    def show_edit_class_dialog(self, classe):
+        """Afficher le dialog de modification de classe"""
+        self.editing_class = classe
+        self.class_name_field = ft.TextField(
+            label="Nom de la classe *",
+            value=classe.get("nom", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=300
+        )
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Modifier la classe"),
+            content=ft.Container(
+                content=ft.Column([
+                    self.class_name_field,
+                    ft.Container(height=8),
+                    ft.Text(
+                        "Modifiez le nom de la classe",
+                        size=12,
+                        color="#64748b"
+                    )
+                ], tight=True),
+                width=300,
+                height=120
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=self.close_class_dialog),
+                ft.ElevatedButton(
+                    "Modifier",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    on_click=self.update_class
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+    
+    def create_class(self, e):
+        """Créer une nouvelle classe"""
+        if not self.class_name_field.value:
+            self.show_snackbar("Le nom de la classe est obligatoire", error=True)
+            return
+        
+        # Générer un ID unique basé sur le nom
+        class_id = self.class_name_field.value.upper().replace(" ", "_")
+        
+        class_data = {
+            "id": class_id,
+            "nom": self.class_name_field.value,
+            "date_creation": datetime.now().isoformat()
+        }
+        
+        if self.data_manager.add_class(class_data):
+            self.show_snackbar("Classe créée avec succès!")
+            self.close_class_dialog(e)
+            self.load_classes()
+            self.page.update()
+        else:
+            self.show_snackbar("Une classe avec ce nom existe déjà", error=True)
+    
+    def update_class(self, e):
+        """Mettre à jour une classe existante"""
+        if not self.class_name_field.value:
+            self.show_snackbar("Le nom de la classe est obligatoire", error=True)
+            return
+        
+        class_data = {
+            "nom": self.class_name_field.value
+        }
+        
+        if self.data_manager.update_class(self.editing_class["id"], class_data):
+            self.show_snackbar("Classe modifiée avec succès!")
+            self.close_class_dialog(e)
+            self.load_classes()
+            self.page.update()
+        else:
+            self.show_snackbar("Erreur lors de la modification", error=True)
+    
+    def confirm_delete_class(self, classe):
+        """Confirmer la suppression d'une classe"""
+        student_count = self.data_manager.get_students_count_in_class(classe.get("nom", ""))
+        
+        message = f"Êtes-vous sûr de vouloir supprimer la classe '{classe.get('nom', '')}'?"
+        if student_count > 0:
+            message += f"\n\nAttention: Cette classe contient {student_count} élève(s). Ils devront être réassignés à d'autres classes."
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmer la suppression"),
+            content=ft.Text(message),
+            actions=[
+                ft.TextButton("Annuler", on_click=self.close_class_dialog),
+                ft.ElevatedButton(
+                    "Supprimer",
+                    bgcolor="#ef4444",
+                    color="#ffffff",
+                    on_click=lambda e: self.delete_class(classe)
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+    
+    def delete_class(self, classe):
+        """Supprimer une classe"""
+        if self.data_manager.delete_class(classe["id"]):
+            self.show_snackbar("Classe supprimée avec succès!")
+            self.close_class_dialog(None)
+            self.load_classes()
+            self.page.update()
+        else:
+            self.show_snackbar("Erreur lors de la suppression", error=True)
+    
+    def close_class_dialog(self, e):
+        """Fermer le dialog de classe"""
+        if hasattr(self, 'page') and self.page.dialog:
+            self.page.dialog.open = False
+            self.page.update()
     
     def show_grade_management(self):
         """Afficher la gestion des notes"""

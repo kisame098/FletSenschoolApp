@@ -4,6 +4,15 @@
 
 This is a Python-based school management system built with Flet (Flutter for Python) that provides a desktop application for managing educational institutions. The system handles student and teacher registration, class management, attendance tracking, grades, and scheduling without requiring a traditional database setup.
 
+## Recent Changes
+
+### Dernières améliorations (27/07/2025)
+- **Gestion complète des classes**: Système complet de création, modification et suppression des classes
+- **Interface de date améliorée**: Formatage automatique et calendrier pour les dates de naissance  
+- **Correction scrollbar sidebar**: Résolution du problème de défilement dans le menu de navigation
+- **Validation des classes**: Seules les classes créées dans "Gestion des classes" sont disponibles pour l'inscription
+- **Compteur d'élèves**: Affichage du nombre d'élèves par classe
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

@@ -150,32 +150,49 @@ class DataManager:
     # Gestion des classes
     def get_all_classes(self) -> List[Dict]:
         """Récupérer toutes les classes"""
-        classes = self._load_data(self.classes_file)
-        if not classes:
-            # Initialiser avec des classes par défaut
-            default_classes = [
-                {"id": "CP", "nom": "CP", "niveau": "Primaire", "capacite": 25},
-                {"id": "CE1", "nom": "CE1", "niveau": "Primaire", "capacite": 25},
-                {"id": "CE2", "nom": "CE2", "niveau": "Primaire", "capacite": 25},
-                {"id": "CM1", "nom": "CM1", "niveau": "Primaire", "capacite": 25},
-                {"id": "CM2", "nom": "CM2", "niveau": "Primaire", "capacite": 25},
-                {"id": "6EME", "nom": "6ème", "niveau": "Collège", "capacite": 30},
-                {"id": "5EME", "nom": "5ème", "niveau": "Collège", "capacite": 30},
-                {"id": "4EME", "nom": "4ème", "niveau": "Collège", "capacite": 30},
-                {"id": "3EME", "nom": "3ème", "niveau": "Collège", "capacite": 30},
-                {"id": "2NDE", "nom": "2nde", "niveau": "Lycée", "capacite": 35},
-                {"id": "1ERE", "nom": "1ère", "niveau": "Lycée", "capacite": 35},
-                {"id": "TERM", "nom": "Terminale", "niveau": "Lycée", "capacite": 35}
-            ]
-            self._save_data(self.classes_file, default_classes)
-            return default_classes
-        return classes
+        return self._load_data(self.classes_file)
+    
+    def get_class(self, class_id: str) -> Optional[Dict]:
+        """Récupérer une classe par son ID"""
+        classes = self.get_all_classes()
+        for classe in classes:
+            if classe.get("id") == class_id:
+                return classe
+        return None
     
     def add_class(self, class_data: Dict) -> bool:
         """Ajouter une nouvelle classe"""
         classes = self.get_all_classes()
+        
+        # Vérifier si l'ID existe déjà
+        for classe in classes:
+            if classe.get("id") == class_data.get("id"):
+                return False
+        
+        class_data["date_creation"] = datetime.now().isoformat()
         classes.append(class_data)
         return self._save_data(self.classes_file, classes)
+    
+    def update_class(self, class_id: str, class_data: Dict) -> bool:
+        """Mettre à jour une classe"""
+        classes = self.get_all_classes()
+        for i, classe in enumerate(classes):
+            if classe.get("id") == class_id:
+                class_data["date_modification"] = datetime.now().isoformat()
+                classes[i].update(class_data)
+                return self._save_data(self.classes_file, classes)
+        return False
+    
+    def delete_class(self, class_id: str) -> bool:
+        """Supprimer une classe"""
+        classes = self.get_all_classes()
+        classes = [c for c in classes if c.get("id") != class_id]
+        return self._save_data(self.classes_file, classes)
+    
+    def get_students_count_in_class(self, class_name: str) -> int:
+        """Récupérer le nombre d'élèves dans une classe"""
+        students = self.get_all_students()
+        return len([s for s in students if s.get("classe") == class_name])
     
     # Gestion des notes
     def get_all_grades(self) -> List[Dict]:
