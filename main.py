@@ -158,18 +158,25 @@ class StudentRegistrationSystem:
             bgcolor="#4f46e5"
         )
         
+        # Container avec scrollbar qui fonctionne correctement
+        scrollable_menu = ft.Container(
+            content=navigation_menu,
+            padding=ft.padding.all(16),
+            bgcolor="#4f46e5",
+            expand=True
+        )
+        
         sidebar_container = ft.Container(
             content=ft.Column([
                 header,
                 ft.Container(
                     content=ft.Column([
-                        navigation_menu
-                    ], scroll=ft.ScrollMode.AUTO),
+                        scrollable_menu
+                    ], scroll=ft.ScrollMode.AUTO, expand=True),
                     expand=True,
-                    bgcolor="#4f46e5",
-                    padding=ft.padding.all(16)
+                    bgcolor="#4f46e5"
                 )
-            ], spacing=0),
+            ], spacing=0, expand=True),
             width=280,
             bgcolor="#4f46e5",
             border=ft.border.only(right=ft.border.BorderSide(1, "#e2e8f0"))
@@ -189,7 +196,9 @@ class StudentRegistrationSystem:
     def update_menu_selection(self):
         """Mettre à jour la sélection du menu"""
         # Recréer la sidebar avec la nouvelle sélection
-        self.sidebar.content.controls[1].content = self.create_navigation_menu()
+        new_menu = self.create_navigation_menu()
+        # Mettre à jour le contenu du menu scrollable
+        self.sidebar.content.controls[1].content.controls[0].content = new_menu
         self.page.update()
     
     def create_navigation_menu(self):
@@ -431,6 +440,7 @@ class StudentRegistrationSystem:
             expand=True
         )
         
+        # Date de naissance avec formatage automatique
         self.dob_field = ft.TextField(
             label="Date de naissance *",
             bgcolor="#ffffff",
@@ -438,8 +448,20 @@ class StudentRegistrationSystem:
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
             hint_text="jj/mm/aaaa",
-            expand=True
+            expand=True,
+            on_change=self.format_date_input,
+            keyboard_type=ft.KeyboardType.NUMBER
         )
+        
+        # Initialiser le sélecteur de date si ce n'est pas déjà fait
+        if not hasattr(self, 'date_picker') or self.date_picker is None:
+            self.date_picker = ft.DatePicker(
+                first_date=datetime(1900, 1, 1),
+                last_date=datetime.now(),
+                on_change=self.on_date_change,
+            )
+            if hasattr(self, 'page') and self.page:
+                self.page.overlay.append(self.date_picker)
         
         self.lieu_naissance_field = ft.TextField(
             label="Lieu de naissance *",
@@ -527,9 +549,20 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=20),
                     
-                    # Deuxième ligne - Date de naissance et Lieu de naissance
+                    # Deuxième ligne - Date de naissance avec calendrier et Lieu de naissance
                     ft.Row([
-                        ft.Container(self.dob_field, expand=1),
+                        ft.Container(
+                            content=ft.Row([
+                                ft.Container(self.dob_field, expand=1),
+                                ft.IconButton(
+                                    icon="calendar_today",
+                                    icon_color="#4f46e5",
+                                    tooltip="Choisir une date",
+                                    on_click=self.open_date_picker
+                                )
+                            ], spacing=8),
+                            expand=1
+                        ),
                         ft.Container(width=16),
                         ft.Container(self.lieu_naissance_field, expand=1)
                     ]),
@@ -1539,6 +1572,47 @@ class StudentRegistrationSystem:
         
         self.page.update()
     
+    def format_date_input(self, e):
+        """Formater automatiquement la saisie de date"""
+        value = e.control.value
+        if not value:
+            return
+        
+        # Supprimer tous les caractères non numériques
+        digits_only = ''.join(filter(str.isdigit, value))
+        
+        # Formater automatiquement avec des /
+        if len(digits_only) <= 2:
+            formatted = digits_only
+        elif len(digits_only) <= 4:
+            formatted = f"{digits_only[:2]}/{digits_only[2:]}"
+        elif len(digits_only) <= 8:
+            formatted = f"{digits_only[:2]}/{digits_only[2:4]}/{digits_only[4:]}"
+        else:
+            # Limiter à 8 chiffres (jj/mm/aaaa)
+            digits_only = digits_only[:8]
+            formatted = f"{digits_only[:2]}/{digits_only[2:4]}/{digits_only[4:]}"
+        
+        # Mettre à jour le champ si le formatage a changé
+        if formatted != value:
+            e.control.value = formatted
+            self.page.update()
+    
+    def open_date_picker(self, e):
+        """Ouvrir le sélecteur de date"""
+        if hasattr(self, 'date_picker') and self.date_picker:
+            self.date_picker.open = True
+            self.page.update()
+    
+    def on_date_change(self, e):
+        """Gérer le changement de date depuis le calendrier"""
+        if e.control.value:
+            # Formater la date sélectionnée
+            selected_date = e.control.value
+            formatted_date = selected_date.strftime("%d/%m/%Y")
+            self.dob_field.value = formatted_date
+            self.page.update()
+
     def show_snackbar(self, message: str, error: bool = False):
         """Afficher un message de notification"""
         color = "#ef4444" if error else "#10b981"
