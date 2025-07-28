@@ -557,13 +557,18 @@ class StudentRegistrationSystem:
         form_card = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    # Première ligne - Prénom, Nom et ID (petit à droite)
+                    # Ligne ID - Champ ID déplacé vers le haut, aligné à droite
+                    ft.Row([
+                        ft.Container(expand=1),  # Espace vide à gauche
+                        self.student_id_field  # Petit champ fixe à droite
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Première ligne - Prénom et Nom
                     ft.Row([
                         ft.Container(self.prenom_field, expand=1),
                         ft.Container(width=16),
-                        ft.Container(self.nom_field, expand=1),
-                        ft.Container(width=16),
-                        self.student_id_field  # Petit champ fixe à droite
+                        ft.Container(self.nom_field, expand=1)
                     ]),
                     ft.Container(height=20),
                     
@@ -845,16 +850,18 @@ class StudentRegistrationSystem:
                 color="#ffffff"
             )
         
-        # Créer les lignes du tableau (sans colonne classe si classe spécifique sélectionnée)
+        # Créer les lignes du tableau avec les colonnes séparées selon le nouvel ordre
         rows = []
         for student in students:
             student_id = student.get("student_id", student.get("id", ""))
             
+            # Ordre demandé: ID | Prénom | Nom | Date de naissance | Genre | Classe (si "Toutes les classes") | N° Élève | N° Parent | Actions
             row_cells = [
                 ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
-                ft.DataCell(ft.Text(student.get("nom_complet", ""), size=12, weight=ft.FontWeight.W_500)),
-                ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)),
-                ft.DataCell(ft.Text(student.get("telephone_parent", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("prenom", ""), size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(student.get("nom", ""), size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(student.get("date_naissance", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("genre", ""), size=12)),
             ]
             
             # Ajouter la colonne classe seulement si "Toutes les classes" est sélectionné
@@ -862,8 +869,8 @@ class StudentRegistrationSystem:
                 row_cells.append(ft.DataCell(ft.Text(student.get("classe", ""), size=12)))
             
             row_cells.extend([
-                ft.DataCell(ft.Text(student.get("date_naissance", ""), size=12)),
-                ft.DataCell(ft.Text(student.get("genre", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)),
+                ft.DataCell(ft.Text(student.get("telephone_parent", ""), size=12)),
                 ft.DataCell(
                     ft.Row([
                         ft.IconButton(
@@ -886,20 +893,21 @@ class StudentRegistrationSystem:
             
             rows.append(ft.DataRow(row_cells))
         
-        # Colonnes (sans classe si classe spécifique sélectionnée)
+        # Colonnes dans le nouvel ordre : ID | Prénom | Nom | Date de naissance | Genre | Classe (si toutes) | N° Élève | N° Parent | Actions
         columns = [
             ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Nom complet", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("N° Élève", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("N° Parent", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)),
         ]
         
         if selected_class == "Toutes les classes":
             columns.append(ft.DataColumn(ft.Text("Classe", weight=ft.FontWeight.BOLD, size=12)))
         
         columns.extend([
-            ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("N° Élève", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("N° Parent", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12))
         ])
         
