@@ -941,24 +941,29 @@ class StudentRegistrationSystem:
         )
         
         # Container avec scrollbars horizontal et vertical toujours visibles
+        # D'abord le scroll vertical
+        vertical_scroll_container = ft.Column(
+            controls=[data_table],
+            scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
+            horizontal_alignment=ft.CrossAxisAlignment.START,
+            expand=True
+        )
+        
+        # Ensuite le wrapper pour le scroll horizontal
+        horizontal_scroll_container = ft.Row(
+            controls=[vertical_scroll_container],
+            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+            vertical_alignment=ft.CrossAxisAlignment.START,
+            expand=True
+        )
+        
+        # Container principal avec les deux scrollbars
         scrollable_table = ft.Container(
-            content=ft.Column(
-                controls=[data_table],
-                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
-                horizontal_alignment=ft.CrossAxisAlignment.START
-            ),
+            content=horizontal_scroll_container,
             border_radius=8,
             bgcolor="#ffffff",
             padding=0,
-            # Permettre le défilement horizontal avec barre toujours visible
-            clip_behavior=ft.ClipBehavior.HARD_EDGE
-        )
-        
-        # Wrapper pour le défilement horizontal
-        horizontal_scroll_wrapper = ft.Row(
-            controls=[scrollable_table],
-            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
-            vertical_alignment=ft.CrossAxisAlignment.START,
+            clip_behavior=ft.ClipBehavior.HARD_EDGE,
             expand=True
         )
         
@@ -975,9 +980,10 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=16),
                     ft.Container(
-                        content=horizontal_scroll_wrapper,
-                        # Hauteur dynamique basée sur le contenu (min/max pour éviter les espaces vides)
-                        height=min(500, max(200, len(students) * 45 + 100)),
+                        content=scrollable_table,
+                        # Hauteur fixe pour permettre les scrollbars
+                        height=400,
+                        width=None,  # Largeur automatique
                         border_radius=8,
                         clip_behavior=ft.ClipBehavior.HARD_EDGE,
                         border=ft.border.all(1, "#e2e8f0")
