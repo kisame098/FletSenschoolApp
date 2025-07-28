@@ -792,10 +792,10 @@ class StudentRegistrationSystem:
             header,
             ft.Container(
                 content=self.students_table_container,
-                padding=ft.padding.symmetric(horizontal=32, vertical=16),
+                padding=ft.padding.symmetric(horizontal=32, vertical=8),
                 # Pas d'expand=True pour que le tableau occupe uniquement l'espace nécessaire
             )
-        ], tight=True)  # tight=True pour éviter les espaces vides inutiles
+        ], tight=True, spacing=0)  # tight=True et spacing=0 pour éliminer complètement les espaces vides
         
         self.page.update()
     
@@ -967,33 +967,32 @@ class StudentRegistrationSystem:
             expand=True
         )
         
-        return ft.Card(
-            content=ft.Container(
-                content=ft.Column([
-                    ft.Row([
-                        ft.Text(
-                            f"Total: {len(students)} élève(s)" + (f" - Classe: {selected_class}" if selected_class != "Toutes les classes" else ""),
-                            size=14,
-                            color="#64748b",
-                            weight=ft.FontWeight.W_500
-                        )
-                    ]),
-                    ft.Container(height=16),
-                    ft.Container(
-                        content=scrollable_table,
-                        # Hauteur fixe pour permettre les scrollbars
-                        height=400,
-                        width=None,  # Largeur automatique
-                        border_radius=8,
-                        clip_behavior=ft.ClipBehavior.HARD_EDGE,
-                        border=ft.border.all(1, "#e2e8f0")
+        return ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.Text(
+                        f"Total: {len(students)} élève(s)" + (f" - Classe: {selected_class}" if selected_class != "Toutes les classes" else ""),
+                        size=14,
+                        color="#64748b",
+                        weight=ft.FontWeight.W_500
                     )
-                ], tight=True),  # tight=True pour éviter les espaces vides
-                padding=24
-            ),
-            elevation=0,
-            surface_tint_color="#ffffff",
-            color="#ffffff"
+                ]),
+                ft.Container(height=16),
+                ft.Container(
+                    content=scrollable_table,
+                    # Hauteur dynamique basée sur le contenu réel
+                    height=min(400, max(150, len(students) * 50 + 80)),  # Adapté au nombre de lignes
+                    width=None,
+                    border_radius=8,
+                    clip_behavior=ft.ClipBehavior.HARD_EDGE,
+                    border=ft.border.all(1, "#e2e8f0"),
+                    bgcolor="#ffffff"
+                )
+            ], tight=True, spacing=0),  # tight=True et spacing=0 pour éliminer les espaces
+            padding=24,
+            bgcolor="#ffffff",
+            border_radius=12,
+            border=ft.border.all(1, "#e2e8f0")
         )
     
     def create_students_table(self):
