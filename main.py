@@ -940,31 +940,31 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Container avec scrollbars horizontal et vertical toujours visibles
-        # D'abord le scroll vertical
-        vertical_scroll_container = ft.Column(
-            controls=[data_table],
-            scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
-            horizontal_alignment=ft.CrossAxisAlignment.START,
-            expand=True
+        # Container avec double scroll: Column pour vertical et Row pour horizontal
+        # Wrapper pour scroll vertical avec Container à hauteur fixe
+        vertical_scroll_wrapper = ft.Container(
+            content=ft.Column(
+                controls=[data_table],
+                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
+                horizontal_alignment=ft.CrossAxisAlignment.START
+            ),
+            height=300,  # Hauteur fixe pour forcer l'apparition du scroll vertical
+            width=None,
+            bgcolor="#ffffff",
+            padding=0
         )
         
-        # Ensuite le wrapper pour le scroll horizontal
-        horizontal_scroll_container = ft.Row(
-            controls=[vertical_scroll_container],
-            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
-            vertical_alignment=ft.CrossAxisAlignment.START,
-            expand=True
-        )
-        
-        # Container principal avec les deux scrollbars
+        # Wrapper pour scroll horizontal 
         scrollable_table = ft.Container(
-            content=horizontal_scroll_container,
+            content=ft.Row(
+                controls=[vertical_scroll_wrapper],
+                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                vertical_alignment=ft.CrossAxisAlignment.START
+            ),
             border_radius=8,
             bgcolor="#ffffff",
             padding=0,
-            clip_behavior=ft.ClipBehavior.HARD_EDGE,
-            expand=True
+            clip_behavior=ft.ClipBehavior.HARD_EDGE
         )
         
         return ft.Container(
