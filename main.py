@@ -808,8 +808,8 @@ class StudentRegistrationSystem:
         else:
             students = self.data_manager.get_students_by_class(selected_class)
         
-        # Trier les étudiants par ID
-        students.sort(key=lambda x: x.get("student_id", x.get("id", 0)))
+        # Trier les étudiants par ID (conversion en entier pour éviter les erreurs de type)
+        students.sort(key=lambda x: int(str(x.get("student_id", x.get("id", 0)))))
         
         # Créer la table avec scrollbars
         students_table = self.create_filtered_students_table(students, selected_class)

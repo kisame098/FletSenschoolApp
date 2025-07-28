@@ -11,5 +11,19 @@
     "genre": "Féminin",
     "classe": "TS2",
     "date_creation": "2025-07-27T12:43:49.450160"
+  },
+  {
+    "id": 1,
+    "student_id": 1,
+    "prenom": "ADA",
+    "nom": "SAO",
+    "nom_complet": "ADA SAO",
+    "date_naissance": "11/12/2003",
+    "lieu_naissance": "SAER",
+    "numero_eleve": "+221778909987",
+    "telephone_parent": "+221777654334",
+    "genre": "Masculin",
+    "classe": "TS2",
+    "date_creation": "2025-07-28T17:55:23.492753"
   }
 ]
