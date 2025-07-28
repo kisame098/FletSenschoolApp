@@ -787,15 +787,15 @@ class StudentRegistrationSystem:
         self.students_table_container = ft.Container()
         self.filter_students_by_class(None)  # Charger tous les élèves initialement
         
-        # Assembler le contenu avec scrollbar
+        # Assembler le contenu de manière optimisée pour éviter les espaces vides
         self.main_content.content = ft.Column([
             header,
             ft.Container(
                 content=self.students_table_container,
-                padding=ft.padding.all(32),
-                expand=True
+                padding=ft.padding.symmetric(horizontal=32, vertical=16),
+                # Pas d'expand=True pour que le tableau occupe uniquement l'espace nécessaire
             )
-        ])
+        ], tight=True)  # tight=True pour éviter les espaces vides inutiles
         
         self.page.update()
     
@@ -921,12 +921,26 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Container avec scrollbars horizontal et vertical
+        # Container avec scrollbars horizontal et vertical toujours visibles
         scrollable_table = ft.Container(
-            content=data_table,
+            content=ft.Column(
+                controls=[data_table],
+                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
+                horizontal_alignment=ft.CrossAxisAlignment.START
+            ),
             border_radius=8,
             bgcolor="#ffffff",
-            padding=0
+            padding=0,
+            # Permettre le défilement horizontal avec barre toujours visible
+            clip_behavior=ft.ClipBehavior.HARD_EDGE
+        )
+        
+        # Wrapper pour le défilement horizontal
+        horizontal_scroll_wrapper = ft.Row(
+            controls=[scrollable_table],
+            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+            vertical_alignment=ft.CrossAxisAlignment.START,
+            expand=True
         )
         
         return ft.Card(
@@ -942,12 +956,14 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=16),
                     ft.Container(
-                        content=scrollable_table,
-                        height=400,  # Hauteur fixe pour permettre le scroll vertical
+                        content=horizontal_scroll_wrapper,
+                        # Hauteur dynamique basée sur le contenu (min/max pour éviter les espaces vides)
+                        height=min(500, max(200, len(students) * 45 + 100)),
                         border_radius=8,
-                        clip_behavior=ft.ClipBehavior.HARD_EDGE
+                        clip_behavior=ft.ClipBehavior.HARD_EDGE,
+                        border=ft.border.all(1, "#e2e8f0")
                     )
-                ], scroll=ft.ScrollMode.AUTO),
+                ], tight=True),  # tight=True pour éviter les espaces vides
                 padding=24
             ),
             elevation=0,
