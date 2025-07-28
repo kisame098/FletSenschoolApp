@@ -803,17 +803,14 @@ class StudentRegistrationSystem:
         """Filtrer les élèves par classe sélectionnée"""
         selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
         
-        print(f"[DEBUG] Filtrage par classe: {selected_class}")
+
         
         if selected_class == "Toutes les classes":
             students = self.data_manager.get_all_students()
         else:
             students = self.data_manager.get_students_by_class(selected_class)
         
-        print(f"[DEBUG] Nombre d'élèves trouvés: {len(students)}")
-        if students:
-            print(f"[DEBUG] Premier élève: {students[0]}")
-            print(f"[DEBUG] IDs des élèves: {[s.get('student_id', s.get('id', 'N/A')) for s in students]}")
+
         
         # Trier les étudiants par ID avec gestion des différents formats
         def get_sort_key(student):
@@ -949,11 +946,11 @@ class StudentRegistrationSystem:
                 controls=[
                     ft.Row(
                         controls=[data_table],
-                        scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                        scroll=ft.ScrollMode.ADAPTIVE,  # Scroll horizontal toujours visible sur desktop
                         vertical_alignment=ft.CrossAxisAlignment.START
                     )
                 ],
-                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
+                scroll=ft.ScrollMode.ADAPTIVE,  # Scroll vertical toujours visible sur desktop
                 horizontal_alignment=ft.CrossAxisAlignment.START
             ),
             height=300,  # Hauteur fixe pour déclencher le scroll vertical
