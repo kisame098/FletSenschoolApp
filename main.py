@@ -803,13 +803,32 @@ class StudentRegistrationSystem:
         """Filtrer les élèves par classe sélectionnée"""
         selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
         
+        print(f"[DEBUG] Filtrage par classe: {selected_class}")
+        
         if selected_class == "Toutes les classes":
             students = self.data_manager.get_all_students()
         else:
             students = self.data_manager.get_students_by_class(selected_class)
         
-        # Trier les étudiants par ID (conversion en entier pour éviter les erreurs de type)
-        students.sort(key=lambda x: int(str(x.get("student_id", x.get("id", 0)))))
+        print(f"[DEBUG] Nombre d'élèves trouvés: {len(students)}")
+        if students:
+            print(f"[DEBUG] Premier élève: {students[0]}")
+            print(f"[DEBUG] IDs des élèves: {[s.get('student_id', s.get('id', 'N/A')) for s in students]}")
+        
+        # Trier les étudiants par ID avec gestion des différents formats
+        def get_sort_key(student):
+            student_id = student.get("student_id", student.get("id", 0))
+            # Convertir en chaîne puis extraire les chiffres pour le tri
+            id_str = str(student_id)
+            # Si l'ID contient des lettres (comme STU0001), extraire seulement les chiffres
+            import re
+            numbers = re.findall(r'\d+', id_str)
+            if numbers:
+                return int(numbers[0])  # Prendre le premier groupe de chiffres
+            else:
+                return 0  # Valeur par défaut si aucun chiffre trouvé
+        
+        students.sort(key=get_sort_key)
         
         # Créer la table avec scrollbars
         students_table = self.create_filtered_students_table(students, selected_class)
