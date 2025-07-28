@@ -930,29 +930,37 @@ class StudentRegistrationSystem:
             ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12))
         ])
         
-        # Container direct avec les barres de défilement intégrées
+        data_table = ft.DataTable(
+            columns=columns,
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            heading_row_color="#f8fafc",
+            show_checkbox_column=False,
+            data_row_max_height=50,
+            column_spacing=12
+        )
+        
+        # Structure correcte avec Container -> Column (scroll vertical) -> Row (scroll horizontal) -> DataTable
         scrollable_table = ft.Container(
-            content=ft.DataTable(
-                columns=columns,
-                rows=rows,
-                border=ft.border.all(1, "#e2e8f0"),
-                border_radius=8,
-                vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
-                horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
-                heading_row_color="#f8fafc",
-                # Barres de défilement intégrées au DataTable
-                show_checkbox_column=False,
-                data_row_max_height=50,
-                column_spacing=12
+            content=ft.Column(
+                controls=[
+                    ft.Row(
+                        controls=[data_table],
+                        scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                        vertical_alignment=ft.CrossAxisAlignment.START
+                    )
+                ],
+                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
+                horizontal_alignment=ft.CrossAxisAlignment.START
             ),
-            height=300,  # Hauteur fixe pour forcer le scroll vertical
-            width=None,   # Largeur automatique pour forcer le scroll horizontal si nécessaire
+            height=300,  # Hauteur fixe pour déclencher le scroll vertical
             bgcolor="#ffffff",
             padding=8,
             border_radius=8,
             border=ft.border.all(1, "#e2e8f0"),
-            # Activer les scrollbars du container
-            scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical et horizontal automatiques
             clip_behavior=ft.ClipBehavior.HARD_EDGE
         )
         

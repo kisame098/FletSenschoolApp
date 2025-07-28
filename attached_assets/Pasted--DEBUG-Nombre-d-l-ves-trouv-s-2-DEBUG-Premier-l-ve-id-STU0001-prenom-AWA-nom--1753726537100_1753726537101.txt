@@ -1,0 +1,54 @@
+[DEBUG] Nombre d'élèves trouvés: 2
+[DEBUG] Premier élève: {'id': 'STU0001', 'prenom': 'AWA', 'nom': 'SARR', 'nom_complet': 'AWA SARR', 'date_naissance': '11/11/2003', 'lieu_naissance': 'DAKAR', 'numero_eleve': '+221775543211', 'telephone_parent': '+221778900900', 'genre': 'Féminin', 'classe': 'TS2', 'date_creation': '2025-07-27T12:43:49.450160'}
+[DEBUG] IDs des élèves: ['STU0001', 1]
+Future exception was never retrieved
+future: <Future finished exception=TypeError("Container.__init__() got an unexpected keyword argument 'scroll'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 126, in <lambda>
+    on_click=lambda e, cb=callback, idx=i: self.handle_menu_click(cb, idx),
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 194, in handle_menu_click
+    callback()
+  File "/home/runner/workspace/main.py", line 788, in show_student_management
+    self.filter_students_by_class(None)  # Charger tous les élèves initialement
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 834, in filter_students_by_class
+    students_table = self.create_filtered_students_table(students, selected_class)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 934, in create_filtered_students_table
+    scrollable_table = ft.Container(
+                       ^^^^^^^^^^^^^
+TypeError: Container.__init__() got an unexpected keyword argument 'scroll'
+[DEBUG] Filtrage par classe: Toutes les classes
+[DEBUG] Nombre d'élèves trouvés: 2
+[DEBUG] Premier élève: {'id': 'STU0001', 'prenom': 'AWA', 'nom': 'SARR', 'nom_complet': 'AWA SARR', 'date_naissance': '11/11/2003', 'lieu_naissance': 'DAKAR', 'numero_eleve': '+221775543211', 'telephone_parent': '+221778900900', 'genre': 'Féminin', 'classe': 'TS2', 'date_creation': '2025-07-27T12:43:49.450160'}
+[DEBUG] IDs des élèves: ['STU0001', 1]
+Future exception was never retrieved
+future: <Future finished exception=TypeError("Container.__init__() got an unexpected keyword argument 'scroll'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 239, in <lambda>
+    on_click=lambda e, cb=callback, idx=i: self.handle_menu_click(cb, idx),
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 194, in handle_menu_click
+    callback()
+  File "/home/runner/workspace/main.py", line 788, in show_student_management
+    self.filter_students_by_class(None)  # Charger tous les élèves initialement
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 834, in filter_students_by_class
+    students_table = self.create_filtered_students_table(students, selected_class)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 934, in create_filtered_students_table
+    scrollable_table = ft.Container(
+                       ^^^^^^^^^^^^^
+TypeError: Container.__init__() got an unexpected keyword argument 'scroll'
+^C
