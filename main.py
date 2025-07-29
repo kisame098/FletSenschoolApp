@@ -1221,6 +1221,48 @@ class StudentRegistrationSystem:
         
         self.show_snackbar("Paramètres d'affichage mis à jour!")
     
+    def format_date_input_edit(self, e):
+        """Formater automatiquement la saisie de date pour le popup de modification"""
+        if e.control.value:
+            # Supprimer tous les caractères non numériques
+            digits = ''.join(filter(str.isdigit, e.control.value))
+            
+            # Formater en JJ/MM/AAAA
+            if len(digits) >= 2:
+                formatted = digits[:2]
+                if len(digits) >= 4:
+                    formatted += '/' + digits[2:4]
+                    if len(digits) >= 8:
+                        formatted += '/' + digits[4:8]
+                    elif len(digits) > 4:
+                        formatted += '/' + digits[4:]
+                elif len(digits) > 2:
+                    formatted += '/' + digits[2:]
+                
+                e.control.value = formatted
+                self.page.update()
+    
+    def open_date_picker_edit(self, e):
+        """Ouvrir le sélecteur de date pour le popup de modification"""
+        if not hasattr(self, 'edit_date_picker') or self.edit_date_picker is None:
+            self.edit_date_picker = ft.DatePicker(
+                first_date=datetime(1900, 1, 1),
+                last_date=datetime.now(),
+                on_change=self.on_date_change_edit,
+            )
+            if hasattr(self, 'page') and self.page and hasattr(self.page, 'overlay'):
+                self.page.overlay.append(self.edit_date_picker)
+        
+        self.page.open(self.edit_date_picker)
+    
+    def on_date_change_edit(self, e):
+        """Callback pour la sélection de date dans le popup de modification"""
+        if e.control.value:
+            # Formater la date en JJ/MM/AAAA
+            formatted_date = e.control.value.strftime("%d/%m/%Y")
+            self.edit_dob_field.value = formatted_date
+            self.page.update()
+    
     def create_students_table(self):
         """Créer le tableau des élèves"""
         students = self.data_manager.get_all_students()
@@ -1334,25 +1376,19 @@ class StudentRegistrationSystem:
         self.show_edit_student_dialog(student)
     
     def show_edit_student_dialog(self, student):
-        """Afficher le popup de modification d'élève"""
+        """Afficher le popup de modification d'élève avec le même design que l'inscription"""
         
-        # Récupérer les classes disponibles
+        # Récupérer les classes disponibles (même logique que l'inscription)
         classes = self.data_manager.get_all_classes()
         class_options = []
+        
         if classes:
             for classe in classes:
                 class_options.append(ft.dropdown.Option(classe.get("nom", "")))
+        else:
+            class_options.append(ft.dropdown.Option("Aucune classe disponible"))
         
-        # Créer les champs du formulaire pré-remplis
-        self.edit_student_id_field = ft.TextField(
-            label="ID",
-            value=str(student.get("student_id", student.get("id", ""))),
-            bgcolor="#f3f4f6",
-            border_color="#d1d5db",
-            read_only=True,
-            width=100
-        )
-        
+        # Créer les champs exactement comme dans le formulaire d'inscription
         self.edit_prenom_field = ft.TextField(
             label="Prénom *",
             value=student.get("prenom", ""),
@@ -1360,7 +1396,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=200
+            expand=True
         )
         
         self.edit_nom_field = ft.TextField(
@@ -1370,47 +1406,64 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=200
+            expand=True
         )
         
         self.edit_dob_field = ft.TextField(
-            label="Date de naissance (JJ/MM/AAAA) *",
+            label="Date de naissance *",
             value=student.get("date_naissance", ""),
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=200
+            hint_text="jj/mm/aaaa",
+            expand=True,
+            on_change=self.format_date_input_edit,
+            keyboard_type=ft.KeyboardType.NUMBER
         )
         
         self.edit_lieu_naissance_field = ft.TextField(
-            label="Lieu de naissance",
+            label="Lieu de naissance *",
             value=student.get("lieu_naissance", ""),
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=200
+            expand=True
+        )
+        
+        # Champ ID (verrouillé, même style que l'inscription)
+        self.edit_student_id_field = ft.TextField(
+            label="ID",
+            value=str(student.get("student_id", student.get("id", ""))),
+            bgcolor="#f8fafc",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#e2e8f0",
+            width=80,
+            read_only=True,
+            text_style=ft.TextStyle(color="#64748b", weight=ft.FontWeight.BOLD),
+            text_align=ft.TextAlign.CENTER
         )
         
         self.edit_numero_eleve_field = ft.TextField(
-            label="Numéro élève",
+            label="Numéro d'élève",
             value=student.get("numero_eleve", ""),
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=200
+            expand=True
         )
         
         self.edit_telephone_parent_field = ft.TextField(
-            label="Téléphone parent",
+            label="Téléphone parent *",
             value=student.get("telephone_parent", ""),
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=200
+            expand=True
         )
         
         self.edit_genre_dropdown = ft.Dropdown(
@@ -1418,11 +1471,11 @@ class StudentRegistrationSystem:
             value=student.get("genre", "Masculin"),
             options=[
                 ft.dropdown.Option("Masculin"),
-                ft.dropdown.Option("Féminin")
+                ft.dropdown.Option("Féminin"),
             ],
             bgcolor="#ffffff",
             border_radius=8,
-            width=200
+            expand=True
         )
         
         self.edit_classe_dropdown = ft.Dropdown(
@@ -1431,71 +1484,120 @@ class StudentRegistrationSystem:
             options=class_options,
             bgcolor="#ffffff",
             border_radius=8,
-            width=200
+            expand=True,
+            disabled=not classes
         )
         
-        # Contenu du popup
-        popup_content = ft.Column([
-            ft.Text(
-                f"Modifier l'élève",
-                size=20,
-                weight=ft.FontWeight.BOLD,
-                color="#1e293b"
-            ),
-            ft.Container(height=16),
-            
-            # Ligne 1: ID et informations personnelles
-            ft.Row([
-                ft.Column([
-                    self.edit_prenom_field,
-                    self.edit_nom_field,
-                    self.edit_dob_field,
-                    self.edit_lieu_naissance_field
-                ], spacing=16),
-                ft.Container(width=32),
-                ft.Column([
-                    self.edit_student_id_field,
-                    self.edit_numero_eleve_field,
-                    self.edit_telephone_parent_field
-                ], spacing=16)
-            ]),
-            
-            ft.Container(height=16),
-            
-            # Ligne 2: Genre et classe
-            ft.Row([
-                self.edit_genre_dropdown,
-                ft.Container(width=16),
-                self.edit_classe_dropdown
-            ]),
-            
-            ft.Container(height=24),
-            
-            # Boutons
-            ft.Row([
-                ft.ElevatedButton(
-                    "Annuler",
-                    on_click=self.close_edit_student_dialog,
-                    bgcolor="#6b7280",
-                    color="#ffffff"
-                ),
-                ft.Container(width=16),
-                ft.ElevatedButton(
-                    "Sauvegarder",
-                    on_click=self.save_student_changes,
-                    bgcolor="#4f46e5",
-                    color="#ffffff"
-                )
-            ], alignment=ft.MainAxisAlignment.END)
-        ], scroll=ft.ScrollMode.AUTO)
+        # Bouton de sauvegarde (même style que l'inscription)
+        save_button = ft.ElevatedButton(
+            "💾 Sauvegarder les modifications",
+            bgcolor="#4285f4",
+            color="#ffffff",
+            height=48,
+            width=250,
+            on_click=self.save_student_changes,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=8)
+            )
+        )
         
+        # Bouton d'annulation
+        cancel_button = ft.ElevatedButton(
+            "✖️ Annuler",
+            bgcolor="#6b7280",
+            color="#ffffff",
+            height=48,
+            width=150,
+            on_click=self.close_edit_student_dialog,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=8)
+            )
+        )
+        
+        # Créer le formulaire avec EXACTEMENT la même structure que l'inscription
+        form_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    # En-tête
+                    ft.Text(
+                        "Modifier l'élève",
+                        size=28,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=20),
+                    
+                    # Ligne ID - Champ ID déplacé vers le haut, aligné à droite (même que inscription)
+                    ft.Row([
+                        ft.Container(expand=1),  # Espace vide à gauche
+                        self.edit_student_id_field  # Petit champ fixe à droite
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Première ligne - Prénom et Nom (même que inscription)
+                    ft.Row([
+                        ft.Container(self.edit_prenom_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.edit_nom_field, expand=1)
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Deuxième ligne - Date de naissance avec calendrier et Lieu de naissance (même que inscription)
+                    ft.Row([
+                        ft.Container(
+                            content=ft.Row([
+                                ft.Container(self.edit_dob_field, expand=1),
+                                ft.IconButton(
+                                    icon="calendar_today",
+                                    icon_color="#4f46e5",
+                                    tooltip="Choisir une date",
+                                    on_click=self.open_date_picker_edit
+                                )
+                            ], spacing=8),
+                            expand=1
+                        ),
+                        ft.Container(width=16),
+                        ft.Container(self.edit_lieu_naissance_field, expand=1)
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Troisième ligne - Numéro d'élève et Téléphone parent (même que inscription)
+                    ft.Row([
+                        ft.Container(self.edit_numero_eleve_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.edit_telephone_parent_field, expand=1)
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Quatrième ligne - Genre et Classe (même que inscription)
+                    ft.Row([
+                        ft.Container(self.edit_genre_dropdown, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.edit_classe_dropdown, expand=1)
+                    ]),
+                    ft.Container(height=30),
+                    
+                    # Boutons (alignés à droite comme l'inscription)
+                    ft.Row([
+                        cancel_button,
+                        ft.Container(width=16),
+                        save_button
+                    ], alignment=ft.MainAxisAlignment.END)
+                ]),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        # Créer le popup avec la même largeur et hauteur que nécessaire
         self.edit_student_dialog = ft.AlertDialog(
             modal=True,
             content=ft.Container(
-                content=popup_content,
-                width=600,
-                height=450,
-                padding=24
+                content=form_card,
+                width=800,  # Même largeur que le formulaire d'inscription
+                height=600  # Hauteur adaptée
             )
         )
         
