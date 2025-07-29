@@ -62,10 +62,10 @@ class StudentRegistrationSystem:
             scrollbar_theme=ft.ScrollbarTheme(
                 track_visibility=True,     # Track toujours visible
                 thumb_visibility=True,     # Thumb toujours visible
-                track_color="#e2e8f0",
-                thumb_color="#94a3b8",
-                thickness=12,
-                radius=6,
+                track_color="#f1f5f9",
+                thumb_color="#cbd5e1",
+                thickness=6,               # Épaisseur réduite pour un look professionnel
+                radius=3,                  # Rayon réduit
                 interactive=True
             )
         )
