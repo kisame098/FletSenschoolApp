@@ -35,6 +35,20 @@ class StudentRegistrationSystem:
         self.selected_student_id = None
         self.selected_teacher_id = None
         
+        # Configuration des colonnes du tableau des élèves
+        self.column_visibility = {
+            "id": True,
+            "prenom": True,
+            "nom": True,
+            "date_naissance": True,
+            "lieu_naissance": False,  # Désactivé par défaut
+            "genre": True,
+            "classe": True,  # Géré dynamiquement selon le filtre
+            "numero_eleve": True,
+            "telephone_parent": True,
+            "actions": True
+        }
+        
     def main(self, page: ft.Page):
         self.page = page
         
@@ -953,28 +967,52 @@ class StudentRegistrationSystem:
                 color="#ffffff"
             )
         
-        # Créer les lignes du tableau avec les colonnes séparées selon le nouvel ordre
+        # Créer les lignes du tableau avec gestion de la visibilité des colonnes
         rows = []
         for student in students:
             student_id = student.get("student_id", student.get("id", ""))
+            row_cells = []
             
-            # Ordre demandé: ID | Prénom | Nom | Date de naissance | Genre | Classe (si "Toutes les classes") | N° Élève | N° Parent | Actions
-            row_cells = [
-                ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
-                ft.DataCell(ft.Text(student.get("prenom", ""), size=12, weight=ft.FontWeight.W_500)),
-                ft.DataCell(ft.Text(student.get("nom", ""), size=12, weight=ft.FontWeight.W_500)),
-                ft.DataCell(ft.Text(student.get("date_naissance", ""), size=12)),
-                ft.DataCell(ft.Text(student.get("genre", ""), size=12)),
-            ]
+            # Construire les cellules selon la visibilité des colonnes
+            # ID (toujours visible)
+            if self.column_visibility.get("id", True):
+                row_cells.append(ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)))
             
-            # Ajouter la colonne classe seulement si "Toutes les classes" est sélectionné
-            if selected_class == "Toutes les classes":
+            # Prénom
+            if self.column_visibility.get("prenom", True):
+                row_cells.append(ft.DataCell(ft.Text(student.get("prenom", ""), size=12, weight=ft.FontWeight.W_500)))
+            
+            # Nom
+            if self.column_visibility.get("nom", True):
+                row_cells.append(ft.DataCell(ft.Text(student.get("nom", ""), size=12, weight=ft.FontWeight.W_500)))
+            
+            # Date de naissance
+            if self.column_visibility.get("date_naissance", True):
+                row_cells.append(ft.DataCell(ft.Text(student.get("date_naissance", ""), size=12)))
+            
+            # Lieu de naissance (après date de naissance)
+            if self.column_visibility.get("lieu_naissance", False):
+                row_cells.append(ft.DataCell(ft.Text(student.get("lieu_naissance", ""), size=12)))
+            
+            # Genre
+            if self.column_visibility.get("genre", True):
+                row_cells.append(ft.DataCell(ft.Text(student.get("genre", ""), size=12)))
+            
+            # Classe (seulement si "Toutes les classes" est sélectionné et colonne visible)
+            if selected_class == "Toutes les classes" and self.column_visibility.get("classe", True):
                 row_cells.append(ft.DataCell(ft.Text(student.get("classe", ""), size=12)))
             
-            row_cells.extend([
-                ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)),
-                ft.DataCell(ft.Text(student.get("telephone_parent", ""), size=12)),
-                ft.DataCell(
+            # N° Élève
+            if self.column_visibility.get("numero_eleve", True):
+                row_cells.append(ft.DataCell(ft.Text(student.get("numero_eleve", ""), size=12)))
+            
+            # N° Parent
+            if self.column_visibility.get("telephone_parent", True):
+                row_cells.append(ft.DataCell(ft.Text(student.get("telephone_parent", ""), size=12)))
+            
+            # Actions (toujours visibles)
+            if self.column_visibility.get("actions", True):
+                row_cells.append(ft.DataCell(
                     ft.Row([
                         ft.IconButton(
                             icon="edit",
@@ -991,28 +1029,52 @@ class StudentRegistrationSystem:
                             on_click=lambda e, student_id=student.get("id"): self.delete_student(student_id)
                         )
                     ], spacing=0)
-                )
-            ])
+                ))
             
             rows.append(ft.DataRow(row_cells))
         
-        # Colonnes dans le nouvel ordre : ID | Prénom | Nom | Date de naissance | Genre | Classe (si toutes) | N° Élève | N° Parent | Actions
-        columns = [
-            ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)),
-        ]
+        # Créer les colonnes selon la visibilité configurée
+        columns = []
         
-        if selected_class == "Toutes les classes":
+        # ID (toujours visible)
+        if self.column_visibility.get("id", True):
+            columns.append(ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Prénom
+        if self.column_visibility.get("prenom", True):
+            columns.append(ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Nom
+        if self.column_visibility.get("nom", True):
+            columns.append(ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Date de naissance
+        if self.column_visibility.get("date_naissance", True):
+            columns.append(ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Lieu de naissance (après date de naissance)
+        if self.column_visibility.get("lieu_naissance", False):
+            columns.append(ft.DataColumn(ft.Text("Lieu naissance", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Genre
+        if self.column_visibility.get("genre", True):
+            columns.append(ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Classe (seulement si "Toutes les classes" est sélectionné et colonne visible)
+        if selected_class == "Toutes les classes" and self.column_visibility.get("classe", True):
             columns.append(ft.DataColumn(ft.Text("Classe", weight=ft.FontWeight.BOLD, size=12)))
         
-        columns.extend([
-            ft.DataColumn(ft.Text("N° Élève", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("N° Parent", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12))
-        ])
+        # N° Élève
+        if self.column_visibility.get("numero_eleve", True):
+            columns.append(ft.DataColumn(ft.Text("N° Élève", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # N° Parent
+        if self.column_visibility.get("telephone_parent", True):
+            columns.append(ft.DataColumn(ft.Text("N° Parent", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Actions (toujours visibles)
+        if self.column_visibility.get("actions", True):
+            columns.append(ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12)))
         
         data_table = ft.DataTable(
             columns=columns,
@@ -1033,6 +1095,17 @@ class StudentRegistrationSystem:
                             size=14,
                             color="#64748b",
                             weight=ft.FontWeight.W_500
+                        ),
+                        ft.Container(expand=True),
+                        ft.ElevatedButton(
+                            "Paramètres",
+                            icon="settings",
+                            on_click=self.show_column_settings_dialog,
+                            bgcolor="#6b7280",
+                            color="#ffffff",
+                            style=ft.ButtonStyle(
+                                text_style=ft.TextStyle(size=12)
+                            )
                         )
                     ]),
                     ft.Container(height=16),
@@ -1055,6 +1128,98 @@ class StudentRegistrationSystem:
             surface_tint_color="#ffffff",
             color="#ffffff"
         )
+    
+    def show_column_settings_dialog(self, e):
+        """Afficher le popup de paramètres des colonnes"""
+        
+        # Créer les switches pour chaque colonne
+        column_switches = []
+        
+        column_labels = {
+            "id": "ID",
+            "prenom": "Prénom", 
+            "nom": "Nom",
+            "date_naissance": "Date de naissance",
+            "lieu_naissance": "Lieu de naissance",
+            "genre": "Genre",
+            "numero_eleve": "N° Élève",
+            "telephone_parent": "N° Parent",
+            "actions": "Actions"
+        }
+        
+        for column_key, label in column_labels.items():
+            # Ne pas permettre de désactiver les colonnes essentielles
+            disabled = column_key in ["id", "actions"]
+            
+            switch = ft.Switch(
+                label=label,
+                value=self.column_visibility.get(column_key, True),
+                disabled=disabled,
+                data=column_key
+            )
+            column_switches.append(switch)
+        
+        self.column_settings_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Paramètres d'affichage des colonnes"),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Sélectionnez les colonnes à afficher dans le tableau :",
+                        size=14,
+                        color="#64748b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Column(
+                        controls=column_switches,
+                        spacing=8
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Note: Les colonnes ID et Actions ne peuvent pas être masquées.",
+                        size=12,
+                        color="#94a3b8",
+                        italic=True
+                    )
+                ], 
+                tight=True,
+                scroll=ft.ScrollMode.AUTO),
+                width=400,
+                height=350
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=self.close_column_settings_dialog),
+                ft.ElevatedButton(
+                    "Appliquer",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    on_click=lambda e: self.apply_column_settings(column_switches)
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.open(self.column_settings_dialog)
+    
+    def close_column_settings_dialog(self, e):
+        """Fermer le popup de paramètres des colonnes"""
+        self.page.close(self.column_settings_dialog)
+    
+    def apply_column_settings(self, switches):
+        """Appliquer les paramètres de visibilité des colonnes"""
+        # Mettre à jour la configuration de visibilité
+        for switch in switches:
+            column_key = switch.data
+            self.column_visibility[column_key] = switch.value
+        
+        # Fermer le popup
+        self.page.close(self.column_settings_dialog)
+        
+        # Reconstruire le tableau avec les nouvelles paramètres
+        if hasattr(self, 'class_filter_dropdown'):
+            self.filter_students_by_class(None)
+        
+        self.show_snackbar("Paramètres d'affichage mis à jour!")
     
     def create_students_table(self):
         """Créer le tableau des élèves"""

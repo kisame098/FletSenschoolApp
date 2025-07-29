@@ -6,13 +6,28 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
+### Gestion avancée des colonnes et recherche d'élèves (29/07/2025)
+- **Barre de recherche dans la gestion des élèves** :
+  - Remplacement du bouton "Nouvel élève" par une barre de recherche
+  - Recherche instantanée et insensible à la casse par ID, nom, prénom ou nom complet
+  - Filtrage combiné avec le sélecteur de classe existant
+  - Conservation de toutes les fonctionnalités existantes
+
+- **Système de gestion d'affichage des colonnes** :
+  - Nouveau bouton "Paramètres" au-dessus du tableau des élèves
+  - Popup modal permettant d'activer/désactiver l'affichage des colonnes
+  - Colonne "Lieu de naissance" ajoutée (désactivée par défaut, apparaît après "Date de naissance")
+  - Colonnes ID et Actions non-désactivables pour maintenir l'intégrité du tableau
+  - Changements dynamiques sans rechargement de page
+  - Préservation des données même quand les colonnes sont masquées
+
 ### Modifications de l'interface utilisateur (29/07/2025)
 - **Formulaire d'inscription des élèves** : 
   - Champ ID déplacé vers le haut (verticalement) tout en conservant sa position horizontale à droite
   - Le champ ID n'est plus aligné avec les champs "Prénom" et "Nom"
 - **Affichage des données des élèves** :
   - Colonnes "Prénom" et "Nom" séparées en deux colonnes distinctes
-  - Nouvel ordre des colonnes : ID | Prénom | Nom | Date de naissance | Genre | Classe (visible uniquement si "Toutes les classes") | N° Élève | N° Parent | Actions
+  - Nouvel ordre des colonnes : ID | Prénom | Nom | Date de naissance | Lieu de naissance (optionnel) | Genre | Classe (visible uniquement si "Toutes les classes") | N° Élève | N° Parent | Actions
   - Amélioration de la lisibilité et de l'organisation des données
 - **Optimisation du tableau de gestion des élèves** :
   - Barre de défilement horizontale toujours visible pour navigation entre colonnes
