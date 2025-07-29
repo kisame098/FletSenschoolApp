@@ -748,6 +748,20 @@ class StudentRegistrationSystem:
             on_change=self.filter_students_by_class
         )
         
+        # Barre de recherche remplaçant le bouton "Nouvel élève"
+        self.student_search_field = ft.TextField(
+            label="Rechercher un élève...",
+            hint_text="Saisir ID, nom, prénom ou nom complet",
+            prefix_icon="search",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=350,
+            on_change=self.search_students,
+            autofocus=False
+        )
+        
         # En-tête
         header = ft.Container(
             content=ft.Column([
@@ -766,13 +780,7 @@ class StudentRegistrationSystem:
                             weight=ft.FontWeight.W_400
                         )
                     ], expand=True),
-                    ft.ElevatedButton(
-                        "Nouvel élève",
-                        icon="person_add",
-                        on_click=lambda _: self.show_student_registration(),
-                        bgcolor="#4f46e5",
-                        color="#ffffff"
-                    )
+                    self.student_search_field
                 ]),
                 ft.Container(height=20),
                 ft.Row([
@@ -801,14 +809,95 @@ class StudentRegistrationSystem:
         
         self.page.update()
     
+    def search_students(self, e):
+        """Rechercher des élèves par ID, nom, prénom ou nom complet"""
+        search_term = self.student_search_field.value.strip().lower() if self.student_search_field.value else ""
+        
+        # Si le terme de recherche est vide, afficher tous les élèves selon le filtre de classe actuel
+        if not search_term:
+            self.filter_students_by_class(None)
+            return
+        
+        # Récupérer tous les élèves selon le filtre de classe actuel
+        selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
+        
+        if selected_class == "Toutes les classes":
+            all_students = self.data_manager.get_all_students()
+        else:
+            all_students = self.data_manager.get_students_by_class(selected_class)
+        
+        # Filtrer les élèves selon le terme de recherche
+        filtered_students = []
+        for student in all_students:
+            # Récupérer les champs de recherche
+            student_id = str(student.get("student_id", student.get("id", ""))).lower()
+            prenom = str(student.get("prenom", "")).lower()
+            nom = str(student.get("nom", "")).lower()
+            nom_complet = f"{prenom} {nom}".strip()
+            numero_eleve = str(student.get("numero_eleve", "")).lower()
+            
+            # Vérifier si le terme de recherche correspond à l'un des champs
+            if (search_term in student_id or 
+                search_term in prenom or 
+                search_term in nom or 
+                search_term in nom_complet or
+                search_term in numero_eleve):
+                filtered_students.append(student)
+        
+        # Trier les résultats par ID
+        def get_sort_key(student):
+            student_id = student.get("student_id", student.get("id", 0))
+            id_str = str(student_id)
+            import re
+            numbers = re.findall(r'\d+', id_str)
+            if numbers:
+                return int(numbers[0])
+            else:
+                return 0
+        
+        filtered_students.sort(key=get_sort_key)
+        
+        # Créer la table avec les résultats filtrés
+        students_table = self.create_filtered_students_table(filtered_students, selected_class)
+        self.students_table_container.content = students_table
+        
+        if hasattr(self, 'page') and self.page:
+            self.page.update()
+    
     def filter_students_by_class(self, e):
         """Filtrer les élèves par classe sélectionnée"""
         selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
         
+        # Vérifier s'il y a un terme de recherche actif
+        search_term = ""
+        if hasattr(self, 'student_search_field') and self.student_search_field.value:
+            search_term = self.student_search_field.value.strip().lower()
+        
+        # Récupérer les élèves selon la classe sélectionnée
         if selected_class == "Toutes les classes":
             students = self.data_manager.get_all_students()
         else:
             students = self.data_manager.get_students_by_class(selected_class)
+        
+        # Appliquer le filtre de recherche si un terme de recherche est actif
+        if search_term:
+            filtered_students = []
+            for student in students:
+                # Récupérer les champs de recherche
+                student_id = str(student.get("student_id", student.get("id", ""))).lower()
+                prenom = str(student.get("prenom", "")).lower()
+                nom = str(student.get("nom", "")).lower()
+                nom_complet = f"{prenom} {nom}".strip()
+                numero_eleve = str(student.get("numero_eleve", "")).lower()
+                
+                # Vérifier si le terme de recherche correspond à l'un des champs
+                if (search_term in student_id or 
+                    search_term in prenom or 
+                    search_term in nom or 
+                    search_term in nom_complet or
+                    search_term in numero_eleve):
+                    filtered_students.append(student)
+            students = filtered_students
         
         # Trier les étudiants par ID avec gestion des différents formats
         def get_sort_key(student):
