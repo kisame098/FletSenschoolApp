@@ -2,15 +2,16 @@
   {
     "id": 1,
     "student_id": 1,
-    "prenom": "ADA",
+    "prenom": "ADAMA",
     "nom": "SAO",
     "nom_complet": "ADA SAO",
-    "date_naissance": "11/12/2003",
+    "date_naissance": "11/12/2005",
     "lieu_naissance": "SAER",
     "numero_eleve": "+221778909987",
     "telephone_parent": "+221777654334",
     "genre": "Masculin",
     "classe": "TS2",
-    "date_creation": "2025-07-28T17:55:23.492753"
+    "date_creation": "2025-07-28T17:55:23.492753",
+    "date_modification": "2025-07-29T17:59:16.536497"
   }
 ]

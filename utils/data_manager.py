@@ -152,6 +152,25 @@ class DataManager:
         teachers = [t for t in teachers if t.get("id") != teacher_id]
         return self._save_data(self.teachers_file, teachers)
     
+    def get_next_teacher_id(self) -> int:
+        """Obtenir le prochain ID de professeur disponible"""
+        teachers = self.get_all_teachers()
+        if not teachers:
+            return 1
+        
+        # Trouver l'ID le plus élevé et ajouter 1
+        max_id = 0
+        for teacher in teachers:
+            teacher_id = teacher.get("teacher_id", teacher.get("id", 0))
+            try:
+                current_id = int(teacher_id)
+                if current_id > max_id:
+                    max_id = current_id
+            except (ValueError, TypeError):
+                continue
+        
+        return max_id + 1
+    
     # Gestion des classes
     def get_all_classes(self) -> List[Dict]:
         """Récupérer toutes les classes"""

@@ -1782,24 +1782,18 @@ class StudentRegistrationSystem:
         header = ft.Container(
             content=ft.Column([
                 ft.Text(
-                    "Inscription professeur",
+                    "Inscription d'un professeur",
                     size=28,
                     weight=ft.FontWeight.BOLD,
                     color="#1e293b"
-                ),
-                ft.Text(
-                    "Enregistrer un nouveau professeur dans le système",
-                    size=15,
-                    color="#64748b",
-                    weight=ft.FontWeight.W_400
                 )
             ]),
             padding=ft.padding.all(32),
             bgcolor="#f8fafc"
         )
         
-        # Formulaire professeur
-        form_content = self.create_teacher_form()
+        # Formulaire
+        form_content = self.create_teacher_registration_form()
         
         # Assembler le contenu avec scrollbar
         self.main_content.content = ft.Column([
@@ -1814,6 +1808,410 @@ class StudentRegistrationSystem:
         ])
         
         self.page.update()
+    
+    def create_teacher_registration_form(self):
+        """Créer le formulaire d'inscription des professeurs"""
+        # Générer le prochain ID professeur (auto-incrémenté)
+        next_teacher_id = self.data_manager.get_next_teacher_id()
+        
+        # Champ ID - positionné exactement comme dans le formulaire élève
+        self.teacher_id_field = ft.Container(
+            content=ft.Text(
+                str(next_teacher_id),
+                size=16,
+                weight=ft.FontWeight.BOLD,
+                color="#4f46e5"
+            ),
+            bgcolor="#fff7ed",
+            border=ft.border.all(2, "#fb923c"),
+            border_radius=8,
+            padding=ft.padding.all(16),
+            width=120,
+            height=56,
+            alignment=ft.alignment.center
+        )
+        
+        # Champs du formulaire
+        self.teacher_prenom_field = ft.TextField(
+            label="Prénom *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280
+        )
+        
+        self.teacher_nom_field = ft.TextField(
+            label="Nom *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280
+        )
+        
+        # Date de naissance avec sélecteur
+        self.teacher_dob_field = ft.TextField(
+            label="Date de naissance *",
+            hint_text="JJ/MM/AAAA",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280,
+            on_change=self.format_teacher_date_input,
+            suffix=ft.IconButton(
+                icon="calendar_today",
+                icon_color="#4f46e5",
+                tooltip="Sélectionner une date",
+                on_click=self.open_teacher_date_picker
+            )
+        )
+        
+        self.teacher_lieu_naissance_field = ft.TextField(
+            label="Lieu de naissance",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280
+        )
+        
+        self.teacher_email_field = ft.TextField(
+            label="Email *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280
+        )
+        
+        self.teacher_telephone_field = ft.TextField(
+            label="Numéro de téléphone",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280
+        )
+        
+        self.teacher_residence_field = ft.TextField(
+            label="Résidence",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280
+        )
+        
+        self.teacher_experience_field = ft.TextField(
+            label="Années d'expérience",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280,
+            keyboard_type=ft.KeyboardType.NUMBER
+        )
+        
+        # Champ matière avec auto-suggestion
+        self.subjects_list = [
+            "Mathématiques", "Sciences physiques et chimie", "SVT", "Français", 
+            "Anglais", "Musique", "Philosophie", "EPS", "Informatique", 
+            "Histoire-géographie", "Grec", "Latin", "Espagnol", "Portugais", "Russe"
+        ]
+        
+        self.teacher_matiere_field = ft.TextField(
+            label="Matière enseignée *",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=280,
+            on_change=self.on_teacher_subject_change
+        )
+        
+        # Liste des suggestions
+        self.subject_suggestions_list = ft.ListView(
+            height=0,  # Caché initialement
+            visible=False,
+            spacing=0
+        )
+        
+        # Organiser les champs exactement comme dans le formulaire élève
+        form_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    # Première ligne - ID seul en haut
+                    ft.Row([
+                        ft.Container(expand=True),
+                        ft.Column([
+                            ft.Text("ID Professeur", size=12, color="#64748b", weight=ft.FontWeight.W_500),
+                            self.teacher_id_field
+                        ])
+                    ]),
+                    
+                    ft.Container(height=24),
+                    
+                    # Deuxième ligne - Prénom et Nom
+                    ft.Row([
+                        self.teacher_prenom_field,
+                        ft.Container(width=20),
+                        self.teacher_nom_field
+                    ]),
+                    
+                    ft.Container(height=20),
+                    
+                    # Troisième ligne - Date et lieu de naissance
+                    ft.Row([
+                        self.teacher_dob_field,
+                        ft.Container(width=20),
+                        self.teacher_lieu_naissance_field
+                    ]),
+                    
+                    ft.Container(height=20),
+                    
+                    # Quatrième ligne - Email et téléphone
+                    ft.Row([
+                        self.teacher_email_field,
+                        ft.Container(width=20),
+                        self.teacher_telephone_field
+                    ]),
+                    
+                    ft.Container(height=20),
+                    
+                    # Cinquième ligne - Résidence et expérience
+                    ft.Row([
+                        self.teacher_residence_field,
+                        ft.Container(width=20),
+                        self.teacher_experience_field
+                    ]),
+                    
+                    ft.Container(height=20),
+                    
+                    # Sixième ligne - Matière avec suggestions
+                    ft.Column([
+                        ft.Row([
+                            self.teacher_matiere_field,
+                            ft.Container(width=300)  # Espace pour équilibrer
+                        ]),
+                        self.subject_suggestions_list
+                    ]),
+                    
+                    ft.Container(height=32),
+                    
+                    # Bouton d'inscription
+                    ft.Row([
+                        ft.Container(expand=True),
+                        ft.ElevatedButton(
+                            "Inscrire",
+                            on_click=self.register_teacher,
+                            bgcolor="#4f46e5",
+                            color="#ffffff",
+                            width=160,
+                            height=48,
+                            style=ft.ButtonStyle(
+                                text_style=ft.TextStyle(size=16, weight=ft.FontWeight.W_500)
+                            )
+                        ),
+                        ft.Container(expand=True)
+                    ])
+                ], spacing=0),
+                padding=32
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        return form_card
+    
+    def format_teacher_date_input(self, e):
+        """Formater automatiquement la saisie de date pour les professeurs"""
+        if e.control.value:
+            # Supprimer tous les caractères non numériques
+            digits = ''.join(filter(str.isdigit, e.control.value))
+            
+            # Formater en JJ/MM/AAAA
+            if len(digits) >= 2:
+                formatted = digits[:2]
+                if len(digits) >= 4:
+                    formatted += '/' + digits[2:4]
+                    if len(digits) >= 8:
+                        formatted += '/' + digits[4:8]
+                    elif len(digits) > 4:
+                        formatted += '/' + digits[4:]
+                elif len(digits) > 2:
+                    formatted += '/' + digits[2:]
+                
+                e.control.value = formatted
+                self.page.update()
+    
+    def open_teacher_date_picker(self, e):
+        """Ouvrir le sélecteur de date pour les professeurs"""
+        if not hasattr(self, 'teacher_date_picker') or self.teacher_date_picker is None:
+            self.teacher_date_picker = ft.DatePicker(
+                first_date=datetime(1900, 1, 1),
+                last_date=datetime.now(),
+                on_change=self.on_teacher_date_change,
+            )
+            if hasattr(self, 'page') and self.page and hasattr(self.page, 'overlay'):
+                self.page.overlay.append(self.teacher_date_picker)
+        
+        self.page.open(self.teacher_date_picker)
+    
+    def on_teacher_date_change(self, e):
+        """Callback pour la sélection de date des professeurs"""
+        if e.control.value:
+            # Formater la date en JJ/MM/AAAA
+            formatted_date = e.control.value.strftime("%d/%m/%Y")
+            self.teacher_dob_field.value = formatted_date
+            self.page.update()
+    
+    def on_teacher_subject_change(self, e):
+        """Gérer l'auto-suggestion pour les matières"""
+        user_input = e.control.value.lower().strip() if e.control.value else ""
+        
+        if not user_input:
+            # Cacher les suggestions si le champ est vide
+            self.subject_suggestions_list.height = 0
+            self.subject_suggestions_list.visible = False
+            self.subject_suggestions_list.controls.clear()
+            self.page.update()
+            return
+        
+        # Filtrer les matières
+        matching_subjects = [
+            subject for subject in self.subjects_list 
+            if user_input in subject.lower()
+        ]
+        
+        if matching_subjects:
+            # Créer les suggestions
+            self.subject_suggestions_list.controls.clear()
+            
+            for subject in matching_subjects[:5]:  # Limiter à 5 suggestions
+                suggestion_button = ft.Container(
+                    content=ft.Text(
+                        subject,
+                        size=14,
+                        color="#374151"
+                    ),
+                    bgcolor="#f9fafb",
+                    border=ft.border.all(1, "#e5e7eb"),
+                    border_radius=4,
+                    padding=ft.padding.symmetric(horizontal=12, vertical=8),
+                    on_click=lambda e, subj=subject: self.select_subject(subj),
+                    width=280
+                )
+                self.subject_suggestions_list.controls.append(suggestion_button)
+            
+            # Afficher les suggestions
+            self.subject_suggestions_list.height = min(150, len(matching_subjects) * 35)
+            self.subject_suggestions_list.visible = True
+        else:
+            # Cacher les suggestions si aucune correspondance
+            self.subject_suggestions_list.height = 0
+            self.subject_suggestions_list.visible = False
+            self.subject_suggestions_list.controls.clear()
+        
+        self.page.update()
+    
+    def select_subject(self, subject):
+        """Sélectionner une matière depuis les suggestions"""
+        self.teacher_matiere_field.value = subject
+        
+        # Cacher les suggestions
+        self.subject_suggestions_list.height = 0
+        self.subject_suggestions_list.visible = False
+        self.subject_suggestions_list.controls.clear()
+        
+        self.page.update()
+    
+    def register_teacher(self, e):
+        """Enregistrer un nouveau professeur"""
+        try:
+            # Validation des champs obligatoires
+            if not self.teacher_prenom_field.value or not self.teacher_prenom_field.value.strip():
+                self.show_snackbar("Le prénom est obligatoire", error=True)
+                return
+            
+            if not self.teacher_nom_field.value or not self.teacher_nom_field.value.strip():
+                self.show_snackbar("Le nom est obligatoire", error=True)  
+                return
+            
+            if not self.teacher_dob_field.value or not self.teacher_dob_field.value.strip():
+                self.show_snackbar("La date de naissance est obligatoire", error=True)
+                return
+            
+            if not self.teacher_email_field.value or not self.teacher_email_field.value.strip():
+                self.show_snackbar("L'email est obligatoire", error=True)
+                return
+            
+            if not self.teacher_matiere_field.value or not self.teacher_matiere_field.value.strip():
+                self.show_snackbar("La matière enseignée est obligatoire", error=True)
+                return
+            
+            # Validation de l'email
+            email = self.teacher_email_field.value.strip()
+            if "@" not in email or "." not in email:
+                self.show_snackbar("Format d'email invalide", error=True)
+                return
+            
+            # Générer l'ID du professeur
+            teacher_id = self.data_manager.get_next_teacher_id()
+            
+            # Préparer les données du professeur
+            teacher_data = {
+                "id": teacher_id,
+                "teacher_id": teacher_id,
+                "prenom": self.teacher_prenom_field.value.strip(),
+                "nom": self.teacher_nom_field.value.strip(),
+                "date_naissance": self.teacher_dob_field.value.strip(),
+                "lieu_naissance": self.teacher_lieu_naissance_field.value.strip() if self.teacher_lieu_naissance_field.value else "",
+                "email": email,
+                "telephone": self.teacher_telephone_field.value.strip() if self.teacher_telephone_field.value else "",
+                "residence": self.teacher_residence_field.value.strip() if self.teacher_residence_field.value else "",
+                "experience": self.teacher_experience_field.value.strip() if self.teacher_experience_field.value else "",
+                "matiere": self.teacher_matiere_field.value.strip(),
+                "date_inscription": datetime.now().isoformat()
+            }
+            
+            # Enregistrer le professeur
+            if self.data_manager.add_teacher(teacher_data):
+                self.show_snackbar("Professeur inscrit avec succès!")
+                
+                # Réinitialiser le formulaire
+                self.clear_teacher_form()
+                
+                # Mettre à jour l'ID pour le prochain professeur
+                next_id = self.data_manager.get_next_teacher_id()
+                self.teacher_id_field.content.value = str(next_id)
+                
+                self.page.update()
+            else:
+                self.show_snackbar("Erreur lors de l'inscription", error=True)
+                
+        except Exception as ex:
+            print(f"Erreur lors de l'inscription du professeur: {ex}")
+            self.show_snackbar("Erreur lors de l'inscription", error=True)
+    
+    def clear_teacher_form(self):
+        """Effacer tous les champs du formulaire professeur"""
+        self.teacher_prenom_field.value = ""
+        self.teacher_nom_field.value = ""
+        self.teacher_dob_field.value = ""
+        self.teacher_lieu_naissance_field.value = ""
+        self.teacher_email_field.value = ""
+        self.teacher_telephone_field.value = ""
+        self.teacher_residence_field.value = ""
+        self.teacher_experience_field.value = ""
+        self.teacher_matiere_field.value = ""
+        
+        # Cacher les suggestions
+        self.subject_suggestions_list.height = 0
+        self.subject_suggestions_list.visible = False
+        self.subject_suggestions_list.controls.clear()
     
     def create_teacher_form(self):
         """Créer le formulaire d'inscription professeur"""
