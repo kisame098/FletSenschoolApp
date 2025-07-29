@@ -6,6 +6,26 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
+### Système complet de gestion des professeurs (29/07/2025)
+- **Gestion des professeurs identique aux élèves** :
+  - Barre de recherche instantanée par ID, nom, prénom ou nom complet
+  - Système de masquage/affichage des colonnes avec popup "Paramètres"
+  - Colonnes spécifiques aux professeurs : Email, Téléphone, Résidence, Expérience, Matière
+  - Colonne "Lieu de naissance" désactivée par défaut comme pour les élèves
+  - Tri automatique par ID et hauteur dynamique du tableau
+  
+- **Actions complètes sur les professeurs** :
+  - Popup de modification avec formulaire pré-rempli et scrollbars
+  - Popup de confirmation de suppression avec détails du professeur
+  - Validation des champs obligatoires (prénom, nom, date naissance, genre, email, matière)
+  - Design cohérent avec la gestion des élèves
+
+- **Ergonomie unifiée** :
+  - Même design que la gestion des élèves pour garantir l'uniformité
+  - Boutons d'actions identiques (Modifier/Supprimer)
+  - Même système de colonnes configurables
+  - Interface responsive avec scrollbars horizontaux et verticaux
+
 ### Gestion avancée des colonnes et recherche d'élèves (29/07/2025)
 - **Barre de recherche dans la gestion des élèves** :
   - Remplacement du bouton "Nouvel élève" par une barre de recherche

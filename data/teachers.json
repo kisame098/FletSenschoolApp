@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": 1,
+    "teacher_id": 1,
+    "prenom": "EDWARD",
+    "nom": "FAYE",
+    "date_naissance": "11/12/1981",
+    "lieu_naissance": "XAOYI",
+    "email": "FAYE345@gmail.com",
+    "telephone": "+221774543233",
+    "residence": "POINT E",
+    "experience": "8",
+    "genre": "Homme",
+    "matiere": "SVT",
+    "date_inscription": "2025-07-29T18:54:01.043523"
+  }
+]

@@ -2409,44 +2409,72 @@ class StudentRegistrationSystem:
         self.current_page = "teacher_management"
         self.clear_main_content()
         
+        # Initialiser la visibilité des colonnes pour les professeurs si elle n'existe pas
+        if not hasattr(self, 'teacher_column_visibility'):
+            self.teacher_column_visibility = {
+                "id": True,
+                "prenom": True,
+                "nom": True,
+                "date_naissance": True,
+                "lieu_naissance": False,
+                "genre": True,
+                "email": True,
+                "telephone": True,
+                "residence": True,
+                "experience": True,
+                "matiere": True,
+                "actions": True
+            }
+        
+        # Barre de recherche pour les professeurs
+        self.teacher_search_field = ft.TextField(
+            label="Rechercher un professeur...",
+            hint_text="Saisir ID, nom, prénom ou nom complet",
+            prefix_icon="search",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=350,
+            on_change=self.search_teachers,
+            autofocus=False
+        )
+        
         # En-tête
         header = ft.Container(
-            content=ft.Row([
-                ft.Column([
-                    ft.Text(
-                        "Gestion des professeurs",
-                        size=28,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b"
-                    ),
-                    ft.Text(
-                        "Consulter et modifier les informations des professeurs",
-                        size=15,
-                        color="#64748b",
-                        weight=ft.FontWeight.W_400
-                    )
-                ], expand=True),
-                ft.ElevatedButton(
-                    "Nouveau professeur",
-                    icon="📷",
-                    on_click=lambda _: self.show_teacher_registration(),
-                    bgcolor="#4f46e5",
-                    color="#ffffff"
-                )
+            content=ft.Column([
+                ft.Row([
+                    ft.Column([
+                        ft.Text(
+                            "Gestion des professeurs",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Consulter et modifier les informations des professeurs",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True),
+                    self.teacher_search_field
+                ])
             ]),
             padding=ft.padding.all(32),
             bgcolor="#f8fafc"
         )
         
-        # Table des professeurs
-        teachers_table = self.create_teachers_table()
+        # Table des professeurs (sera mise à jour par la recherche)
+        self.teachers_table_container = ft.Container()
+        self.load_all_teachers()  # Charger tous les professeurs initialement
         
-        # Assembler le contenu avec scrollbar
+        # Assembler le contenu avec scrollbar comme les autres pages
         self.main_content.content = ft.Column([
             header,
             ft.Container(
                 content=ft.Column([
-                    teachers_table
+                    self.teachers_table_container
                 ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
@@ -2454,6 +2482,626 @@ class StudentRegistrationSystem:
         ])
         
         self.page.update()
+    
+    def load_all_teachers(self):
+        """Charger tous les professeurs dans le tableau"""
+        teachers = self.data_manager.get_all_teachers()
+        self.display_teachers_table(teachers)
+    
+    def search_teachers(self, e):
+        """Rechercher des professeurs par ID, nom, prénom ou nom complet"""
+        search_term = e.control.value.lower().strip() if e.control.value else ""
+        
+        # Récupérer tous les professeurs
+        all_teachers = self.data_manager.get_all_teachers()
+        
+        if not search_term:
+            # Si pas de terme de recherche, afficher tous les professeurs
+            filtered_teachers = all_teachers
+        else:
+            # Filtrer les professeurs selon le terme de recherche
+            filtered_teachers = []
+            for teacher in all_teachers:
+                # Recherche par ID (converti en string)
+                teacher_id = str(teacher.get("id", ""))
+                if search_term in teacher_id.lower():
+                    filtered_teachers.append(teacher)
+                    continue
+                
+                # Recherche par prénom
+                prenom = teacher.get("prenom", "").lower()
+                if search_term in prenom:
+                    filtered_teachers.append(teacher)
+                    continue
+                
+                # Recherche par nom
+                nom = teacher.get("nom", "").lower()
+                if search_term in nom:
+                    filtered_teachers.append(teacher)
+                    continue
+                
+                # Recherche par nom complet (prénom + nom)
+                nom_complet = f"{prenom} {nom}".strip()
+                if search_term in nom_complet:
+                    filtered_teachers.append(teacher)
+                    continue
+        
+        # Afficher les résultats filtrés
+        self.display_teachers_table(filtered_teachers)
+    
+    def display_teachers_table(self, teachers):
+        """Afficher le tableau des professeurs avec les données fournies"""
+        # Trier les professeurs par ID
+        def safe_sort_key(teacher):
+            try:
+                return int(teacher.get("id", 0))
+            except (ValueError, TypeError):
+                return 0
+        
+        teachers = sorted(teachers, key=safe_sort_key)
+        
+        # Créer les lignes du tableau
+        rows = []
+        for teacher in teachers:
+            cells = []
+            
+            # ID (toujours visible)
+            if self.teacher_column_visibility.get("id", True):
+                cells.append(ft.DataCell(ft.Text(str(teacher.get("id", "")), size=12)))
+            
+            # Prénom
+            if self.teacher_column_visibility.get("prenom", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("prenom", ""), size=12)))
+            
+            # Nom
+            if self.teacher_column_visibility.get("nom", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("nom", ""), size=12)))
+            
+            # Date de naissance
+            if self.teacher_column_visibility.get("date_naissance", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("date_naissance", ""), size=12)))
+            
+            # Lieu de naissance (optionnel)
+            if self.teacher_column_visibility.get("lieu_naissance", False):
+                cells.append(ft.DataCell(ft.Text(teacher.get("lieu_naissance", ""), size=12)))
+            
+            # Genre
+            if self.teacher_column_visibility.get("genre", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("genre", ""), size=12)))
+            
+            # Email
+            if self.teacher_column_visibility.get("email", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("email", ""), size=12)))
+            
+            # Téléphone
+            if self.teacher_column_visibility.get("telephone", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("telephone", ""), size=12)))
+            
+            # Résidence
+            if self.teacher_column_visibility.get("residence", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("residence", ""), size=12)))
+            
+            # Années d'expérience
+            if self.teacher_column_visibility.get("experience", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("experience", ""), size=12)))
+            
+            # Matière enseignée
+            if self.teacher_column_visibility.get("matiere", True):
+                cells.append(ft.DataCell(ft.Text(teacher.get("matiere", ""), size=12)))
+            
+            # Actions (toujours visibles)
+            if self.teacher_column_visibility.get("actions", True):
+                action_row = ft.Row([
+                    ft.IconButton(
+                        icon="edit",
+                        icon_color="#4f46e5",
+                        tooltip="Modifier",
+                        on_click=lambda e, t=teacher: self.show_edit_teacher_dialog(t)
+                    ),
+                    ft.IconButton(
+                        icon="delete",
+                        icon_color="#ef4444",
+                        tooltip="Supprimer",
+                        on_click=lambda e, t=teacher: self.show_delete_teacher_confirmation(t)
+                    )
+                ], spacing=0)
+                cells.append(ft.DataCell(action_row))
+            
+            rows.append(ft.DataRow(cells=cells))
+        
+        # Créer les colonnes selon la visibilité
+        columns = []
+        
+        # ID (toujours visible)
+        if self.teacher_column_visibility.get("id", True):
+            columns.append(ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Prénom
+        if self.teacher_column_visibility.get("prenom", True):
+            columns.append(ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Nom
+        if self.teacher_column_visibility.get("nom", True):
+            columns.append(ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Date de naissance
+        if self.teacher_column_visibility.get("date_naissance", True):
+            columns.append(ft.DataColumn(ft.Text("Date de naissance", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Lieu de naissance (optionnel)
+        if self.teacher_column_visibility.get("lieu_naissance", False):
+            columns.append(ft.DataColumn(ft.Text("Lieu de naissance", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Genre
+        if self.teacher_column_visibility.get("genre", True):
+            columns.append(ft.DataColumn(ft.Text("Genre", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Email
+        if self.teacher_column_visibility.get("email", True):
+            columns.append(ft.DataColumn(ft.Text("Email", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Téléphone
+        if self.teacher_column_visibility.get("telephone", True):
+            columns.append(ft.DataColumn(ft.Text("Téléphone", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Résidence
+        if self.teacher_column_visibility.get("residence", True):
+            columns.append(ft.DataColumn(ft.Text("Résidence", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Années d'expérience
+        if self.teacher_column_visibility.get("experience", True):
+            columns.append(ft.DataColumn(ft.Text("Expérience", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Matière enseignée
+        if self.teacher_column_visibility.get("matiere", True):
+            columns.append(ft.DataColumn(ft.Text("Matière", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Actions (toujours visibles)
+        if self.teacher_column_visibility.get("actions", True):
+            columns.append(ft.DataColumn(ft.Text("Actions", weight=ft.FontWeight.BOLD, size=12)))
+        
+        data_table = ft.DataTable(
+            columns=columns,
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            heading_row_color="#f8fafc"
+        )
+        
+        # Mettre à jour le container avec le nouveau tableau
+        self.teachers_table_container.content = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(teachers)} professeur(s)",
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        ),
+                        ft.Container(expand=True),
+                        ft.ElevatedButton(
+                            "Paramètres",
+                            icon="settings",
+                            on_click=self.show_teacher_column_settings_dialog,
+                            bgcolor="#6b7280",
+                            color="#ffffff",
+                            style=ft.ButtonStyle(
+                                text_style=ft.TextStyle(size=12)
+                            )
+                        )
+                    ]),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=ft.Row(
+                            controls=[data_table],
+                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                            vertical_alignment=ft.CrossAxisAlignment.START
+                        ),
+                        height=min(300, max(120, len(teachers) * 45 + 60)),  # Hauteur dynamique basée sur le nombre de professeurs
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        border=ft.border.all(1, "#e2e8f0"),
+                        clip_behavior=ft.ClipBehavior.HARD_EDGE
+                    )
+                ]),
+                padding=24
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
+        )
+        
+        self.page.update()
+    
+    def show_teacher_column_settings_dialog(self, e):
+        """Afficher le popup de paramètres des colonnes pour les professeurs"""
+        
+        # Créer les switches pour chaque colonne
+        column_switches = []
+        
+        column_labels = {
+            "id": "ID",
+            "prenom": "Prénom", 
+            "nom": "Nom",
+            "date_naissance": "Date de naissance",
+            "lieu_naissance": "Lieu de naissance",
+            "genre": "Genre",
+            "email": "Email",
+            "telephone": "Téléphone",
+            "residence": "Résidence",
+            "experience": "Expérience",
+            "matiere": "Matière",
+            "actions": "Actions"
+        }
+        
+        for column_key, label in column_labels.items():
+            # Ne pas permettre de désactiver les colonnes essentielles
+            disabled = column_key in ["id", "actions"]
+            
+            switch = ft.Switch(
+                label=label,
+                value=self.teacher_column_visibility.get(column_key, True),
+                disabled=disabled,
+                data=column_key
+            )
+            column_switches.append(switch)
+        
+        self.teacher_column_settings_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Paramètres d'affichage des colonnes"),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Sélectionnez les colonnes à afficher dans le tableau :",
+                        size=14,
+                        color="#64748b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Column(
+                        controls=column_switches,
+                        spacing=8
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Note: Les colonnes ID et Actions ne peuvent pas être masquées.",
+                        size=12,
+                        color="#94a3b8",
+                        italic=True
+                    )
+                ], 
+                tight=True,
+                scroll=ft.ScrollMode.AUTO),
+                width=400,
+                height=350
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=self.close_teacher_column_settings_dialog),
+                ft.ElevatedButton(
+                    "Appliquer",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    on_click=lambda e: self.apply_teacher_column_settings(column_switches)
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.open(self.teacher_column_settings_dialog)
+    
+    def close_teacher_column_settings_dialog(self, e):
+        """Fermer le popup de paramètres des colonnes pour les professeurs"""
+        self.page.close(self.teacher_column_settings_dialog)
+    
+    def apply_teacher_column_settings(self, switches):
+        """Appliquer les paramètres de visibilité des colonnes pour les professeurs"""
+        # Mettre à jour la configuration de visibilité
+        for switch in switches:
+            column_key = switch.data
+            self.teacher_column_visibility[column_key] = switch.value
+        
+        # Fermer le popup
+        self.page.close(self.teacher_column_settings_dialog)
+        
+        # Reconstruire le tableau avec les nouvelles paramètres
+        self.load_all_teachers()
+        
+        self.show_snackbar("Paramètres d'affichage mis à jour!")
+    
+    def show_edit_teacher_dialog(self, teacher):
+        """Afficher le popup de modification d'un professeur"""
+        
+        # Champs pré-remplis pour la modification
+        edit_prenom = ft.TextField(
+            label="Prénom *",
+            value=teacher.get("prenom", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_nom = ft.TextField(
+            label="Nom *",
+            value=teacher.get("nom", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_dob = ft.TextField(
+            label="Date de naissance *",
+            value=teacher.get("date_naissance", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True,
+            on_change=self.format_date_input_edit
+        )
+        
+        edit_lieu_naissance = ft.TextField(
+            label="Lieu de naissance",
+            value=teacher.get("lieu_naissance", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_genre = ft.Dropdown(
+            label="Genre *",
+            value=teacher.get("genre", ""),
+            options=[
+                ft.dropdown.Option("Homme"),
+                ft.dropdown.Option("Femme")
+            ],
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_email = ft.TextField(
+            label="Email *",
+            value=teacher.get("email", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_telephone = ft.TextField(
+            label="Téléphone",
+            value=teacher.get("telephone", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_residence = ft.TextField(
+            label="Résidence",
+            value=teacher.get("residence", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_experience = ft.TextField(
+            label="Années d'expérience",
+            value=teacher.get("experience", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        edit_matiere = ft.TextField(
+            label="Matière enseignée *",
+            value=teacher.get("matiere", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
+        # ID non modifiable
+        id_display = ft.TextField(
+            label="ID",
+            value=str(teacher.get("id", "")),
+            read_only=True,
+            bgcolor="#f8fafc",
+            border_color="#e2e8f0",
+            focused_border_color="#e2e8f0",
+            text_style=ft.TextStyle(color="#64748b"),
+            expand=True
+        )
+        
+        def save_teacher_changes(e):
+            """Sauvegarder les modifications du professeur"""
+            # Validation des champs obligatoires
+            if not edit_prenom.value or not edit_prenom.value.strip():
+                self.show_snackbar("Le prénom est obligatoire", error=True)
+                return
+            
+            if not edit_nom.value or not edit_nom.value.strip():
+                self.show_snackbar("Le nom est obligatoire", error=True)
+                return
+            
+            if not edit_dob.value or not edit_dob.value.strip():
+                self.show_snackbar("La date de naissance est obligatoire", error=True)
+                return
+            
+            if not edit_genre.value:
+                self.show_snackbar("Le genre est obligatoire", error=True)
+                return
+            
+            if not edit_email.value or not edit_email.value.strip():
+                self.show_snackbar("L'email est obligatoire", error=True)
+                return
+            
+            if not edit_matiere.value or not edit_matiere.value.strip():
+                self.show_snackbar("La matière est obligatoire", error=True)
+                return
+            
+            # Validation de l'email
+            email = edit_email.value.strip()
+            if "@" not in email or "." not in email:
+                self.show_snackbar("Format d'email invalide", error=True)
+                return
+            
+            # Préparer les données mises à jour
+            updated_teacher = {
+                "id": teacher["id"],
+                "teacher_id": teacher.get("teacher_id", teacher["id"]),
+                "prenom": edit_prenom.value.strip(),
+                "nom": edit_nom.value.strip(),
+                "date_naissance": edit_dob.value.strip(),
+                "lieu_naissance": edit_lieu_naissance.value.strip() if edit_lieu_naissance.value else "",
+                "genre": edit_genre.value,
+                "email": email,
+                "telephone": edit_telephone.value.strip() if edit_telephone.value else "",
+                "residence": edit_residence.value.strip() if edit_residence.value else "",
+                "experience": edit_experience.value.strip() if edit_experience.value else "",
+                "matiere": edit_matiere.value.strip(),
+                "date_inscription": teacher.get("date_inscription", datetime.now().isoformat())
+            }
+            
+            # Sauvegarder les modifications
+            if self.data_manager.update_teacher(teacher["id"], updated_teacher):
+                self.page.close(self.edit_teacher_dialog)
+                self.show_snackbar("Professeur modifié avec succès!")
+                
+                # Recharger le tableau
+                self.load_all_teachers()
+            else:
+                self.show_snackbar("Erreur lors de la modification", error=True)
+        
+        # Créer le popup de modification avec scrollbars
+        self.edit_teacher_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Modifier le professeur"),
+            content=ft.Container(
+                content=ft.Column([
+                    # ID non modifiable
+                    id_display,
+                    ft.Container(height=16),
+                    
+                    # Première ligne - Prénom et Nom
+                    ft.Row([
+                        edit_prenom,
+                        ft.Container(width=16),
+                        edit_nom
+                    ]),
+                    ft.Container(height=16),
+                    
+                    # Deuxième ligne - Date et lieu de naissance
+                    ft.Row([
+                        edit_dob,
+                        ft.Container(width=16),
+                        edit_lieu_naissance
+                    ]),
+                    ft.Container(height=16),
+                    
+                    # Troisième ligne - Genre et Email
+                    ft.Row([
+                        edit_genre,
+                        ft.Container(width=16),
+                        edit_email
+                    ]),
+                    ft.Container(height=16),
+                    
+                    # Quatrième ligne - Téléphone et Résidence
+                    ft.Row([
+                        edit_telephone,
+                        ft.Container(width=16),
+                        edit_residence
+                    ]),
+                    ft.Container(height=16),
+                    
+                    # Cinquième ligne - Expérience et Matière
+                    ft.Row([
+                        edit_experience,
+                        ft.Container(width=16),
+                        edit_matiere
+                    ])
+                ], scroll=ft.ScrollMode.ALWAYS),
+                width=600,
+                height=500
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=lambda e: self.page.close(self.edit_teacher_dialog)),
+                ft.ElevatedButton(
+                    "Sauvegarder",
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    on_click=save_teacher_changes
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END
+        )
+        
+        self.page.open(self.edit_teacher_dialog)
+    
+    def show_delete_teacher_confirmation(self, teacher):
+        """Afficher le popup de confirmation de suppression d'un professeur"""
+        
+        # Informations du professeur à supprimer
+        teacher_info = f"ID: {teacher.get('id', 'N/A')}\n"
+        teacher_info += f"Nom: {teacher.get('prenom', '')} {teacher.get('nom', '')}\n"
+        teacher_info += f"Email: {teacher.get('email', 'N/A')}\n"
+        teacher_info += f"Matière: {teacher.get('matiere', 'N/A')}"
+        
+        def confirm_delete(e):
+            """Confirmer et effectuer la suppression"""
+            if self.data_manager.delete_teacher(teacher["id"]):
+                self.page.close(self.delete_teacher_dialog)
+                self.show_snackbar("Professeur supprimé avec succès!")
+                
+                # Recharger le tableau
+                self.load_all_teachers()
+            else:
+                self.show_snackbar("Erreur lors de la suppression", error=True)
+        
+        self.delete_teacher_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmer la suppression", color="#ef4444"),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Êtes-vous sûr de vouloir supprimer ce professeur ?",
+                        size=16,
+                        weight=ft.FontWeight.W_500
+                    ),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=ft.Text(
+                            teacher_info,
+                            size=14,
+                            color="#64748b"
+                        ),
+                        bgcolor="#f8fafc",
+                        padding=16,
+                        border_radius=8,
+                        border=ft.border.all(1, "#e2e8f0")
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "⚠️ Cette action est irréversible !",
+                        size=14,
+                        color="#ef4444",
+                        weight=ft.FontWeight.W_500
+                    )
+                ]),
+                width=400
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=lambda e: self.page.close(self.delete_teacher_dialog)),
+                ft.ElevatedButton(
+                    "Supprimer",
+                    bgcolor="#ef4444",
+                    color="#ffffff",
+                    on_click=confirm_delete
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END
+        )
+        
+        self.page.open(self.delete_teacher_dialog)
     
     def create_teachers_table(self):
         """Créer le tableau des professeurs"""
