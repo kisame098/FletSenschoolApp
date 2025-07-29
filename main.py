@@ -1591,11 +1591,13 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
-        # Créer le popup avec la même largeur et hauteur que nécessaire
+        # Créer le popup avec scrollbars toujours visibles
         self.edit_student_dialog = ft.AlertDialog(
             modal=True,
             content=ft.Container(
-                content=form_card,
+                content=ft.Column([
+                    form_card
+                ], scroll=ft.ScrollMode.ALWAYS),  # Scrollbars toujours visibles
                 width=800,  # Même largeur que le formulaire d'inscription
                 height=600  # Hauteur adaptée
             )
@@ -1605,49 +1607,64 @@ class StudentRegistrationSystem:
     
     def close_edit_student_dialog(self, e):
         """Fermer le popup de modification d'élève"""
-        self.page.close(self.edit_student_dialog)
+        try:
+            self.page.close(self.edit_student_dialog)
+            self.page.update()
+        except Exception as ex:
+            print(f"Erreur lors de la fermeture du popup: {ex}")
     
     def save_student_changes(self, e):
         """Sauvegarder les modifications de l'élève"""
-        # Validation des champs obligatoires
-        if not self.edit_prenom_field.value or not self.edit_prenom_field.value.strip():
-            self.show_snackbar("Le prénom est obligatoire", error=True)
-            return
-        
-        if not self.edit_nom_field.value or not self.edit_nom_field.value.strip():
-            self.show_snackbar("Le nom est obligatoire", error=True)
-            return
-        
-        if not self.edit_dob_field.value or not self.edit_dob_field.value.strip():
-            self.show_snackbar("La date de naissance est obligatoire", error=True)
-            return
-        
-        if not self.edit_classe_dropdown.value:
-            self.show_snackbar("La classe est obligatoire", error=True)
-            return
-        
-        # Préparer les données mises à jour
-        updated_data = {
-            "prenom": self.edit_prenom_field.value.strip(),
-            "nom": self.edit_nom_field.value.strip(),
-            "date_naissance": self.edit_dob_field.value.strip(),
-            "lieu_naissance": self.edit_lieu_naissance_field.value.strip() if self.edit_lieu_naissance_field.value else "",
-            "numero_eleve": self.edit_numero_eleve_field.value.strip() if self.edit_numero_eleve_field.value else "",
-            "telephone_parent": self.edit_telephone_parent_field.value.strip() if self.edit_telephone_parent_field.value else "",
-            "genre": self.edit_genre_dropdown.value,
-            "classe": self.edit_classe_dropdown.value,
-            "date_modification": datetime.now().isoformat()
-        }
-        
-        # Sauvegarder les modifications
-        if self.data_manager.update_student(self.editing_student_id, updated_data):
-            self.show_snackbar("Élève modifié avec succès!")
-            self.page.close(self.edit_student_dialog)
+        try:
+            # Validation des champs obligatoires
+            if not self.edit_prenom_field.value or not self.edit_prenom_field.value.strip():
+                self.show_snackbar("Le prénom est obligatoire", error=True)
+                return
             
-            # Reconstruire le tableau
-            if hasattr(self, 'class_filter_dropdown'):
-                self.filter_students_by_class(None)
-        else:
+            if not self.edit_nom_field.value or not self.edit_nom_field.value.strip():
+                self.show_snackbar("Le nom est obligatoire", error=True)
+                return
+            
+            if not self.edit_dob_field.value or not self.edit_dob_field.value.strip():
+                self.show_snackbar("La date de naissance est obligatoire", error=True)
+                return
+            
+            if not self.edit_classe_dropdown.value:
+                self.show_snackbar("La classe est obligatoire", error=True)
+                return
+            
+            # Préparer les données mises à jour
+            updated_data = {
+                "prenom": self.edit_prenom_field.value.strip(),
+                "nom": self.edit_nom_field.value.strip(),
+                "date_naissance": self.edit_dob_field.value.strip(),
+                "lieu_naissance": self.edit_lieu_naissance_field.value.strip() if self.edit_lieu_naissance_field.value else "",
+                "numero_eleve": self.edit_numero_eleve_field.value.strip() if self.edit_numero_eleve_field.value else "",
+                "telephone_parent": self.edit_telephone_parent_field.value.strip() if self.edit_telephone_parent_field.value else "",
+                "genre": self.edit_genre_dropdown.value,
+                "classe": self.edit_classe_dropdown.value,
+                "date_modification": datetime.now().isoformat()
+            }
+            
+            # Sauvegarder les modifications
+            if self.data_manager.update_student(self.editing_student_id, updated_data):
+                # Fermer le popup d'abord
+                self.page.close(self.edit_student_dialog)
+                
+                # Afficher le message de succès
+                self.show_snackbar("Élève modifié avec succès!")
+                
+                # Reconstruire le tableau avec les nouvelles données
+                if hasattr(self, 'class_filter_dropdown'):
+                    self.filter_students_by_class(None)
+                
+                # Mettre à jour la page
+                self.page.update()
+            else:
+                self.show_snackbar("Erreur lors de la modification", error=True)
+                
+        except Exception as ex:
+            print(f"Erreur lors de la sauvegarde: {ex}")
             self.show_snackbar("Erreur lors de la modification", error=True)
     
     def delete_student(self, student_id):
