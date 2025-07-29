@@ -940,24 +940,19 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Structure optimisée selon l'exemple fourni pour les scrollbars
+        # Reproduction fidèle de l'exemple fonctionnel fourni
         scrollable_table = ft.Container(
             height=400,  # hauteur fixe pour provoquer le scroll vertical
-            width=None,   # largeur automatique qui s'adapte
+            width=800,   # largeur fixe pour provoquer le scroll horizontal
             content=ft.Column(
                 scroll=ft.ScrollMode.ALWAYS,  # scroll vertical toujours affiché
                 controls=[
                     ft.Row(
-                        scroll=ft.ScrollMode.ALWAYS,  # scroll horizontal toujours affiché
+                        scroll=ft.ScrollMode.ADAPTIVE,  # scroll horizontal s'affiche si besoin
                         controls=[data_table],
                     )
                 ],
             ),
-            border_radius=8,
-            bgcolor="#ffffff",
-            padding=0,
-            clip_behavior=ft.ClipBehavior.HARD_EDGE,
-            border=ft.border.all(1, "#e2e8f0")
         )
         
         return ft.Container(
