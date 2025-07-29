@@ -1814,21 +1814,18 @@ class StudentRegistrationSystem:
         # Générer le prochain ID professeur (auto-incrémenté)
         next_teacher_id = self.data_manager.get_next_teacher_id()
         
-        # Champ ID - positionné exactement comme dans le formulaire élève
-        self.teacher_id_field = ft.Container(
-            content=ft.Text(
-                str(next_teacher_id),
-                size=16,
-                weight=ft.FontWeight.BOLD,
-                color="#4f46e5"
-            ),
-            bgcolor="#fff7ed",
-            border=ft.border.all(2, "#fb923c"),
+        # Champ ID auto-généré (non modifiable) - identique au formulaire élève
+        self.teacher_id_field = ft.TextField(
+            label="ID",
+            value=str(next_teacher_id),
+            bgcolor="#f8fafc",
             border_radius=8,
-            padding=ft.padding.all(16),
-            width=120,
-            height=56,
-            alignment=ft.alignment.center
+            border_color="#e2e8f0",
+            focused_border_color="#e2e8f0",
+            width=80,
+            read_only=True,
+            text_style=ft.TextStyle(color="#64748b", weight=ft.FontWeight.BOLD),
+            text_align=ft.TextAlign.CENTER
         )
         
         # Champs du formulaire avec expand=True comme dans le formulaire élève
@@ -1938,102 +1935,92 @@ class StudentRegistrationSystem:
             spacing=0
         )
         
-        # Organiser les champs exactement comme dans le formulaire élève
+        # Bouton d'inscription
+        submit_button = ft.ElevatedButton(
+            "👨‍🏫 Inscrire le professeur",
+            bgcolor="#4285f4",
+            color="#ffffff",
+            height=48,
+            width=200,
+            on_click=self.register_teacher,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=8)
+            )
+        )
+        
+        # Créer le formulaire selon le même design que le formulaire élève
         form_card = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    # Première ligne - Prénom et Nom avec ID en haut à droite
+                    # Ligne ID - Champ ID déplacé vers le haut, aligné à droite
                     ft.Row([
-                        self.teacher_prenom_field,
-                        ft.Container(width=20),
-                        self.teacher_nom_field,
-                        ft.Container(width=40),
-                        ft.Column([
-                            ft.Text("ID Professeur", size=12, color="#64748b", weight=ft.FontWeight.W_500),
-                            self.teacher_id_field
-                        ], alignment=ft.MainAxisAlignment.START)
+                        ft.Container(expand=1),  # Espace vide à gauche
+                        self.teacher_id_field  # Petit champ fixe à droite
                     ]),
-                    
                     ft.Container(height=20),
                     
-                    # Deuxième ligne - Date et lieu de naissance
+                    # Première ligne - Prénom et Nom
+                    ft.Row([
+                        ft.Container(self.teacher_prenom_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.teacher_nom_field, expand=1)
+                    ]),
+                    ft.Container(height=20),
+                    
+                    # Deuxième ligne - Date de naissance avec calendrier et Lieu de naissance
                     ft.Row([
                         ft.Container(
-                            content=self.teacher_dob_field,
-                            expand=True
+                            content=ft.Row([
+                                ft.Container(self.teacher_dob_field, expand=1),
+                                ft.IconButton(
+                                    icon="calendar_today",
+                                    icon_color="#4f46e5",
+                                    tooltip="Choisir une date",
+                                    on_click=self.open_teacher_date_picker
+                                )
+                            ], spacing=8),
+                            expand=1
                         ),
-                        ft.Container(width=20),
-                        ft.Container(
-                            content=self.teacher_lieu_naissance_field,
-                            expand=True
-                        )
+                        ft.Container(width=16),
+                        ft.Container(self.teacher_lieu_naissance_field, expand=1)
                     ]),
-                    
                     ft.Container(height=20),
                     
-                    # Troisième ligne - Email et téléphone
+                    # Troisième ligne - Email et Téléphone
                     ft.Row([
-                        ft.Container(
-                            content=self.teacher_email_field,
-                            expand=True
-                        ),
-                        ft.Container(width=20),
-                        ft.Container(
-                            content=self.teacher_telephone_field,
-                            expand=True
-                        )
+                        ft.Container(self.teacher_email_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.teacher_telephone_field, expand=1)
                     ]),
-                    
                     ft.Container(height=20),
                     
-                    # Quatrième ligne - Résidence et expérience
+                    # Quatrième ligne - Résidence et Années d'expérience
                     ft.Row([
-                        ft.Container(
-                            content=self.teacher_residence_field,
-                            expand=True
-                        ),
-                        ft.Container(width=20),
-                        ft.Container(
-                            content=self.teacher_experience_field,
-                            expand=True
-                        )
+                        ft.Container(self.teacher_residence_field, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(self.teacher_experience_field, expand=1)
                     ]),
-                    
                     ft.Container(height=20),
                     
-                    # Cinquième ligne - Matière avec suggestions (comme les dropdowns dans le formulaire élève)
+                    # Cinquième ligne - Matière enseignée avec suggestions
                     ft.Column([
                         ft.Row([
-                            ft.Container(
-                                content=self.teacher_matiere_field,
-                                expand=True
-                            ),
-                            ft.Container(expand=True)  # Equilibre comme dans le formulaire élève
+                            ft.Container(self.teacher_matiere_field, expand=1),
+                            ft.Container(width=16),
+                            ft.Container(expand=1)  # Espace vide à droite pour équilibrer
                         ]),
                         self.subject_suggestions_list
                     ]),
+                    ft.Container(height=30),
                     
-                    ft.Container(height=32),
-                    
-                    # Bouton d'inscription centré comme dans le formulaire élève
+                    # Bouton d'inscription
                     ft.Row([
-                        ft.Container(expand=True),
-                        ft.ElevatedButton(
-                            "Inscrire",
-                            on_click=self.register_teacher,
-                            bgcolor="#4f46e5",
-                            color="#ffffff",
-                            width=160,
-                            height=48,
-                            style=ft.ButtonStyle(
-                                text_style=ft.TextStyle(size=16, weight=ft.FontWeight.W_500)
-                            )
-                        ),
-                        ft.Container(expand=True)
-                    ])
-                ], spacing=0),
-                padding=32,
-                width=800  # Même largeur que le formulaire élève
+                        submit_button
+                    ], alignment=ft.MainAxisAlignment.START)
+                ]),
+                padding=40,
+                bgcolor="#ffffff",
+                border_radius=12
             ),
             elevation=0,
             surface_tint_color="#ffffff",
@@ -2201,7 +2188,7 @@ class StudentRegistrationSystem:
                 
                 # Mettre à jour l'ID pour le prochain professeur
                 next_id = self.data_manager.get_next_teacher_id()
-                self.teacher_id_field.content.value = str(next_id)
+                self.teacher_id_field.value = str(next_id)
                 
                 self.page.update()
             else:
