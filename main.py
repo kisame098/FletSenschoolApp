@@ -940,31 +940,24 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Container avec double scroll: Column pour vertical et Row pour horizontal
-        # Wrapper pour scroll vertical avec Container à hauteur fixe
-        vertical_scroll_wrapper = ft.Container(
-            content=ft.Column(
-                controls=[data_table],
-                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
-                horizontal_alignment=ft.CrossAxisAlignment.START
-            ),
-            height=300,  # Hauteur fixe pour forcer l'apparition du scroll vertical
-            width=None,
-            bgcolor="#ffffff",
-            padding=0
-        )
-        
-        # Wrapper pour scroll horizontal 
+        # Structure optimisée selon l'exemple fourni pour les scrollbars
         scrollable_table = ft.Container(
-            content=ft.Row(
-                controls=[vertical_scroll_wrapper],
-                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
-                vertical_alignment=ft.CrossAxisAlignment.START
+            height=400,  # hauteur fixe pour provoquer le scroll vertical
+            width=None,   # largeur automatique qui s'adapte
+            content=ft.Column(
+                scroll=ft.ScrollMode.ALWAYS,  # scroll vertical toujours affiché
+                controls=[
+                    ft.Row(
+                        scroll=ft.ScrollMode.ALWAYS,  # scroll horizontal toujours affiché
+                        controls=[data_table],
+                    )
+                ],
             ),
             border_radius=8,
             bgcolor="#ffffff",
             padding=0,
-            clip_behavior=ft.ClipBehavior.HARD_EDGE
+            clip_behavior=ft.ClipBehavior.HARD_EDGE,
+            border=ft.border.all(1, "#e2e8f0")
         )
         
         return ft.Container(
@@ -978,16 +971,7 @@ class StudentRegistrationSystem:
                     )
                 ]),
                 ft.Container(height=16),
-                ft.Container(
-                    content=scrollable_table,
-                    # Hauteur dynamique basée sur le contenu réel
-                    height=min(400, max(150, len(students) * 50 + 80)),  # Adapté au nombre de lignes
-                    width=None,
-                    border_radius=8,
-                    clip_behavior=ft.ClipBehavior.HARD_EDGE,
-                    border=ft.border.all(1, "#e2e8f0"),
-                    bgcolor="#ffffff"
-                )
+                scrollable_table  # Container déjà configuré avec les bonnes dimensions
             ], tight=True, spacing=0),  # tight=True et spacing=0 pour éliminer les espaces
             padding=24,
             bgcolor="#ffffff",
