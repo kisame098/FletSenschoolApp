@@ -1831,14 +1831,14 @@ class StudentRegistrationSystem:
             alignment=ft.alignment.center
         )
         
-        # Champs du formulaire
+        # Champs du formulaire avec expand=True comme dans le formulaire élève
         self.teacher_prenom_field = ft.TextField(
             label="Prénom *",
             bgcolor="#ffffff",
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280
+            expand=True
         )
         
         self.teacher_nom_field = ft.TextField(
@@ -1847,7 +1847,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280
+            expand=True
         )
         
         # Date de naissance avec sélecteur
@@ -1858,7 +1858,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280,
+            expand=True,
             on_change=self.format_teacher_date_input,
             suffix=ft.IconButton(
                 icon="calendar_today",
@@ -1874,7 +1874,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280
+            expand=True
         )
         
         self.teacher_email_field = ft.TextField(
@@ -1883,7 +1883,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280
+            expand=True
         )
         
         self.teacher_telephone_field = ft.TextField(
@@ -1892,7 +1892,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280
+            expand=True
         )
         
         self.teacher_residence_field = ft.TextField(
@@ -1901,7 +1901,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280
+            expand=True
         )
         
         self.teacher_experience_field = ft.TextField(
@@ -1910,7 +1910,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280,
+            expand=True,
             keyboard_type=ft.KeyboardType.NUMBER
         )
         
@@ -1927,7 +1927,7 @@ class StudentRegistrationSystem:
             border_radius=8,
             border_color="#e2e8f0",
             focused_border_color="#4f46e5",
-            width=280,
+            expand=True,
             on_change=self.on_teacher_subject_change
         )
         
@@ -1942,65 +1942,80 @@ class StudentRegistrationSystem:
         form_card = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    # Première ligne - ID seul en haut
-                    ft.Row([
-                        ft.Container(expand=True),
-                        ft.Column([
-                            ft.Text("ID Professeur", size=12, color="#64748b", weight=ft.FontWeight.W_500),
-                            self.teacher_id_field
-                        ])
-                    ]),
-                    
-                    ft.Container(height=24),
-                    
-                    # Deuxième ligne - Prénom et Nom
+                    # Première ligne - Prénom et Nom avec ID en haut à droite
                     ft.Row([
                         self.teacher_prenom_field,
                         ft.Container(width=20),
-                        self.teacher_nom_field
+                        self.teacher_nom_field,
+                        ft.Container(width=40),
+                        ft.Column([
+                            ft.Text("ID Professeur", size=12, color="#64748b", weight=ft.FontWeight.W_500),
+                            self.teacher_id_field
+                        ], alignment=ft.MainAxisAlignment.START)
                     ]),
                     
                     ft.Container(height=20),
                     
-                    # Troisième ligne - Date et lieu de naissance
+                    # Deuxième ligne - Date et lieu de naissance
                     ft.Row([
-                        self.teacher_dob_field,
+                        ft.Container(
+                            content=self.teacher_dob_field,
+                            expand=True
+                        ),
                         ft.Container(width=20),
-                        self.teacher_lieu_naissance_field
+                        ft.Container(
+                            content=self.teacher_lieu_naissance_field,
+                            expand=True
+                        )
                     ]),
                     
                     ft.Container(height=20),
                     
-                    # Quatrième ligne - Email et téléphone
+                    # Troisième ligne - Email et téléphone
                     ft.Row([
-                        self.teacher_email_field,
+                        ft.Container(
+                            content=self.teacher_email_field,
+                            expand=True
+                        ),
                         ft.Container(width=20),
-                        self.teacher_telephone_field
+                        ft.Container(
+                            content=self.teacher_telephone_field,
+                            expand=True
+                        )
                     ]),
                     
                     ft.Container(height=20),
                     
-                    # Cinquième ligne - Résidence et expérience
+                    # Quatrième ligne - Résidence et expérience
                     ft.Row([
-                        self.teacher_residence_field,
+                        ft.Container(
+                            content=self.teacher_residence_field,
+                            expand=True
+                        ),
                         ft.Container(width=20),
-                        self.teacher_experience_field
+                        ft.Container(
+                            content=self.teacher_experience_field,
+                            expand=True
+                        )
                     ]),
                     
                     ft.Container(height=20),
                     
-                    # Sixième ligne - Matière avec suggestions
+                    # Cinquième ligne - Matière avec suggestions (comme les dropdowns dans le formulaire élève)
                     ft.Column([
                         ft.Row([
-                            self.teacher_matiere_field,
-                            ft.Container(width=300)  # Espace pour équilibrer
+                            ft.Container(
+                                content=self.teacher_matiere_field,
+                                expand=True
+                            ),
+                            ft.Container(expand=True)  # Equilibre comme dans le formulaire élève
                         ]),
                         self.subject_suggestions_list
                     ]),
                     
                     ft.Container(height=32),
                     
-                    # Bouton d'inscription
+                    # Bouton d'inscription centré comme dans le formulaire élève
                     ft.Row([
                         ft.Container(expand=True),
                         ft.ElevatedButton(
@@ -2017,7 +2032,8 @@ class StudentRegistrationSystem:
                         ft.Container(expand=True)
                     ])
                 ], spacing=0),
-                padding=32
+                padding=32,
+                width=800  # Même largeur que le formulaire élève
             ),
             elevation=0,
             surface_tint_color="#ffffff",
@@ -2101,8 +2117,7 @@ class StudentRegistrationSystem:
                     border=ft.border.all(1, "#e5e7eb"),
                     border_radius=4,
                     padding=ft.padding.symmetric(horizontal=12, vertical=8),
-                    on_click=lambda e, subj=subject: self.select_subject(subj),
-                    width=280
+                    on_click=lambda e, subj=subject: self.select_subject(subj)
                 )
                 self.subject_suggestions_list.controls.append(suggestion_button)
             
