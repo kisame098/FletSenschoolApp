@@ -955,10 +955,16 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=16),
                     ft.Container(
-                        content=data_table,
+                        content=ft.Row(
+                            controls=[data_table],
+                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                            vertical_alignment=ft.CrossAxisAlignment.START
+                        ),
+                        height=400,  # Hauteur fixe pour contenir le tableau
                         border_radius=8,
                         bgcolor="#ffffff",
-                        border=ft.border.all(1, "#e2e8f0")
+                        border=ft.border.all(1, "#e2e8f0"),
+                        clip_behavior=ft.ClipBehavior.HARD_EDGE
                     )
                 ]),
                 padding=24
