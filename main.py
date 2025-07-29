@@ -1918,6 +1918,18 @@ class StudentRegistrationSystem:
             "Histoire-géographie", "Grec", "Latin", "Espagnol", "Portugais", "Russe"
         ]
         
+        self.teacher_genre_dropdown = ft.Dropdown(
+            label="Genre *",
+            hint_text="Sélectionner",
+            options=[
+                ft.dropdown.Option("Homme"),
+                ft.dropdown.Option("Femme")
+            ],
+            bgcolor="#ffffff",
+            border_radius=8,
+            expand=True
+        )
+        
         self.teacher_matiere_field = ft.TextField(
             label="Matière enseignée *",
             bgcolor="#ffffff",
@@ -2002,14 +2014,17 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=20),
                     
-                    # Cinquième ligne - Matière enseignée avec suggestions
-                    ft.Column([
-                        ft.Row([
-                            ft.Container(self.teacher_matiere_field, expand=1),
-                            ft.Container(width=16),
-                            ft.Container(expand=1)  # Espace vide à droite pour équilibrer
-                        ]),
-                        self.subject_suggestions_list
+                    # Cinquième ligne - Genre et Matière enseignée
+                    ft.Row([
+                        ft.Container(self.teacher_genre_dropdown, expand=1),
+                        ft.Container(width=16),
+                        ft.Container(
+                            content=ft.Column([
+                                self.teacher_matiere_field,
+                                self.subject_suggestions_list
+                            ]),
+                            expand=1
+                        )
                     ]),
                     ft.Container(height=30),
                     
@@ -2150,6 +2165,10 @@ class StudentRegistrationSystem:
                 self.show_snackbar("L'email est obligatoire", error=True)
                 return
             
+            if not self.teacher_genre_dropdown.value:
+                self.show_snackbar("Le genre est obligatoire", error=True)
+                return
+            
             if not self.teacher_matiere_field.value or not self.teacher_matiere_field.value.strip():
                 self.show_snackbar("La matière enseignée est obligatoire", error=True)
                 return
@@ -2175,6 +2194,7 @@ class StudentRegistrationSystem:
                 "telephone": self.teacher_telephone_field.value.strip() if self.teacher_telephone_field.value else "",
                 "residence": self.teacher_residence_field.value.strip() if self.teacher_residence_field.value else "",
                 "experience": self.teacher_experience_field.value.strip() if self.teacher_experience_field.value else "",
+                "genre": self.teacher_genre_dropdown.value,
                 "matiere": self.teacher_matiere_field.value.strip(),
                 "date_inscription": datetime.now().isoformat()
             }
@@ -2208,6 +2228,7 @@ class StudentRegistrationSystem:
         self.teacher_telephone_field.value = ""
         self.teacher_residence_field.value = ""
         self.teacher_experience_field.value = ""
+        self.teacher_genre_dropdown.value = None
         self.teacher_matiere_field.value = ""
         
         # Cacher les suggestions
@@ -3148,6 +3169,27 @@ class StudentRegistrationSystem:
         """Ouvrir le sélecteur de date"""
         if hasattr(self, 'date_picker') and self.date_picker:
             self.date_picker.open = True
+            self.page.update()
+    
+    def open_teacher_date_picker(self, e):
+        """Ouvrir le sélecteur de date pour le professeur"""
+        if not hasattr(self, 'teacher_date_picker'):
+            self.teacher_date_picker = ft.DatePicker(
+                first_date=datetime(1950, 1, 1),
+                last_date=datetime.now(),
+                on_change=self.on_teacher_date_picked
+            )
+            self.page.overlay.append(self.teacher_date_picker)
+        
+        self.teacher_date_picker.open = True
+        self.page.update()
+    
+    def on_teacher_date_picked(self, e):
+        """Traiter la date sélectionnée pour le professeur"""
+        if e.control.value:
+            selected_date = e.control.value
+            formatted_date = selected_date.strftime("%Y-%m-%d")
+            self.teacher_dob_field.value = formatted_date
             self.page.update()
     
     def on_date_change(self, e):
