@@ -1324,68 +1324,335 @@ class StudentRegistrationSystem:
         )
     
     def edit_student(self, student_id):
-        """Modifier un élève"""
+        """Modifier un élève via popup"""
         student = self.data_manager.get_student(student_id)
-        if student:
-            # Pré-remplir le formulaire avec les données existantes
-            self.selected_student_id = student_id
-            self.show_student_registration()
-            
-            # Remplir les champs après affichage
-            self.reg_no_field.value = student.get("registration_no", "")
-            self.date_field.value = student.get("date_inscription", "")
-            self.name_field.value = student.get("nom_complet", "")
-            self.class_dropdown.value = student.get("classe", "")
-            self.dob_field.value = student.get("date_naissance", "")
-            self.religion_field.value = student.get("religion", "")
-            self.gender_dropdown.value = student.get("genre", "Masculin")
-            self.skills_field.value = student.get("competences", "")
-            self.father_name_field.value = student.get("nom_pere", "")
-            self.mother_name_field.value = student.get("nom_mere", "")
-            self.father_occupation_field.value = student.get("profession_pere", "")
-            self.mother_occupation_field.value = student.get("profession_mere", "")
-            
-            # Charger la photo si elle existe
-            if student.get("photo_path") and os.path.exists(student.get("photo_path")):
-                self.photo_path = student.get("photo_path")
-                self.photo_display.content = ft.Image(
-                    src=self.photo_path,
-                    width=120,
-                    height=120,
-                    fit=ft.ImageFit.COVER,
-                    border_radius=8
-                )
-            
-            self.page.update()
+        if not student:
+            self.show_snackbar("Élève introuvable", error=True)
+            return
+        
+        self.editing_student_id = student_id
+        self.show_edit_student_dialog(student)
     
-    def delete_student(self, student_id):
-        """Supprimer un élève"""
-        def confirm_delete(e):
-            if self.data_manager.delete_student(student_id):
-                self.show_snackbar("Élève supprimé avec succès!")
-                self.show_student_management()
-            else:
-                self.show_snackbar("Erreur lors de la suppression", error=True)
-            dialog.open = False
-            self.page.update()
+    def show_edit_student_dialog(self, student):
+        """Afficher le popup de modification d'élève"""
         
-        def cancel_delete(e):
-            dialog.open = False
-            self.page.update()
+        # Récupérer les classes disponibles
+        classes = self.data_manager.get_all_classes()
+        class_options = []
+        if classes:
+            for classe in classes:
+                class_options.append(ft.dropdown.Option(classe.get("nom", "")))
         
-        dialog = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("Confirmer la suppression"),
-            content=ft.Text("Êtes-vous sûr de vouloir supprimer cet élève ? Cette action est irréversible."),
-            actions=[
-                ft.TextButton("Annuler", on_click=cancel_delete),
-                ft.TextButton("Supprimer", on_click=confirm_delete, style=ft.ButtonStyle(color="#ef4444"))
-            ]
+        # Créer les champs du formulaire pré-remplis
+        self.edit_student_id_field = ft.TextField(
+            label="ID",
+            value=str(student.get("student_id", student.get("id", ""))),
+            bgcolor="#f3f4f6",
+            border_color="#d1d5db",
+            read_only=True,
+            width=100
         )
         
-        self.page.dialog = dialog
-        dialog.open = True
-        self.page.update()
+        self.edit_prenom_field = ft.TextField(
+            label="Prénom *",
+            value=student.get("prenom", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=200
+        )
+        
+        self.edit_nom_field = ft.TextField(
+            label="Nom *",
+            value=student.get("nom", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=200
+        )
+        
+        self.edit_dob_field = ft.TextField(
+            label="Date de naissance (JJ/MM/AAAA) *",
+            value=student.get("date_naissance", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=200
+        )
+        
+        self.edit_lieu_naissance_field = ft.TextField(
+            label="Lieu de naissance",
+            value=student.get("lieu_naissance", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=200
+        )
+        
+        self.edit_numero_eleve_field = ft.TextField(
+            label="Numéro élève",
+            value=student.get("numero_eleve", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=200
+        )
+        
+        self.edit_telephone_parent_field = ft.TextField(
+            label="Téléphone parent",
+            value=student.get("telephone_parent", ""),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=200
+        )
+        
+        self.edit_genre_dropdown = ft.Dropdown(
+            label="Genre *",
+            value=student.get("genre", "Masculin"),
+            options=[
+                ft.dropdown.Option("Masculin"),
+                ft.dropdown.Option("Féminin")
+            ],
+            bgcolor="#ffffff",
+            border_radius=8,
+            width=200
+        )
+        
+        self.edit_classe_dropdown = ft.Dropdown(
+            label="Classe *",
+            value=student.get("classe", ""),
+            options=class_options,
+            bgcolor="#ffffff",
+            border_radius=8,
+            width=200
+        )
+        
+        # Contenu du popup
+        popup_content = ft.Column([
+            ft.Text(
+                f"Modifier l'élève",
+                size=20,
+                weight=ft.FontWeight.BOLD,
+                color="#1e293b"
+            ),
+            ft.Container(height=16),
+            
+            # Ligne 1: ID et informations personnelles
+            ft.Row([
+                ft.Column([
+                    self.edit_prenom_field,
+                    self.edit_nom_field,
+                    self.edit_dob_field,
+                    self.edit_lieu_naissance_field
+                ], spacing=16),
+                ft.Container(width=32),
+                ft.Column([
+                    self.edit_student_id_field,
+                    self.edit_numero_eleve_field,
+                    self.edit_telephone_parent_field
+                ], spacing=16)
+            ]),
+            
+            ft.Container(height=16),
+            
+            # Ligne 2: Genre et classe
+            ft.Row([
+                self.edit_genre_dropdown,
+                ft.Container(width=16),
+                self.edit_classe_dropdown
+            ]),
+            
+            ft.Container(height=24),
+            
+            # Boutons
+            ft.Row([
+                ft.ElevatedButton(
+                    "Annuler",
+                    on_click=self.close_edit_student_dialog,
+                    bgcolor="#6b7280",
+                    color="#ffffff"
+                ),
+                ft.Container(width=16),
+                ft.ElevatedButton(
+                    "Sauvegarder",
+                    on_click=self.save_student_changes,
+                    bgcolor="#4f46e5",
+                    color="#ffffff"
+                )
+            ], alignment=ft.MainAxisAlignment.END)
+        ], scroll=ft.ScrollMode.AUTO)
+        
+        self.edit_student_dialog = ft.AlertDialog(
+            modal=True,
+            content=ft.Container(
+                content=popup_content,
+                width=600,
+                height=450,
+                padding=24
+            )
+        )
+        
+        self.page.open(self.edit_student_dialog)
+    
+    def close_edit_student_dialog(self, e):
+        """Fermer le popup de modification d'élève"""
+        self.page.close(self.edit_student_dialog)
+    
+    def save_student_changes(self, e):
+        """Sauvegarder les modifications de l'élève"""
+        # Validation des champs obligatoires
+        if not self.edit_prenom_field.value or not self.edit_prenom_field.value.strip():
+            self.show_snackbar("Le prénom est obligatoire", error=True)
+            return
+        
+        if not self.edit_nom_field.value or not self.edit_nom_field.value.strip():
+            self.show_snackbar("Le nom est obligatoire", error=True)
+            return
+        
+        if not self.edit_dob_field.value or not self.edit_dob_field.value.strip():
+            self.show_snackbar("La date de naissance est obligatoire", error=True)
+            return
+        
+        if not self.edit_classe_dropdown.value:
+            self.show_snackbar("La classe est obligatoire", error=True)
+            return
+        
+        # Préparer les données mises à jour
+        updated_data = {
+            "prenom": self.edit_prenom_field.value.strip(),
+            "nom": self.edit_nom_field.value.strip(),
+            "date_naissance": self.edit_dob_field.value.strip(),
+            "lieu_naissance": self.edit_lieu_naissance_field.value.strip() if self.edit_lieu_naissance_field.value else "",
+            "numero_eleve": self.edit_numero_eleve_field.value.strip() if self.edit_numero_eleve_field.value else "",
+            "telephone_parent": self.edit_telephone_parent_field.value.strip() if self.edit_telephone_parent_field.value else "",
+            "genre": self.edit_genre_dropdown.value,
+            "classe": self.edit_classe_dropdown.value,
+            "date_modification": datetime.now().isoformat()
+        }
+        
+        # Sauvegarder les modifications
+        if self.data_manager.update_student(self.editing_student_id, updated_data):
+            self.show_snackbar("Élève modifié avec succès!")
+            self.page.close(self.edit_student_dialog)
+            
+            # Reconstruire le tableau
+            if hasattr(self, 'class_filter_dropdown'):
+                self.filter_students_by_class(None)
+        else:
+            self.show_snackbar("Erreur lors de la modification", error=True)
+    
+    def delete_student(self, student_id):
+        """Supprimer un élève avec popup de confirmation"""
+        student = self.data_manager.get_student(student_id)
+        if not student:
+            self.show_snackbar("Élève introuvable", error=True)
+            return
+        
+        self.deleting_student_id = student_id
+        self.show_delete_student_dialog(student)
+    
+    def show_delete_student_dialog(self, student):
+        """Afficher le popup de confirmation de suppression"""
+        
+        student_name = f"{student.get('prenom', '')} {student.get('nom', '')}".strip()
+        student_class = student.get('classe', 'Non définie')
+        
+        self.delete_student_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Row([
+                ft.Icon("warning", color="#ef4444", size=24),
+                ft.Container(width=8),
+                ft.Text("Confirmer la suppression", color="#ef4444", weight=ft.FontWeight.BOLD)
+            ]),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Êtes-vous sûr de vouloir supprimer cet élève ?",
+                        size=16,
+                        weight=ft.FontWeight.W_500,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=16),
+                    ft.Card(
+                        content=ft.Container(
+                            content=ft.Column([
+                                ft.Row([
+                                    ft.Text("Nom:", weight=ft.FontWeight.BOLD, size=14, color="#64748b"),
+                                    ft.Text(student_name, size=14, color="#1e293b")
+                                ]),
+                                ft.Row([
+                                    ft.Text("Classe:", weight=ft.FontWeight.BOLD, size=14, color="#64748b"),
+                                    ft.Text(student_class, size=14, color="#1e293b")
+                                ]),
+                                ft.Row([
+                                    ft.Text("ID:", weight=ft.FontWeight.BOLD, size=14, color="#64748b"),
+                                    ft.Text(str(student.get("student_id", student.get("id", ""))), size=14, color="#1e293b")
+                                ])
+                            ], spacing=8),
+                            padding=16
+                        ),
+                        elevation=0,
+                        color="#f8fafc"
+                    ),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=ft.Text(
+                            "⚠️ Cette action est irréversible",
+                            size=14,
+                            color="#ef4444",
+                            weight=ft.FontWeight.W_500,
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        bgcolor="#fef2f2",
+                        padding=12,
+                        border_radius=8,
+                        border=ft.border.all(1, "#fecaca")
+                    )
+                ], tight=True),
+                width=400,
+                height=250
+            ),
+            actions=[
+                ft.ElevatedButton(
+                    "Annuler",
+                    on_click=self.close_delete_student_dialog,
+                    bgcolor="#6b7280",
+                    color="#ffffff"
+                ),
+                ft.ElevatedButton(
+                    "Confirmer la suppression",
+                    on_click=self.confirm_delete_student,
+                    bgcolor="#ef4444",
+                    color="#ffffff"
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+        )
+        
+        self.page.open(self.delete_student_dialog)
+    
+    def close_delete_student_dialog(self, e):
+        """Fermer le popup de confirmation de suppression"""
+        self.page.close(self.delete_student_dialog)
+    
+    def confirm_delete_student(self, e):
+        """Confirmer et exécuter la suppression"""
+        if self.data_manager.delete_student(self.deleting_student_id):
+            self.show_snackbar("Élève supprimé avec succès!")
+            self.page.close(self.delete_student_dialog)
+            
+            # Reconstruire le tableau
+            if hasattr(self, 'class_filter_dropdown'):
+                self.filter_students_by_class(None)
+        else:
+            self.show_snackbar("Erreur lors de la suppression", error=True)
     
     def show_teacher_registration(self):
         """Afficher le formulaire d'inscription des professeurs"""

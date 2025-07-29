@@ -21,6 +21,14 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
   - Changements dynamiques sans rechargement de page
   - Préservation des données même quand les colonnes sont masquées
 
+- **Actions améliorées pour la gestion des élèves** :
+  - Popup de modification d'élève avec formulaire complet pré-rempli
+  - ID verrouillé et non-modifiable lors de l'édition
+  - Validation des champs obligatoires avant sauvegarde
+  - Popup de confirmation de suppression avec informations détaillées de l'élève
+  - Design moderne et responsive pour tous les popups
+  - Interface utilisateur cohérente avec le style graphique existant
+
 ### Modifications de l'interface utilisateur (29/07/2025)
 - **Formulaire d'inscription des élèves** : 
   - Champ ID déplacé vers le haut (verticalement) tout en conservant sa position horizontale à droite
