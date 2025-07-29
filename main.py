@@ -47,7 +47,7 @@ class StudentRegistrationSystem:
         page.padding = 0
         page.bgcolor = "#f8fafc"
         
-        # Thème personnalisé moderne
+        # Thème personnalisé moderne avec scrollbars toujours visibles
         page.theme = ft.Theme(
             color_scheme=ft.ColorScheme(
                 primary="#4f46e5",
@@ -58,6 +58,19 @@ class StudentRegistrationSystem:
                 error="#ef4444",
                 on_primary="#ffffff",
                 on_surface="#1e293b"
+            ),
+            scrollbar_theme=ft.ScrollbarTheme(
+                track_visibility=True,     # Track toujours visible
+                thumb_visibility=True,     # Thumb toujours visible
+                track_color={
+                    ft.MaterialState.DEFAULT: "#e2e8f0",
+                },
+                thumb_color={
+                    ft.MaterialState.DEFAULT: "#94a3b8",
+                },
+                thickness=12,
+                radius=6,
+                interactive=True
             )
         )
         
@@ -940,19 +953,17 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Reproduction fidèle de l'exemple fonctionnel fourni
-        scrollable_table = ft.Container(
-            height=400,  # hauteur fixe pour provoquer le scroll vertical
-            width=800,   # largeur fixe pour provoquer le scroll horizontal
-            content=ft.Column(
-                scroll=ft.ScrollMode.ALWAYS,  # scroll vertical toujours affiché
-                controls=[
-                    ft.Row(
-                        scroll=ft.ScrollMode.ADAPTIVE,  # scroll horizontal s'affiche si besoin
-                        controls=[data_table],
-                    )
-                ],
-            ),
+        # Nouvelle approche selon documentation Flet - scrollbars toujours visibles
+        scrollable_table = ft.Column(
+            height=400,  # hauteur fixe pour forcer le scroll vertical
+            width=900,   # largeur fixe pour forcer le scroll horizontal
+            scroll=ft.ScrollMode.ALWAYS,  # scroll vertical toujours visible
+            controls=[
+                ft.Row(
+                    scroll=ft.ScrollMode.ALWAYS,  # scroll horizontal toujours visible
+                    controls=[data_table],
+                )
+            ],
         )
         
         return ft.Container(
