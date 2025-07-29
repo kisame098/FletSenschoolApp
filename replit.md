@@ -6,7 +6,7 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
-### Modifications de l'interface utilisateur (28/07/2025)
+### Modifications de l'interface utilisateur (29/07/2025)
 - **Formulaire d'inscription des élèves** : 
   - Champ ID déplacé vers le haut (verticalement) tout en conservant sa position horizontale à droite
   - Le champ ID n'est plus aligné avec les champs "Prénom" et "Nom"
@@ -14,6 +14,11 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
   - Colonnes "Prénom" et "Nom" séparées en deux colonnes distinctes
   - Nouvel ordre des colonnes : ID | Prénom | Nom | Date de naissance | Genre | Classe (visible uniquement si "Toutes les classes") | N° Élève | N° Parent | Actions
   - Amélioration de la lisibilité et de l'organisation des données
+- **Optimisation du tableau de gestion des élèves** :
+  - Barre de défilement horizontale toujours visible pour navigation entre colonnes
+  - Hauteur dynamique adaptée au nombre d'élèves pour éliminer l'espace vide
+  - Structure de scrollbar cohérente avec les autres pages de l'application
+  - Fonction de tri robuste gérant différents formats d'ID (entiers et chaînes)
 
 ### Dernières améliorations (27/07/2025)
 - **Système de popups complet**: Tous les dialogs utilisent maintenant `page.open()` pour un affichage correct

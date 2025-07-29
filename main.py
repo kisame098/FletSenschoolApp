@@ -805,17 +805,10 @@ class StudentRegistrationSystem:
         """Filtrer les élèves par classe sélectionnée"""
         selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
         
-        print(f"[DEBUG] Filtrage par classe: {selected_class}")
-        
         if selected_class == "Toutes les classes":
             students = self.data_manager.get_all_students()
         else:
             students = self.data_manager.get_students_by_class(selected_class)
-        
-        print(f"[DEBUG] Nombre d'élèves trouvés: {len(students)}")
-        if students:
-            print(f"[DEBUG] Premier élève: {students[0]}")
-            print(f"[DEBUG] IDs des élèves: {[s.get('student_id', s.get('id', 'N/A')) for s in students]}")
         
         # Trier les étudiants par ID avec gestion des différents formats
         def get_sort_key(student):
@@ -960,7 +953,7 @@ class StudentRegistrationSystem:
                             scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
                             vertical_alignment=ft.CrossAxisAlignment.START
                         ),
-                        height=400,  # Hauteur fixe pour contenir le tableau
+                        height=min(300, max(120, len(students) * 45 + 60)),  # Hauteur dynamique basée sur le nombre d'élèves
                         border_radius=8,
                         bgcolor="#ffffff",
                         border=ft.border.all(1, "#e2e8f0"),
