@@ -14,12 +14,6 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
   - Colonnes "Prénom" et "Nom" séparées en deux colonnes distinctes
   - Nouvel ordre des colonnes : ID | Prénom | Nom | Date de naissance | Genre | Classe (visible uniquement si "Toutes les classes") | N° Élève | N° Parent | Actions
   - Amélioration de la lisibilité et de l'organisation des données
-- **Optimisation du tableau de gestion des élèves** :
-  - Barres de défilement horizontale et verticale toujours visibles (ScrollMode.ADAPTIVE)
-  - Tableau optimisé pour occuper uniquement l'espace nécessaire
-  - Correction du tri des IDs mixtes (entiers et chaînes de caractères)
-  - Hauteur dynamique adaptée au contenu (minimum 150px, maximum 400px)
-  - Suppression des espaces vides inutiles
 
 ### Dernières améliorations (27/07/2025)
 - **Système de popups complet**: Tous les dialogs utilisent maintenant `page.open()` pour un affichage correct

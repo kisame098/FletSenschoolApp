@@ -803,14 +803,17 @@ class StudentRegistrationSystem:
         """Filtrer les élèves par classe sélectionnée"""
         selected_class = self.class_filter_dropdown.value if hasattr(self, 'class_filter_dropdown') else "Toutes les classes"
         
-
+        print(f"[DEBUG] Filtrage par classe: {selected_class}")
         
         if selected_class == "Toutes les classes":
             students = self.data_manager.get_all_students()
         else:
             students = self.data_manager.get_students_by_class(selected_class)
         
-
+        print(f"[DEBUG] Nombre d'élèves trouvés: {len(students)}")
+        if students:
+            print(f"[DEBUG] Premier élève: {students[0]}")
+            print(f"[DEBUG] IDs des élèves: {[s.get('student_id', s.get('id', 'N/A')) for s in students]}")
         
         # Trier les étudiants par ID avec gestion des différents formats
         def get_sort_key(student):
@@ -934,30 +937,33 @@ class StudentRegistrationSystem:
             border_radius=8,
             vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
             horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
-            heading_row_color="#f8fafc",
-            show_checkbox_column=False,
-            data_row_max_height=50,
-            column_spacing=12
+            heading_row_color="#f8fafc"
         )
         
-        # Structure correcte avec Container -> Column (scroll vertical) -> Row (scroll horizontal) -> DataTable
-        scrollable_table = ft.Container(
+        # Container avec double scroll: Column pour vertical et Row pour horizontal
+        # Wrapper pour scroll vertical avec Container à hauteur fixe
+        vertical_scroll_wrapper = ft.Container(
             content=ft.Column(
-                controls=[
-                    ft.Row(
-                        controls=[data_table],
-                        scroll=ft.ScrollMode.ADAPTIVE,  # Scroll horizontal toujours visible sur desktop
-                        vertical_alignment=ft.CrossAxisAlignment.START
-                    )
-                ],
-                scroll=ft.ScrollMode.ADAPTIVE,  # Scroll vertical toujours visible sur desktop
+                controls=[data_table],
+                scroll=ft.ScrollMode.ALWAYS,  # Scroll vertical toujours visible
                 horizontal_alignment=ft.CrossAxisAlignment.START
             ),
-            height=300,  # Hauteur fixe pour déclencher le scroll vertical
+            height=300,  # Hauteur fixe pour forcer l'apparition du scroll vertical
+            width=None,
             bgcolor="#ffffff",
-            padding=8,
+            padding=0
+        )
+        
+        # Wrapper pour scroll horizontal 
+        scrollable_table = ft.Container(
+            content=ft.Row(
+                controls=[vertical_scroll_wrapper],
+                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                vertical_alignment=ft.CrossAxisAlignment.START
+            ),
             border_radius=8,
-            border=ft.border.all(1, "#e2e8f0"),
+            bgcolor="#ffffff",
+            padding=0,
             clip_behavior=ft.ClipBehavior.HARD_EDGE
         )
         
