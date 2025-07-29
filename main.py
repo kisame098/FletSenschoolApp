@@ -787,15 +787,17 @@ class StudentRegistrationSystem:
         self.students_table_container = ft.Container()
         self.filter_students_by_class(None)  # Charger tous les élèves initialement
         
-        # Assembler le contenu de manière optimisée pour éviter les espaces vides
+        # Assembler le contenu avec scrollbar comme les autres pages
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=self.students_table_container,
-                padding=ft.padding.symmetric(horizontal=32, vertical=8),
-                # Pas d'expand=True pour que le tableau occupe uniquement l'espace nécessaire
+                content=ft.Column([
+                    self.students_table_container
+                ], scroll=ft.ScrollMode.AUTO),
+                padding=ft.padding.all(32),
+                expand=True
             )
-        ], tight=True, spacing=0)  # tight=True et spacing=0 pour éliminer complètement les espaces vides
+        ])
         
         self.page.update()
     
@@ -940,43 +942,30 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Structure optimisée selon l'exemple fourni pour les scrollbars
-        scrollable_table = ft.Container(
-            height=400,  # hauteur fixe pour provoquer le scroll vertical
-            width=None,   # largeur automatique qui s'adapte
-            content=ft.Column(
-                scroll=ft.ScrollMode.ALWAYS,  # scroll vertical toujours affiché
-                controls=[
-                    ft.Row(
-                        scroll=ft.ScrollMode.ALWAYS,  # scroll horizontal toujours affiché
-                        controls=[data_table],
-                    )
-                ],
-            ),
-            border_radius=8,
-            bgcolor="#ffffff",
-            padding=0,
-            clip_behavior=ft.ClipBehavior.HARD_EDGE,
-            border=ft.border.all(1, "#e2e8f0")
-        )
-        
-        return ft.Container(
-            content=ft.Column([
-                ft.Row([
-                    ft.Text(
-                        f"Total: {len(students)} élève(s)" + (f" - Classe: {selected_class}" if selected_class != "Toutes les classes" else ""),
-                        size=14,
-                        color="#64748b",
-                        weight=ft.FontWeight.W_500
+        return ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(students)} élève(s)" + (f" - Classe: {selected_class}" if selected_class != "Toutes les classes" else ""),
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        )
+                    ]),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=data_table,
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        border=ft.border.all(1, "#e2e8f0")
                     )
                 ]),
-                ft.Container(height=16),
-                scrollable_table  # Container déjà configuré avec les bonnes dimensions
-            ], tight=True, spacing=0),  # tight=True et spacing=0 pour éliminer les espaces
-            padding=24,
-            bgcolor="#ffffff",
-            border_radius=12,
-            border=ft.border.all(1, "#e2e8f0")
+                padding=24
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
         )
     
     def create_students_table(self):
