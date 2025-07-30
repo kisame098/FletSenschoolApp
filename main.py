@@ -3602,7 +3602,7 @@ class StudentRegistrationSystem:
             self.page.update()
     
     def show_grade_management(self):
-        """Afficher la gestion des notes"""
+        """Afficher la gestion des notes - Sélection du semestre"""
         self.current_page = "grade_management"
         self.clear_main_content()
         
@@ -3615,7 +3615,7 @@ class StudentRegistrationSystem:
                     color="#1e293b"
                 ),
                 ft.Text(
-                    "Saisir et consulter les notes des élèves",
+                    "Sélectionnez un semestre pour commencer",
                     size=15,
                     color="#64748b",
                     weight=ft.FontWeight.W_400
@@ -3625,27 +3625,60 @@ class StudentRegistrationSystem:
             bgcolor="#f8fafc"
         )
         
+        # Boutons de sélection du semestre
+        semester_buttons = ft.Row([
+            ft.Container(
+                content=ft.ElevatedButton(
+                    content=ft.Column([
+                        ft.Text("📚", size=32),
+                        ft.Text("Premier semestre", size=16, weight=ft.FontWeight.BOLD),
+                        ft.Text("Septembre - Janvier", size=12, color="#64748b")
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                    on_click=lambda e: self.show_semester_subjects("premier"),
+                    bgcolor="#4f46e5",
+                    color="#ffffff",
+                    width=250,
+                    height=120
+                ),
+                margin=ft.margin.only(right=16)
+            ),
+            ft.Container(
+                content=ft.ElevatedButton(
+                    content=ft.Column([
+                        ft.Text("📖", size=32),
+                        ft.Text("Deuxième semestre", size=16, weight=ft.FontWeight.BOLD),
+                        ft.Text("Février - Juin", size=12, color="#64748b")
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                    on_click=lambda e: self.show_semester_subjects("deuxieme"),
+                    bgcolor="#059669",
+                    color="#ffffff",
+                    width=250,
+                    height=120
+                ),
+                margin=ft.margin.only(left=16)
+            )
+        ], alignment=ft.MainAxisAlignment.CENTER)
+        
         content = ft.Card(
             content=ft.Container(
                 content=ft.Column([
                     ft.Text(
-                        "📊 Gestion des notes",
+                        "📊 Choisir le semestre",
                         size=18,
                         weight=ft.FontWeight.BOLD,
                         color="#1e293b"
                     ),
-                    ft.Container(height=16),
+                    ft.Container(height=24),
+                    semester_buttons,
+                    ft.Container(height=24),
                     ft.Text(
-                        "Cette section permettra de :\n\n"
-                        "• Saisir les notes par matière\n"
-                        "• Calculer les moyennes\n"
-                        "• Générer les bulletins\n"
-                        "• Suivre les progressions",
+                        "Sélectionnez le semestre pour lequel vous souhaitez gérer les notes.",
                         size=14,
-                        color="#64748b"
+                        color="#64748b",
+                        text_align=ft.TextAlign.CENTER
                     )
-                ]),
-                padding=32
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                padding=48
             ),
             elevation=0,
             surface_tint_color="#ffffff",
@@ -3662,6 +3695,471 @@ class StudentRegistrationSystem:
         ])
         
         self.page.update()
+    
+    def show_semester_subjects(self, semester):
+        """Afficher les matières du semestre sélectionné"""
+        self.current_semester = semester
+        self.clear_main_content()
+        
+        semester_name = "Premier semestre" if semester == "premier" else "Deuxième semestre"
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.IconButton(
+                        icon=ft.icons.ARROW_BACK,
+                        on_click=lambda e: self.show_grade_management(),
+                        bgcolor="#ffffff",
+                        icon_color="#64748b"
+                    ),
+                    ft.Column([
+                        ft.Text(
+                            f"Gestion des notes - {semester_name}",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Gérez les matières et saisissez les notes",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True)
+                ])
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Bouton Ajouter une matière
+        add_subject_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon(ft.icons.ADD, color="#ffffff"),
+                ft.Text("Ajouter une matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=lambda e: self.show_add_subject_dialog(),
+            bgcolor="#4f46e5",
+            height=48
+        )
+        
+        # Grille des matières
+        self.subjects_grid = ft.GridView(
+            expand=True,
+            runs_count=4,
+            max_extent=200,
+            child_aspect_ratio=1.0,
+            spacing=16,
+            run_spacing=16
+        )
+        
+        # Charger les matières existantes
+        self.load_semester_subjects()
+        
+        content = ft.Column([
+            ft.Row([
+                add_subject_button
+            ], alignment=ft.MainAxisAlignment.START),
+            ft.Container(height=24),
+            ft.Container(
+                content=self.subjects_grid,
+                expand=True
+            )
+        ])
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def load_semester_subjects(self):
+        """Charger les matières du semestre actuel"""
+        subjects = self.data_manager.get_subjects_by_semester(self.current_semester)
+        self.subjects_grid.controls.clear()
+        
+        for subject in subjects:
+            subject_card = ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        subject["nom"],
+                        size=16,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b",
+                        text_align=ft.TextAlign.CENTER,
+                        max_lines=2
+                    ),
+                    ft.Container(height=8),
+                    ft.IconButton(
+                        icon=ft.icons.ADD,
+                        bgcolor="#4f46e5",
+                        icon_color="#ffffff",
+                        on_click=lambda e, subj=subject: self.show_grades_table(subj),
+                        tooltip="Saisir les notes"
+                    )
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                bgcolor="#ffffff",
+                border_radius=12,
+                padding=16,
+                border=ft.border.all(1, "#e2e8f0"),
+                shadow=ft.BoxShadow(
+                    spread_radius=0,
+                    blur_radius=4,
+                    offset=ft.Offset(0, 2),
+                    color="#00000010"
+                )
+            )
+            self.subjects_grid.controls.append(subject_card)
+        
+        if not subjects:
+            empty_state = ft.Container(
+                content=ft.Column([
+                    ft.Text("📚", size=48),
+                    ft.Text(
+                        "Aucune matière ajoutée",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#64748b"
+                    ),
+                    ft.Text(
+                        "Cliquez sur 'Ajouter une matière' pour commencer",
+                        size=14,
+                        color="#94a3b8"
+                    )
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                padding=48
+            )
+            self.subjects_grid.controls.append(empty_state)
+    
+    def show_add_subject_dialog(self):
+        """Afficher le dialog d'ajout de matière"""
+        # Champ de saisie avec auto-suggestion
+        self.subject_name_field = ft.TextField(
+            label="Nom de la matière",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            on_change=self.on_subject_name_change
+        )
+        
+        # Liste des suggestions
+        self.subject_suggestions_list = ft.Column(
+            controls=[],
+            spacing=0,
+            height=0,
+            visible=False
+        )
+        
+        # Boutons du dialog
+        save_button = ft.ElevatedButton(
+            "Ajouter",
+            on_click=self.save_subject,
+            bgcolor="#4f46e5",
+            color="#ffffff"
+        )
+        
+        cancel_button = ft.TextButton(
+            "Annuler",
+            on_click=self.close_subject_dialog
+        )
+        
+        # Contenu du dialog
+        dialog_content = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Ajouter une matière",
+                    size=20,
+                    weight=ft.FontWeight.BOLD,
+                    color="#1e293b"
+                ),
+                ft.Container(height=16),
+                self.subject_name_field,
+                self.subject_suggestions_list,
+                ft.Container(height=24),
+                ft.Row([
+                    cancel_button,
+                    save_button
+                ], alignment=ft.MainAxisAlignment.END, spacing=12)
+            ]),
+            padding=24,
+            width=400
+        )
+        
+        self.subject_dialog = ft.AlertDialog(
+            content=dialog_content,
+            modal=True
+        )
+        
+        self.page.open(self.subject_dialog)
+    
+    def on_subject_name_change(self, e):
+        """Gérer les suggestions de matières"""
+        query = e.control.value.lower()
+        
+        # Liste des matières communes
+        common_subjects = [
+            "Mathématiques", "Français", "Anglais", "Histoire", "Géographie",
+            "Sciences", "Physique", "Chimie", "Biologie", "Philosophie",
+            "Économie", "Arts plastiques", "Musique", "Sport", "Informatique",
+            "Allemand", "Espagnol", "Latin", "Grec", "Sciences sociales"
+        ]
+        
+        if len(query) >= 2:
+            suggestions = [s for s in common_subjects if query in s.lower()]
+            
+            if suggestions:
+                self.subject_suggestions_list.controls.clear()
+                for suggestion in suggestions[:5]:  # Limiter à 5 suggestions
+                    suggestion_button = ft.Container(
+                        content=ft.Text(suggestion, size=14),
+                        padding=ft.padding.symmetric(horizontal=12, vertical=8),
+                        bgcolor="#f8fafc",
+                        border_radius=4,
+                        on_click=lambda e, subj=suggestion: self.select_subject_suggestion(subj)
+                    )
+                    self.subject_suggestions_list.controls.append(suggestion_button)
+                
+                self.subject_suggestions_list.height = len(suggestions) * 36
+                self.subject_suggestions_list.visible = True
+            else:
+                self.subject_suggestions_list.height = 0
+                self.subject_suggestions_list.visible = False
+        else:
+            self.subject_suggestions_list.height = 0
+            self.subject_suggestions_list.visible = False
+        
+        self.page.update()
+    
+    def select_subject_suggestion(self, subject_name):
+        """Sélectionner une suggestion de matière"""
+        self.subject_name_field.value = subject_name
+        self.subject_suggestions_list.height = 0
+        self.subject_suggestions_list.visible = False
+        self.page.update()
+    
+    def save_subject(self, e):
+        """Sauvegarder une nouvelle matière"""
+        if not self.subject_name_field.value:
+            self.show_snackbar("Le nom de la matière est obligatoire", error=True)
+            return
+        
+        subject_data = {
+            "id": f"{self.current_semester}_{len(self.data_manager.get_subjects_by_semester(self.current_semester)) + 1}",
+            "nom": self.subject_name_field.value,
+            "semestre": self.current_semester,
+            "date_creation": datetime.now().isoformat()
+        }
+        
+        if self.data_manager.add_subject(subject_data):
+            self.show_snackbar("Matière ajoutée avec succès!")
+            self.close_subject_dialog(None)
+            self.load_semester_subjects()
+        else:
+            self.show_snackbar("Erreur lors de l'ajout de la matière", error=True)
+    
+    def close_subject_dialog(self, e):
+        """Fermer le dialog de matière"""
+        if hasattr(self, 'subject_dialog'):
+            self.page.close(self.subject_dialog)
+    
+    def show_grades_table(self, subject):
+        """Afficher le tableau de saisie des notes pour une matière"""
+        self.current_subject = subject
+        self.clear_main_content()
+        
+        semester_name = "Premier semestre" if self.current_semester == "premier" else "Deuxième semestre"
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.IconButton(
+                        icon=ft.icons.ARROW_BACK,
+                        on_click=lambda e: self.show_semester_subjects(self.current_semester),
+                        bgcolor="#ffffff",
+                        icon_color="#64748b"
+                    ),
+                    ft.Column([
+                        ft.Text(
+                            f"Notes - {subject['nom']} ({semester_name})",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Saisissez les notes des élèves",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True)
+                ])
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Tableau des notes
+        self.create_grades_table()
+        
+        # Bouton de sauvegarde
+        save_grades_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon(ft.icons.SAVE, color="#ffffff"),
+                ft.Text("Sauvegarder les notes", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=self.save_all_grades,
+            bgcolor="#059669",
+            height=48
+        )
+        
+        content = ft.Column([
+            ft.Row([
+                save_grades_button
+            ], alignment=ft.MainAxisAlignment.END),
+            ft.Container(height=16),
+            ft.Container(
+                content=self.grades_table,
+                expand=True
+            )
+        ])
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def create_grades_table(self):
+        """Créer le tableau des notes"""
+        # Récupérer tous les élèves
+        students = self.data_manager.get_all_students()
+        
+        # En-têtes du tableau
+        headers = [
+            ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD)),
+            ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD)),
+            ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD)),
+            ft.DataColumn(ft.Text("Devoir 1", weight=ft.FontWeight.BOLD)),
+            ft.DataColumn(ft.Text("Devoir 2", weight=ft.FontWeight.BOLD)),
+            ft.DataColumn(ft.Text("Composition", weight=ft.FontWeight.BOLD))
+        ]
+        
+        # Lignes du tableau
+        rows = []
+        self.grade_fields = {}  # Stocker les références des champs
+        
+        for student in students:
+            student_id = student.get("id", "")
+            nom = student.get("nom", "")
+            prenom = student.get("prenom", "")
+            
+            # Récupérer les notes existantes
+            existing_grades = self.data_manager.get_student_subject_grades(
+                student_id, self.current_subject["id"]
+            )
+            
+            devoir1_value = ""
+            devoir2_value = ""
+            composition_value = ""
+            
+            for grade in existing_grades:
+                if grade.get("type") == "devoir1":
+                    devoir1_value = str(grade.get("note", ""))
+                elif grade.get("type") == "devoir2":
+                    devoir2_value = str(grade.get("note", ""))
+                elif grade.get("type") == "composition":
+                    composition_value = str(grade.get("note", ""))
+            
+            # Champs de saisie des notes
+            devoir1_field = ft.TextField(
+                value=devoir1_value,
+                width=80,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4
+            )
+            devoir2_field = ft.TextField(
+                value=devoir2_value,
+                width=80,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4
+            )
+            composition_field = ft.TextField(
+                value=composition_value,
+                width=80,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4
+            )
+            
+            # Stocker les références
+            self.grade_fields[student_id] = {
+                "devoir1": devoir1_field,
+                "devoir2": devoir2_field,
+                "composition": composition_field
+            }
+            
+            row = ft.DataRow(
+                cells=[
+                    ft.DataCell(ft.Text(student_id)),
+                    ft.DataCell(ft.Text(nom)),
+                    ft.DataCell(ft.Text(prenom)),
+                    ft.DataCell(devoir1_field),
+                    ft.DataCell(devoir2_field),
+                    ft.DataCell(composition_field)
+                ]
+            )
+            rows.append(row)
+        
+        self.grades_table = ft.DataTable(
+            columns=headers,
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            data_row_min_height=60,
+            heading_row_height=50
+        )
+    
+    def save_all_grades(self, e):
+        """Sauvegarder toutes les notes du tableau"""
+        saved_count = 0
+        
+        for student_id, fields in self.grade_fields.items():
+            # Sauvegarder chaque type de note
+            for grade_type, field in fields.items():
+                if field.value and field.value.strip():
+                    try:
+                        note = float(field.value.strip())
+                        if 0 <= note <= 20:  # Validation de la note
+                            grade_data = {
+                                "id": f"{student_id}_{self.current_subject['id']}_{grade_type}",
+                                "student_id": student_id,
+                                "subject_id": self.current_subject["id"],
+                                "subject_name": self.current_subject["nom"],
+                                "semester": self.current_semester,
+                                "type": grade_type,
+                                "note": note,
+                                "date_creation": datetime.now().isoformat()
+                            }
+                            
+                            if self.data_manager.add_grade(grade_data):
+                                saved_count += 1
+                    except ValueError:
+                        continue  # Ignorer les valeurs non numériques
+        
+        if saved_count > 0:
+            self.show_snackbar(f"{saved_count} notes sauvegardées avec succès!")
+        else:
+            self.show_snackbar("Aucune note valide à sauvegarder", error=True)
     
     def show_schedule(self):
         """Afficher l'emploi du temps"""

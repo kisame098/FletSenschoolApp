@@ -12,6 +12,7 @@ class DataManager:
         self.teachers_file = os.path.join(self.data_dir, "teachers.json")
         self.classes_file = os.path.join(self.data_dir, "classes.json")
         self.grades_file = os.path.join(self.data_dir, "grades.json")
+        self.subjects_file = os.path.join(self.data_dir, "subjects.json")
         self.attendance_file = os.path.join(self.data_dir, "attendance.json")
         self.schedule_file = os.path.join(self.data_dir, "schedule.json")
         
@@ -30,6 +31,7 @@ class DataManager:
             self.teachers_file,
             self.classes_file,
             self.grades_file,
+            self.subjects_file,
             self.attendance_file,
             self.schedule_file
         ]
@@ -218,14 +220,56 @@ class DataManager:
         students = self.get_all_students()
         return len([s for s in students if s.get("classe") == class_name])
     
+    # Gestion des matières
+    def get_all_subjects(self) -> List[Dict]:
+        """Récupérer toutes les matières"""
+        return self._load_data(self.subjects_file)
+    
+    def get_subjects_by_semester(self, semester: str) -> List[Dict]:
+        """Récupérer les matières d'un semestre"""
+        subjects = self.get_all_subjects()
+        return [s for s in subjects if s.get("semestre") == semester]
+    
+    def add_subject(self, subject_data: Dict) -> bool:
+        """Ajouter une nouvelle matière"""
+        subjects = self.get_all_subjects()
+        
+        # Vérifier si l'ID existe déjà
+        for subject in subjects:
+            if subject.get("id") == subject_data.get("id"):
+                return False
+        
+        subject_data["date_creation"] = datetime.now().isoformat()
+        subjects.append(subject_data)
+        return self._save_data(self.subjects_file, subjects)
+    
+    def get_subject(self, subject_id: str) -> Optional[Dict]:
+        """Récupérer une matière par son ID"""
+        subjects = self.get_all_subjects()
+        for subject in subjects:
+            if subject.get("id") == subject_id:
+                return subject
+        return None
+    
     # Gestion des notes
     def get_all_grades(self) -> List[Dict]:
         """Récupérer toutes les notes"""
         return self._load_data(self.grades_file)
     
     def add_grade(self, grade_data: Dict) -> bool:
-        """Ajouter une note"""
+        """Ajouter ou mettre à jour une note"""
         grades = self.get_all_grades()
+        
+        # Vérifier si la note existe déjà
+        for i, grade in enumerate(grades):
+            if grade.get("id") == grade_data.get("id"):
+                # Mettre à jour la note existante
+                grade_data["date_modification"] = datetime.now().isoformat()
+                grades[i] = grade_data
+                return self._save_data(self.grades_file, grades)
+        
+        # Ajouter une nouvelle note
+        grade_data["date_creation"] = datetime.now().isoformat()
         grades.append(grade_data)
         return self._save_data(self.grades_file, grades)
     
@@ -233,6 +277,16 @@ class DataManager:
         """Récupérer les notes d'un étudiant"""
         grades = self.get_all_grades()
         return [g for g in grades if g.get("student_id") == student_id]
+    
+    def get_student_subject_grades(self, student_id: str, subject_id: str) -> List[Dict]:
+        """Récupérer les notes d'un étudiant pour une matière spécifique"""
+        grades = self.get_all_grades()
+        return [g for g in grades if g.get("student_id") == student_id and g.get("subject_id") == subject_id]
+    
+    def get_subject_grades(self, subject_id: str) -> List[Dict]:
+        """Récupérer toutes les notes d'une matière"""
+        grades = self.get_all_grades()
+        return [g for g in grades if g.get("subject_id") == subject_id]
     
     # Gestion des présences
     def get_all_attendance(self) -> List[Dict]:
