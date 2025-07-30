@@ -3786,17 +3786,27 @@ class StudentRegistrationSystem:
         for subject in subjects:
             subject_card = ft.Container(
                 content=ft.Column([
-                    ft.Text(
-                        subject["nom"],
-                        size=16,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b",
-                        text_align=ft.TextAlign.CENTER,
-                        max_lines=2
-                    ),
+                    ft.Row([
+                        ft.Text(
+                            subject["nom"],
+                            size=16,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b",
+                            text_align=ft.TextAlign.CENTER,
+                            max_lines=2,
+                            expand=True
+                        ),
+                        ft.IconButton(
+                            icon="delete",
+                            icon_color="#ef4444",
+                            icon_size=18,
+                            tooltip="Supprimer la matière",
+                            on_click=lambda e, subj=subject: self.delete_subject(subj)
+                        )
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     ft.Container(height=8),
                     ft.IconButton(
-                        icon="add",
+                        icon="edit_note",
                         bgcolor="#4f46e5",
                         icon_color="#ffffff",
                         on_click=lambda e, subj=subject: self.show_grades_table(subj),
@@ -3970,6 +3980,39 @@ class StudentRegistrationSystem:
         if hasattr(self, 'subject_dialog'):
             self.page.close(self.subject_dialog)
     
+    def delete_subject(self, subject):
+        """Supprimer une matière avec confirmation"""
+        def confirm_delete(e):
+            if self.data_manager.delete_subject(subject["id"]):
+                self.show_snackbar("Matière supprimée avec succès!")
+                self.close_delete_dialog(None)
+                self.load_semester_subjects()
+                self.page.update()
+            else:
+                self.show_snackbar("Erreur lors de la suppression", error=True)
+        
+        def close_delete_dialog(e):
+            if hasattr(self, 'delete_dialog'):
+                self.page.close(self.delete_dialog)
+        
+        # Dialog de confirmation
+        self.delete_dialog = ft.AlertDialog(
+            title=ft.Text("Confirmer la suppression", weight=ft.FontWeight.BOLD),
+            content=ft.Text(f"Êtes-vous sûr de vouloir supprimer la matière '{subject['nom']}' ?"),
+            actions=[
+                ft.TextButton("Annuler", on_click=close_delete_dialog),
+                ft.ElevatedButton(
+                    "Supprimer",
+                    on_click=confirm_delete,
+                    bgcolor="#ef4444",
+                    color="#ffffff"
+                )
+            ],
+            modal=True
+        )
+        
+        self.page.open(self.delete_dialog)
+    
     def show_grades_table(self, subject):
         """Afficher le tableau de saisie des notes pour une matière"""
         self.current_subject = subject
@@ -4115,7 +4158,6 @@ class StudentRegistrationSystem:
                 border_color="#e2e8f0",
                 focused_border_color="#4f46e5",
                 content_padding=ft.padding.all(4),
-                hint_text="/20",
                 text_size=12
             )
             devoir2_field = ft.TextField(
@@ -4127,7 +4169,6 @@ class StudentRegistrationSystem:
                 border_color="#e2e8f0",
                 focused_border_color="#4f46e5",
                 content_padding=ft.padding.all(4),
-                hint_text="/20",
                 text_size=12
             )
             composition_field = ft.TextField(
@@ -4139,7 +4180,6 @@ class StudentRegistrationSystem:
                 border_color="#e2e8f0",
                 focused_border_color="#4f46e5",
                 content_padding=ft.padding.all(4),
-                hint_text="/20",
                 text_size=12
             )
             
@@ -4183,37 +4223,41 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Container avec la même structure que les autres tableaux
-        self.grades_table = ft.Card(
-            content=ft.Container(
-                content=ft.Column([
-                    ft.Row([
-                        ft.Text(
-                            f"Total: {len(students)} élève(s) - Matière: {self.current_subject['nom']}",
-                            size=14,
-                            color="#64748b",
-                            weight=ft.FontWeight.W_500
+        # Container avec la même structure que les autres tableaux et centré
+        self.grades_table = ft.Container(
+            content=ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Row([
+                            ft.Text(
+                                f"Total: {len(students)} élève(s) - Matière: {self.current_subject['nom']}",
+                                size=14,
+                                color="#64748b",
+                                weight=ft.FontWeight.W_500
+                            )
+                        ]),
+                        ft.Container(height=16),
+                        ft.Container(
+                            content=ft.Row(
+                                controls=[data_table],
+                                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal
+                                vertical_alignment=ft.CrossAxisAlignment.START,
+                                alignment=ft.MainAxisAlignment.CENTER  # Centrer le tableau
+                            ),
+                            height=min(400, max(120, len(students) * 45 + 60)),  # Hauteur dynamique
+                            border_radius=8,
+                            bgcolor="#ffffff",
+                            border=ft.border.all(1, "#e2e8f0"),
+                            clip_behavior=ft.ClipBehavior.HARD_EDGE
                         )
                     ]),
-                    ft.Container(height=16),
-                    ft.Container(
-                        content=ft.Row(
-                            controls=[data_table],
-                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal
-                            vertical_alignment=ft.CrossAxisAlignment.START
-                        ),
-                        height=min(400, max(120, len(students) * 45 + 60)),  # Hauteur dynamique
-                        border_radius=8,
-                        bgcolor="#ffffff",
-                        border=ft.border.all(1, "#e2e8f0"),
-                        clip_behavior=ft.ClipBehavior.HARD_EDGE
-                    )
-                ]),
-                padding=24
+                    padding=24
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
             ),
-            elevation=0,
-            surface_tint_color="#ffffff",
-            color="#ffffff"
+            alignment=ft.alignment.center  # Centrer la carte entière
         )
     
     def save_all_grades(self, e):

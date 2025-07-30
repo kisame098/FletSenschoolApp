@@ -251,6 +251,12 @@ class DataManager:
                 return subject
         return None
     
+    def delete_subject(self, subject_id: str) -> bool:
+        """Supprimer une matière"""
+        subjects = self.get_all_subjects()
+        subjects = [s for s in subjects if s.get("id") != subject_id]
+        return self._save_data(self.subjects_file, subjects)
+    
     # Gestion des notes
     def get_all_grades(self) -> List[Dict]:
         """Récupérer toutes les notes"""
