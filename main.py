@@ -3707,7 +3707,7 @@ class StudentRegistrationSystem:
             content=ft.Column([
                 ft.Row([
                     ft.IconButton(
-                        icon=ft.icons.ARROW_BACK,
+                        icon="arrow_back",
                         on_click=lambda e: self.show_grade_management(),
                         bgcolor="#ffffff",
                         icon_color="#64748b"
@@ -3735,7 +3735,7 @@ class StudentRegistrationSystem:
         # Bouton Ajouter une matière
         add_subject_button = ft.ElevatedButton(
             content=ft.Row([
-                ft.Icon(ft.icons.ADD, color="#ffffff"),
+                ft.Icon("add", color="#ffffff"),
                 ft.Text("Ajouter une matière", color="#ffffff", weight=ft.FontWeight.BOLD)
             ], spacing=8),
             on_click=lambda e: self.show_add_subject_dialog(),
@@ -3796,7 +3796,7 @@ class StudentRegistrationSystem:
                     ),
                     ft.Container(height=8),
                     ft.IconButton(
-                        icon=ft.icons.ADD,
+                        icon="add",
                         bgcolor="#4f46e5",
                         icon_color="#ffffff",
                         on_click=lambda e, subj=subject: self.show_grades_table(subj),
@@ -3979,7 +3979,7 @@ class StudentRegistrationSystem:
             content=ft.Column([
                 ft.Row([
                     ft.IconButton(
-                        icon=ft.icons.ARROW_BACK,
+                        icon="arrow_back",
                         on_click=lambda e: self.show_semester_subjects(self.current_semester),
                         bgcolor="#ffffff",
                         icon_color="#64748b"
@@ -4010,7 +4010,7 @@ class StudentRegistrationSystem:
         # Bouton de sauvegarde
         save_grades_button = ft.ElevatedButton(
             content=ft.Row([
-                ft.Icon(ft.icons.SAVE, color="#ffffff"),
+                ft.Icon("save", color="#ffffff"),
                 ft.Text("Sauvegarder les notes", color="#ffffff", weight=ft.FontWeight.BOLD)
             ], spacing=8),
             on_click=self.save_all_grades,
