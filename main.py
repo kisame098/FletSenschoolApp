@@ -3858,6 +3858,17 @@ class StudentRegistrationSystem:
             on_change=self.on_subject_name_change
         )
         
+        # Champ coefficient
+        self.subject_coeff_field = ft.TextField(
+            label="Coefficient",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            hint_text="Ex: 2, 3, 4...",
+            width=150
+        )
+        
         # Liste des suggestions
         self.subject_suggestions_list = ft.Column(
             controls=[],
@@ -3891,6 +3902,8 @@ class StudentRegistrationSystem:
                 ft.Container(height=16),
                 self.subject_name_field,
                 self.subject_suggestions_list,
+                ft.Container(height=16),
+                self.subject_coeff_field,
                 ft.Container(height=24),
                 ft.Row([
                     cancel_button,
@@ -3959,9 +3972,23 @@ class StudentRegistrationSystem:
             self.show_snackbar("Le nom de la matière est obligatoire", error=True)
             return
         
+        if not self.subject_coeff_field.value:
+            self.show_snackbar("Le coefficient est obligatoire", error=True)
+            return
+        
+        try:
+            coefficient = float(self.subject_coeff_field.value)
+            if coefficient <= 0:
+                self.show_snackbar("Le coefficient doit être positif", error=True)
+                return
+        except ValueError:
+            self.show_snackbar("Le coefficient doit être un nombre", error=True)
+            return
+        
         subject_data = {
             "id": f"{self.current_semester}_{len(self.data_manager.get_subjects_by_semester(self.current_semester)) + 1}",
             "nom": self.subject_name_field.value,
+            "coefficient": coefficient,
             "semestre": self.current_semester,
             "date_creation": datetime.now().isoformat()
         }
@@ -4129,6 +4156,8 @@ class StudentRegistrationSystem:
             student_id = student.get("student_id", student.get("id", ""))
             nom = student.get("nom", "")
             prenom = student.get("prenom", "")
+            date_naissance = student.get("date_naissance", "")
+            lieu_naissance = student.get("lieu_naissance", "")
             
             # Récupérer les notes existantes
             existing_grades = self.data_manager.get_student_subject_grades(
@@ -4194,6 +4223,8 @@ class StudentRegistrationSystem:
                 ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
                 ft.DataCell(ft.Text(nom, size=12, weight=ft.FontWeight.W_500)),
                 ft.DataCell(ft.Text(prenom, size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(date_naissance, size=12)),
+                ft.DataCell(ft.Text(lieu_naissance, size=12)),
                 ft.DataCell(devoir1_field),
                 ft.DataCell(devoir2_field),
                 ft.DataCell(composition_field)
@@ -4206,6 +4237,8 @@ class StudentRegistrationSystem:
             ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Lieu naissance", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Devoir 1", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Devoir 2", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Composition", weight=ft.FontWeight.BOLD, size=12))
