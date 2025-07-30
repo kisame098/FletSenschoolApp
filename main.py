@@ -3959,7 +3959,9 @@ class StudentRegistrationSystem:
         if self.data_manager.add_subject(subject_data):
             self.show_snackbar("Matière ajoutée avec succès!")
             self.close_subject_dialog(None)
+            # Recharger immédiatement sans délai
             self.load_semester_subjects()
+            self.page.update()
         else:
             self.show_snackbar("Erreur lors de l'ajout de la matière", error=True)
     
@@ -4025,7 +4027,8 @@ class StudentRegistrationSystem:
             ft.Container(height=16),
             ft.Container(
                 content=self.grades_table,
-                expand=True
+                expand=True,
+                alignment=ft.alignment.center
             )
         ])
         
@@ -4041,18 +4044,60 @@ class StudentRegistrationSystem:
         self.page.update()
     
     def create_grades_table(self):
-        """Créer le tableau des notes"""
+        """Créer le tableau des notes avec le même design que les autres tableaux"""
         # Récupérer tous les élèves
         students = self.data_manager.get_all_students()
         
+        if not students:
+            # Message si aucun élève
+            self.grades_table = ft.Container(
+                content=ft.Column([
+                    ft.Text("👥", size=48),
+                    ft.Text(
+                        "Aucun élève inscrit",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#64748b"
+                    ),
+                    ft.Text(
+                        "Veuillez d'abord inscrire des élèves",
+                        size=14,
+                        color="#94a3b8"
+                    )
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                padding=48,
+                bgcolor="#ffffff",
+                border_radius=12,
+                border=ft.border.all(1, "#e2e8f0")
+            )
+            return
+        
         # En-têtes du tableau
         headers = [
-            ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Devoir 1", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Devoir 2", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Composition", weight=ft.FontWeight.BOLD))
+            ft.DataColumn(
+                ft.Text("ID", weight=ft.FontWeight.BOLD, color="#1e293b", size=14),
+                numeric=False
+            ),
+            ft.DataColumn(
+                ft.Text("Nom", weight=ft.FontWeight.BOLD, color="#1e293b", size=14),
+                numeric=False
+            ),
+            ft.DataColumn(
+                ft.Text("Prénom", weight=ft.FontWeight.BOLD, color="#1e293b", size=14),
+                numeric=False
+            ),
+            ft.DataColumn(
+                ft.Text("Devoir 1", weight=ft.FontWeight.BOLD, color="#1e293b", size=14),
+                numeric=True
+            ),
+            ft.DataColumn(
+                ft.Text("Devoir 2", weight=ft.FontWeight.BOLD, color="#1e293b", size=14),
+                numeric=True
+            ),
+            ft.DataColumn(
+                ft.Text("Composition", weight=ft.FontWeight.BOLD, color="#1e293b", size=14),
+                numeric=True
+            )
         ]
         
         # Lignes du tableau
@@ -4081,24 +4126,42 @@ class StudentRegistrationSystem:
                 elif grade.get("type") == "composition":
                     composition_value = str(grade.get("note", ""))
             
-            # Champs de saisie des notes
+            # Champs de saisie des notes avec le même style que les autres formulaires
             devoir1_field = ft.TextField(
                 value=devoir1_value,
-                width=80,
+                width=100,
+                height=40,
                 text_align=ft.TextAlign.CENTER,
-                border_radius=4
+                border_radius=8,
+                bgcolor="#ffffff",
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=4),
+                hint_text="/20"
             )
             devoir2_field = ft.TextField(
                 value=devoir2_value,
-                width=80,
+                width=100,
+                height=40,
                 text_align=ft.TextAlign.CENTER,
-                border_radius=4
+                border_radius=8,
+                bgcolor="#ffffff",
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=4),
+                hint_text="/20"
             )
             composition_field = ft.TextField(
                 value=composition_value,
-                width=80,
+                width=100,
+                height=40,
                 text_align=ft.TextAlign.CENTER,
-                border_radius=4
+                border_radius=8,
+                bgcolor="#ffffff",
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=4),
+                hint_text="/20"
             )
             
             # Stocker les références
@@ -4110,9 +4173,15 @@ class StudentRegistrationSystem:
             
             row = ft.DataRow(
                 cells=[
-                    ft.DataCell(ft.Text(student_id)),
-                    ft.DataCell(ft.Text(nom)),
-                    ft.DataCell(ft.Text(prenom)),
+                    ft.DataCell(
+                        ft.Text(student_id, size=13, color="#374151", weight=ft.FontWeight.W_500)
+                    ),
+                    ft.DataCell(
+                        ft.Text(nom, size=13, color="#374151")
+                    ),
+                    ft.DataCell(
+                        ft.Text(prenom, size=13, color="#374151")
+                    ),
                     ft.DataCell(devoir1_field),
                     ft.DataCell(devoir2_field),
                     ft.DataCell(composition_field)
@@ -4120,13 +4189,31 @@ class StudentRegistrationSystem:
             )
             rows.append(row)
         
-        self.grades_table = ft.DataTable(
+        # Créer le tableau avec le même style que les autres sections
+        data_table = ft.DataTable(
             columns=headers,
             rows=rows,
             border=ft.border.all(1, "#e2e8f0"),
-            border_radius=8,
-            data_row_min_height=60,
-            heading_row_height=50
+            border_radius=12,
+            data_row_min_height=70,
+            heading_row_height=60,
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            column_spacing=20,
+            show_bottom_border=True
+        )
+        
+        # Container avec scrolling comme dans les autres sections
+        self.grades_table = ft.Container(
+            content=ft.Column([
+                ft.Container(
+                    content=data_table,
+                    bgcolor="#ffffff",
+                    border_radius=12,
+                    border=ft.border.all(1, "#e2e8f0"),
+                    padding=ft.padding.all(16)
+                )
+            ], scroll=ft.ScrollMode.AUTO),
+            expand=True
         )
     
     def save_all_grades(self, e):
