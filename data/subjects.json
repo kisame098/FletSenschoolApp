@@ -1,17 +1,5 @@
 [
   {
-    "id": "premier_1",
-    "nom": "Anglais",
-    "semestre": "premier",
-    "date_creation": "2025-07-30T23:15:53.284652"
-  },
-  {
-    "id": "premier_2",
-    "nom": "svt",
-    "semestre": "premier",
-    "date_creation": "2025-07-30T23:16:16.817642"
-  },
-  {
     "id": "premier_3",
     "nom": "svt",
     "semestre": "premier",

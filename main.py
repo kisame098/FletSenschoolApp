@@ -3985,15 +3985,14 @@ class StudentRegistrationSystem:
         def confirm_delete(e):
             if self.data_manager.delete_subject(subject["id"]):
                 self.show_snackbar("Matière supprimée avec succès!")
-                self.close_delete_dialog(None)
+                self.page.close(self.delete_dialog)
                 self.load_semester_subjects()
                 self.page.update()
             else:
                 self.show_snackbar("Erreur lors de la suppression", error=True)
         
         def close_delete_dialog(e):
-            if hasattr(self, 'delete_dialog'):
-                self.page.close(self.delete_dialog)
+            self.page.close(self.delete_dialog)
         
         # Dialog de confirmation
         self.delete_dialog = ft.AlertDialog(
