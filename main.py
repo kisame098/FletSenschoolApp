@@ -3790,7 +3790,7 @@ class StudentRegistrationSystem:
         else:
             for classe in classes:
                 # Compter les élèves dans cette classe
-                students = self.data_manager.get_students()
+                students = self.data_manager.get_all_students()
                 student_count = len([s for s in students if s.get("classe") == classe.get("nom", "")])
                 
                 class_card = ft.Container(
