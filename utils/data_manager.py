@@ -76,6 +76,36 @@ class DataManager:
                 return student
         return None
     
+    def get_next_student_id(self) -> int:
+        """Générer le prochain ID d'élève disponible"""
+        students = self.get_all_students()
+        
+        if not students:
+            return 0
+        
+        # Récupérer tous les IDs existants
+        existing_ids = []
+        for student in students:
+            student_id = student.get("id", student.get("student_id", 0))
+            try:
+                existing_ids.append(int(student_id))
+            except (ValueError, TypeError):
+                continue
+        
+        if not existing_ids:
+            return 0
+        
+        # Trouver le prochain ID disponible (gérer les trous)
+        existing_ids.sort()
+        
+        # Vérifier s'il y a des trous dans la séquence
+        for i in range(len(existing_ids)):
+            if i not in existing_ids:
+                return i
+        
+        # Si pas de trous, retourner le suivant
+        return max(existing_ids) + 1
+
     def add_student(self, student_data: Dict) -> bool:
         """Ajouter un nouvel étudiant"""
         students = self.get_all_students()

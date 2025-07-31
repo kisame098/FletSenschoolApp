@@ -486,9 +486,8 @@ class StudentRegistrationSystem:
             expand=True
         )
         
-        # Champ ID auto-généré (non modifiable)
-        students = self.data_manager.get_all_students()
-        next_id = len(students)
+        # Champ ID auto-généré (non modifiable) - utilise la nouvelle méthode
+        next_id = self.data_manager.get_next_student_id()
         
         self.student_id_field = ft.TextField(
             label="ID",
@@ -668,36 +667,58 @@ class StudentRegistrationSystem:
                 self.show_snackbar(f"Erreur lors du téléchargement de la photo: {str(ex)}", error=True)
     
     def save_student(self, e):
-        """Enregistrer un nouvel élève"""
-        # Validation des champs obligatoires
+        """Enregistrer un nouvel élève avec logs détaillés"""
+        print("=== DÉBUT INSCRIPTION ÉLÈVE ===")
+        print(f"[LOG] Tentative d'inscription d'un nouvel élève à {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # Validation des champs obligatoires avec logs
+        print("[LOG] Validation des champs obligatoires...")
+        
         if not self.prenom_field.value:
+            print("[LOG] ERREUR: Prénom manquant")
             self.show_snackbar("Le prénom est obligatoire", error=True)
             return
+        print(f"[LOG] Prénom validé: '{self.prenom_field.value.strip()}'")
         
         if not self.nom_field.value:
+            print("[LOG] ERREUR: Nom manquant")
             self.show_snackbar("Le nom est obligatoire", error=True)
             return
+        print(f"[LOG] Nom validé: '{self.nom_field.value.strip()}'")
         
         if not self.classe_dropdown.value or self.classe_dropdown.value == "Aucune classe disponible":
+            print("[LOG] ERREUR: Classe manquante ou invalide")
             self.show_snackbar("Veuillez sélectionner une classe valide ou créer des classes dans 'Gestion des classes'", error=True)
             return
+        print(f"[LOG] Classe validée: '{self.classe_dropdown.value}'")
         
         if not self.dob_field.value:
+            print("[LOG] ERREUR: Date de naissance manquante")
             self.show_snackbar("La date de naissance est obligatoire", error=True)
             return
+        print(f"[LOG] Date de naissance validée: '{self.dob_field.value}'")
         
         if not self.lieu_naissance_field.value:
+            print("[LOG] ERREUR: Lieu de naissance manquant")
             self.show_snackbar("Le lieu de naissance est obligatoire", error=True)
             return
+        print(f"[LOG] Lieu de naissance validé: '{self.lieu_naissance_field.value.strip()}'")
         
         if not self.telephone_parent_field.value:
+            print("[LOG] ERREUR: Téléphone parent manquant")
             self.show_snackbar("Le téléphone parent est obligatoire", error=True)
             return
+        print(f"[LOG] Téléphone parent validé: '{self.telephone_parent_field.value.strip()}'")
         
-        # Utiliser l'ID séquentiel
-        student_id = int(self.student_id_field.value)
+        print("[LOG] Tous les champs obligatoires sont valides ✓")
+        
+        # Générer l'ID avec la nouvelle méthode
+        print("[LOG] Génération de l'ID élève...")
+        student_id = self.data_manager.get_next_student_id()
+        print(f"[LOG] ID généré automatiquement: {student_id}")
         
         # Créer l'objet étudiant
+        print("[LOG] Construction des données de l'élève...")
         student_data = {
             "id": student_id,
             "student_id": student_id,  # ID séquentiel pour affichage
@@ -713,15 +734,31 @@ class StudentRegistrationSystem:
             "date_creation": datetime.now().isoformat()
         }
         
+        print(f"[LOG] Données complètes de l'élève:")
+        for key, value in student_data.items():
+            print(f"[LOG]   {key}: {value}")
+        
         # Sauvegarder l'élève
-        if self.data_manager.add_student(student_data):
-            self.show_snackbar("Élève inscrit avec succès!")
-            self.reset_form(None)
-        else:
-            self.show_snackbar("Erreur lors de l'inscription", error=True)
+        print("[LOG] Tentative de sauvegarde dans la base de données...")
+        try:
+            if self.data_manager.add_student(student_data):
+                print(f"[LOG] SUCCESS: Élève inscrit avec succès - ID: {student_id}, Nom: {student_data['nom_complet']}")
+                self.show_snackbar("Élève inscrit avec succès!")
+                print("[LOG] Réinitialisation du formulaire...")
+                self.reset_form(None)
+                print("[LOG] Formulaire réinitialisé avec succès")
+            else:
+                print("[LOG] ERREUR: Échec de la sauvegarde dans la base de données")
+                self.show_snackbar("Erreur lors de l'inscription", error=True)
+        except Exception as ex:
+            print(f"[LOG] EXCEPTION lors de la sauvegarde: {str(ex)}")
+            self.show_snackbar(f"Erreur technique: {str(ex)}", error=True)
+        
+        print("=== FIN INSCRIPTION ÉLÈVE ===\n")
     
     def reset_form(self, e):
-        """Réinitialiser le formulaire""" 
+        """Réinitialiser le formulaire avec logs""" 
+        print("[LOG] Réinitialisation des champs du formulaire...")
         self.prenom_field.value = ""
         self.nom_field.value = ""
         self.dob_field.value = ""
@@ -731,12 +768,14 @@ class StudentRegistrationSystem:
         self.genre_dropdown.value = "Masculin"
         self.classe_dropdown.value = None
         
-        # Mettre à jour l'ID pour le prochain élève
-        students = self.data_manager.get_all_students()
-        next_id = len(students)
+        # Mettre à jour l'ID pour le prochain élève avec la nouvelle méthode
+        print("[LOG] Calcul du prochain ID disponible...")
+        next_id = self.data_manager.get_next_student_id()
         self.student_id_field.value = str(next_id)
+        print(f"[LOG] Prochain ID disponible: {next_id}")
         
         self.page.update()
+        print("[LOG] Interface mise à jour")
     
     def show_student_management(self):
         """Afficher la gestion des élèves"""
