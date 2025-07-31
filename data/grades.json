@@ -7,7 +7,8 @@
     "semester": "premier",
     "type": "devoir1",
     "note": 10.0,
-    "date_creation": "2025-07-31T11:06:54.807620"
+    "date_creation": "2025-07-31T13:04:39.454899",
+    "date_modification": "2025-07-31T13:04:39.454999"
   },
   {
     "id": "1_premier_TS2_1_devoir2",
@@ -17,7 +18,8 @@
     "semester": "premier",
     "type": "devoir2",
     "note": 13.0,
-    "date_creation": "2025-07-31T11:06:54.808013"
+    "date_creation": "2025-07-31T13:04:39.455335",
+    "date_modification": "2025-07-31T13:04:39.455488"
   },
   {
     "id": "1_premier_TS2_1_composition",
@@ -27,7 +29,8 @@
     "semester": "premier",
     "type": "composition",
     "note": 19.0,
-    "date_creation": "2025-07-31T11:06:54.808279"
+    "date_creation": "2025-07-31T13:04:39.455706",
+    "date_modification": "2025-07-31T13:04:39.455773"
   },
   {
     "id": "1_deuxieme_TS2_1_devoir1",

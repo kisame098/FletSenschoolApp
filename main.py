@@ -4407,6 +4407,44 @@ class StudentRegistrationSystem:
         """Changer le nombre de devoirs et recréer le tableau"""
         self.num_devoirs = int(e.control.value)
         self.create_grades_table()
+        
+        # Recréer le contenu avec le nouveau tableau
+        save_grades_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon("save", color="#ffffff"),
+                ft.Text("Sauvegarder les notes", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=self.save_all_grades,
+            bgcolor="#059669",
+            height=48
+        )
+        
+        content = ft.Column([
+            ft.Row([
+                self.num_devoirs_dropdown,
+                ft.Container(expand=True),  # Espacement
+                save_grades_button
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+            ft.Container(height=16),
+            ft.Container(
+                content=self.grades_table,
+                expand=True,
+                alignment=ft.alignment.center
+            )
+        ])
+        
+        # Garder le header existant et mettre à jour seulement le contenu
+        header = self.main_content.content.controls[0]  # Récupérer l'en-tête existant
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
         self.page.update()
     
     def create_grades_table(self):
