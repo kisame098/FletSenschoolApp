@@ -3634,7 +3634,7 @@ class StudentRegistrationSystem:
                         ft.Text("Premier semestre", size=16, weight=ft.FontWeight.BOLD),
                         ft.Text("Septembre - Janvier", size=12, color="#64748b")
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
-                    on_click=lambda e: self.show_semester_subjects("premier"),
+                    on_click=lambda e: self.show_semester_classes("premier"),
                     bgcolor="#4f46e5",
                     color="#ffffff",
                     width=250,
@@ -3649,7 +3649,7 @@ class StudentRegistrationSystem:
                         ft.Text("Deuxième semestre", size=16, weight=ft.FontWeight.BOLD),
                         ft.Text("Février - Juin", size=12, color="#64748b")
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
-                    on_click=lambda e: self.show_semester_subjects("deuxieme"),
+                    on_click=lambda e: self.show_semester_classes("deuxieme"),
                     bgcolor="#059669",
                     color="#ffffff",
                     width=250,
@@ -3696,8 +3696,8 @@ class StudentRegistrationSystem:
         
         self.page.update()
     
-    def show_semester_subjects(self, semester):
-        """Afficher les matières du semestre sélectionné"""
+    def show_semester_classes(self, semester):
+        """Afficher les classes du semestre sélectionné"""
         self.current_semester = semester
         self.clear_main_content()
         
@@ -3714,7 +3714,147 @@ class StudentRegistrationSystem:
                     ),
                     ft.Column([
                         ft.Text(
-                            f"Gestion des notes - {semester_name}",
+                            f"Sélection de classe - {semester_name}",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Choisissez une classe pour gérer ses matières et notes",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True)
+                ])
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Grille des classes
+        self.classes_grid = ft.GridView(
+            expand=True,
+            runs_count=3,
+            max_extent=250,
+            child_aspect_ratio=1.2,
+            spacing=20,
+            run_spacing=20
+        )
+        
+        # Charger les classes existantes
+        self.load_classes_for_semester()
+        
+        content = ft.Column([
+            ft.Container(
+                content=self.classes_grid,
+                expand=True
+            )
+        ])
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+    def load_classes_for_semester(self):
+        """Charger les classes disponibles"""
+        classes = self.data_manager.get_all_classes()
+        self.classes_grid.controls.clear()
+        
+        if not classes:
+            # Message si aucune classe
+            empty_state = ft.Container(
+                content=ft.Column([
+                    ft.Text("🏫", size=48),
+                    ft.Text(
+                        "Aucune classe créée",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#64748b"
+                    ),
+                    ft.Text(
+                        "Veuillez d'abord créer des classes depuis la gestion des classes",
+                        size=14,
+                        color="#94a3b8",
+                        text_align=ft.TextAlign.CENTER
+                    )
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                padding=48
+            )
+            self.classes_grid.controls.append(empty_state)
+        else:
+            for classe in classes:
+                # Compter les élèves dans cette classe
+                students = self.data_manager.get_students()
+                student_count = len([s for s in students if s.get("classe") == classe.get("nom", "")])
+                
+                class_card = ft.Container(
+                    content=ft.Column([
+                        ft.Text(
+                            classe.get("nom", ""),
+                            size=18,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=8),
+                        ft.Text(
+                            f"{student_count} élève(s)",
+                            size=14,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=12),
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("subject", color="#ffffff", size=16),
+                                ft.Text("Matières", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=4, alignment=ft.MainAxisAlignment.CENTER),
+                            on_click=lambda e, c=classe: self.show_class_subjects(c),
+                            bgcolor="#4f46e5",
+                            height=40,
+                            width=120
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=4),
+                    bgcolor="#ffffff",
+                    border_radius=12,
+                    padding=20,
+                    border=ft.border.all(1, "#e2e8f0"),
+                    shadow=ft.BoxShadow(
+                        spread_radius=0,
+                        blur_radius=4,
+                        offset=ft.Offset(0, 2),
+                        color="#00000010"
+                    )
+                )
+                self.classes_grid.controls.append(class_card)
+        
+        self.page.update()
+    
+    def show_class_subjects(self, classe):
+        """Afficher les matières d'une classe spécifique"""
+        self.current_class = classe
+        self.clear_main_content()
+        
+        semester_name = "Premier semestre" if self.current_semester == "premier" else "Deuxième semestre"
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.IconButton(
+                        icon="arrow_back",
+                        on_click=lambda e: self.show_semester_classes(self.current_semester),
+                        bgcolor="#ffffff",
+                        icon_color="#64748b"
+                    ),
+                    ft.Column([
+                        ft.Text(
+                            f"Matières - {classe['nom']} ({semester_name})",
                             size=28,
                             weight=ft.FontWeight.BOLD,
                             color="#1e293b"
@@ -3753,8 +3893,8 @@ class StudentRegistrationSystem:
             run_spacing=16
         )
         
-        # Charger les matières existantes
-        self.load_semester_subjects()
+        # Charger les matières existantes pour cette classe
+        self.load_class_subjects()
         
         content = ft.Column([
             ft.Row([
@@ -3778,12 +3918,13 @@ class StudentRegistrationSystem:
         
         self.page.update()
     
-    def load_semester_subjects(self):
-        """Charger les matières du semestre actuel"""
-        subjects = self.data_manager.get_subjects_by_semester(self.current_semester)
+    def load_class_subjects(self):
+        """Charger les matières de la classe et semestre actuels"""
+        subjects = self.data_manager.get_subjects()
+        filtered_subjects = [s for s in subjects if s.get("semestre") == self.current_semester and s.get("classe") == self.current_class.get("nom", "")]
         self.subjects_grid.controls.clear()
         
-        for subject in subjects:
+        for subject in filtered_subjects:
             # Limiter le nom à 14 caractères avec des points de suspension
             subject_name = subject["nom"]
             if len(subject_name) > 14:
@@ -3832,7 +3973,7 @@ class StudentRegistrationSystem:
             )
             self.subjects_grid.controls.append(subject_card)
         
-        if not subjects:
+        if not filtered_subjects:
             empty_state = ft.Container(
                 content=ft.Column([
                     ft.Text("📚", size=48),
@@ -3851,6 +3992,8 @@ class StudentRegistrationSystem:
                 padding=48
             )
             self.subjects_grid.controls.append(empty_state)
+        
+        self.page.update()
     
     def show_add_subject_dialog(self):
         """Afficher le dialog d'ajout de matière"""
@@ -3992,10 +4135,11 @@ class StudentRegistrationSystem:
             return
         
         subject_data = {
-            "id": f"{self.current_semester}_{len(self.data_manager.get_subjects_by_semester(self.current_semester)) + 1}",
+            "id": f"{self.current_semester}_{self.current_class.get('nom', '')}_{len([s for s in self.data_manager.get_subjects() if s.get('semestre') == self.current_semester and s.get('classe') == self.current_class.get('nom', '')]) + 1}",
             "nom": self.subject_name_field.value,
             "coefficient": coefficient,
             "semestre": self.current_semester,
+            "classe": self.current_class.get("nom", ""),
             "date_creation": datetime.now().isoformat()
         }
         
@@ -4003,7 +4147,7 @@ class StudentRegistrationSystem:
             self.show_snackbar("Matière ajoutée avec succès!")
             self.close_subject_dialog(None)
             # Recharger immédiatement sans délai
-            self.load_semester_subjects()
+            self.load_class_subjects()
             self.page.update()
         else:
             self.show_snackbar("Erreur lors de l'ajout de la matière", error=True)
@@ -4057,13 +4201,13 @@ class StudentRegistrationSystem:
                 ft.Row([
                     ft.IconButton(
                         icon="arrow_back",
-                        on_click=lambda e: self.show_semester_subjects(self.current_semester),
+                        on_click=lambda e: self.show_class_subjects(self.current_class),
                         bgcolor="#ffffff",
                         icon_color="#64748b"
                     ),
                     ft.Column([
                         ft.Text(
-                            f"Notes - {subject['nom']} ({semester_name})",
+                            f"Notes - {subject['nom']} - {self.current_class.get('nom', '')} ({semester_name})",
                             size=28,
                             weight=ft.FontWeight.BOLD,
                             color="#1e293b"
@@ -4120,8 +4264,9 @@ class StudentRegistrationSystem:
     
     def create_grades_table(self):
         """Créer le tableau des notes avec exactement le même style que les autres tableaux"""
-        # Récupérer tous les élèves
-        students = self.data_manager.get_all_students()
+        # Récupérer les élèves de la classe sélectionnée
+        all_students = self.data_manager.get_all_students()
+        students = [s for s in all_students if s.get("classe") == self.current_class.get("nom", "")]
         
         if not students:
             # Message si aucun élève - même style que les autres sections
