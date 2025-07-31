@@ -766,6 +766,8 @@ class StudentRegistrationSystem:
         self.numero_eleve_field.value = ""
         self.telephone_parent_field.value = ""
         self.genre_dropdown.value = "Masculin"
+        
+        # Correction : vider complètement le dropdown classe visuellement
         self.classe_dropdown.value = None
         
         # Mettre à jour l'ID pour le prochain élève avec la nouvelle méthode
@@ -774,8 +776,19 @@ class StudentRegistrationSystem:
         self.student_id_field.value = str(next_id)
         print(f"[LOG] Prochain ID disponible: {next_id}")
         
+        # Forcer la mise à jour de tous les champs individuellement
+        self.prenom_field.update()
+        self.nom_field.update()
+        self.dob_field.update()
+        self.lieu_naissance_field.update()
+        self.numero_eleve_field.update()
+        self.telephone_parent_field.update()
+        self.genre_dropdown.update()
+        self.classe_dropdown.update()  # Mise à jour forcée du dropdown classe
+        self.student_id_field.update()
+        
         self.page.update()
-        print("[LOG] Interface mise à jour")
+        print("[LOG] Interface mise à jour avec réinitialisation forcée de tous les champs")
     
     def show_student_management(self):
         """Afficher la gestion des élèves"""

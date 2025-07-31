@@ -1,17 +1,44 @@
 [
   {
-    "id": 1,
-    "student_id": 1,
-    "prenom": "ADAMA",
-    "nom": "SAO",
-    "nom_complet": "ADA SAO",
-    "date_naissance": "11/12/2005",
-    "lieu_naissance": "SAER",
-    "numero_eleve": "+221778909987",
-    "telephone_parent": "+221777654334",
+    "id": 0,
+    "student_id": 0,
+    "prenom": "Cheikh Ibrahima",
+    "nom": "sane",
+    "nom_complet": "Cheikh Ibrahima sane",
+    "date_naissance": "17/12/2005",
+    "lieu_naissance": "dakar",
+    "numero_eleve": "785463507",
+    "telephone_parent": "773241333",
     "genre": "Masculin",
     "classe": "TS2",
-    "date_creation": "2025-07-28T17:55:23.492753",
-    "date_modification": "2025-07-29T17:59:16.536497"
+    "date_creation": "2025-07-31T20:53:16.974814"
+  },
+  {
+    "id": 1,
+    "student_id": 1,
+    "prenom": "mamadou",
+    "nom": "ba",
+    "nom_complet": "mamadou ba",
+    "date_naissance": "11/12/2006",
+    "lieu_naissance": "dakar",
+    "numero_eleve": "772342334",
+    "telephone_parent": "778900987",
+    "genre": "Masculin",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T20:54:52.966460"
+  },
+  {
+    "id": 2,
+    "student_id": 2,
+    "prenom": "jamil",
+    "nom": "niang",
+    "nom_complet": "jamil niang",
+    "date_naissance": "11/02/2002",
+    "lieu_naissance": "ouki",
+    "numero_eleve": "778770890",
+    "telephone_parent": "774567689",
+    "genre": "Masculin",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T20:56:18.921705"
   }
 ]
