@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "1_premier_TS2_1_devoir1",
+    "student_id": 1,
+    "subject_id": "premier_TS2_1",
+    "subject_name": "SVT",
+    "semester": "premier",
+    "type": "devoir1",
+    "note": 10.0,
+    "date_creation": "2025-07-31T11:06:54.807620"
+  },
+  {
+    "id": "1_premier_TS2_1_devoir2",
+    "student_id": 1,
+    "subject_id": "premier_TS2_1",
+    "subject_name": "SVT",
+    "semester": "premier",
+    "type": "devoir2",
+    "note": 13.0,
+    "date_creation": "2025-07-31T11:06:54.808013"
+  },
+  {
+    "id": "1_premier_TS2_1_composition",
+    "student_id": 1,
+    "subject_id": "premier_TS2_1",
+    "subject_name": "SVT",
+    "semester": "premier",
+    "type": "composition",
+    "note": 19.0,
+    "date_creation": "2025-07-31T11:06:54.808279"
+  }
+]

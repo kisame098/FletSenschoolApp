@@ -6,6 +6,25 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
+### Synchronisation des matières entre semestres (31/07/2025)
+- **Bouton Synchroniser pour le Deuxième semestre** :
+  - Nouveau bouton "Synchroniser" visible uniquement dans la gestion du Deuxième semestre
+  - Copie automatiquement toutes les matières et coefficients du Premier semestre
+  - Ne copie pas les notes (restent vides pour le deuxième semestre)
+  - Synchronisation instantanée sans rechargement complet de page
+  
+- **Fonctionnalités avancées** :
+  - Détection automatique des matières existantes avec demande de confirmation
+  - Suppression et remplacement des matières existantes si nécessaire
+  - Messages de confirmation et de succès avec compteur de matières synchronisées
+  - Gestion d'erreurs avec messages informatifs
+  - Référence de traçabilité (sync_from) pour lier les matières synchronisées
+
+- **Interface utilisateur** :
+  - Bouton vert "Synchroniser" avec icône sync placé à côté du bouton "Ajouter une matière"
+  - Tooltip explicatif sur la fonction du bouton
+  - Dialog de confirmation avec détails sur le nombre de matières
+
 ### Système complet de gestion des professeurs (29/07/2025)
 - **Gestion des professeurs identique aux élèves** :
   - Barre de recherche instantanée par ID, nom, prénom ou nom complet

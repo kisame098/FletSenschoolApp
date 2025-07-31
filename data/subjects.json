@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "premier_TS2_1",
+    "nom": "SVT",
+    "coefficient": 6.0,
+    "semestre": "premier",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T11:06:35.563832"
+  }
+]

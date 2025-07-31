@@ -3885,6 +3885,20 @@ class StudentRegistrationSystem:
             height=48
         )
         
+        # Bouton Synchroniser (uniquement pour le deuxième semestre)
+        sync_button = None
+        if self.current_semester == "deuxieme":
+            sync_button = ft.ElevatedButton(
+                content=ft.Row([
+                    ft.Icon("sync", color="#ffffff"),
+                    ft.Text("Synchroniser", color="#ffffff", weight=ft.FontWeight.BOLD)
+                ], spacing=8),
+                on_click=lambda e: self.sync_subjects_from_first_semester(),
+                bgcolor="#059669",
+                height=48,
+                tooltip="Copier les matières et coefficients du Premier semestre"
+            )
+        
         # Grille des matières
         self.subjects_grid = ft.GridView(
             expand=True,
@@ -3898,10 +3912,20 @@ class StudentRegistrationSystem:
         # Charger les matières existantes pour cette classe
         self.load_class_subjects()
         
-        content = ft.Column([
-            ft.Row([
+        # Création de la ligne de boutons selon le semestre
+        if sync_button:
+            buttons_row = ft.Row([
+                add_subject_button,
+                ft.Container(width=16),  # Espacement
+                sync_button
+            ], alignment=ft.MainAxisAlignment.START)
+        else:
+            buttons_row = ft.Row([
                 add_subject_button
-            ], alignment=ft.MainAxisAlignment.START),
+            ], alignment=ft.MainAxisAlignment.START)
+        
+        content = ft.Column([
+            buttons_row,
             ft.Container(height=24),
             ft.Container(
                 content=self.subjects_grid,
@@ -4158,6 +4182,99 @@ class StudentRegistrationSystem:
         """Fermer le dialog de matière"""
         if hasattr(self, 'subject_dialog'):
             self.page.close(self.subject_dialog)
+    
+    def sync_subjects_from_first_semester(self):
+        """Synchroniser les matières du premier semestre vers le deuxième semestre"""
+        if self.current_semester != "deuxieme":
+            self.show_snackbar("La synchronisation n'est disponible que pour le deuxième semestre", error=True)
+            return
+        
+        # Récupérer toutes les matières
+        all_subjects = self.data_manager.get_all_subjects()
+        
+        # Filtrer les matières du premier semestre pour la classe actuelle
+        first_semester_subjects = [
+            s for s in all_subjects 
+            if s.get("semestre") == "premier" and s.get("classe") == self.current_class.get("nom", "")
+        ]
+        
+        if not first_semester_subjects:
+            self.show_snackbar("Aucune matière trouvée dans le premier semestre pour cette classe", error=True)
+            return
+        
+        # Vérifier s'il existe déjà des matières dans le deuxième semestre
+        second_semester_subjects = [
+            s for s in all_subjects 
+            if s.get("semestre") == "deuxieme" and s.get("classe") == self.current_class.get("nom", "")
+        ]
+        
+        if second_semester_subjects:
+            # Demander confirmation pour remplacer les matières existantes
+            def confirm_sync(e):
+                self.page.close(self.sync_dialog)
+                self.perform_sync(first_semester_subjects)
+            
+            def cancel_sync(e):
+                self.page.close(self.sync_dialog)
+            
+            self.sync_dialog = ft.AlertDialog(
+                title=ft.Text("Confirmer la synchronisation", weight=ft.FontWeight.BOLD),
+                content=ft.Text(
+                    f"Il existe déjà {len(second_semester_subjects)} matière(s) dans le deuxième semestre.\n"
+                    f"Voulez-vous les remplacer par les {len(first_semester_subjects)} matière(s) du premier semestre ?"
+                ),
+                actions=[
+                    ft.TextButton("Annuler", on_click=cancel_sync),
+                    ft.ElevatedButton(
+                        "Synchroniser",
+                        on_click=confirm_sync,
+                        bgcolor="#059669",
+                        color="#ffffff"
+                    )
+                ],
+                modal=True
+            )
+            self.page.open(self.sync_dialog)
+        else:
+            # Aucune matière existante, synchroniser directement
+            self.perform_sync(first_semester_subjects)
+    
+    def perform_sync(self, first_semester_subjects):
+        """Effectuer la synchronisation des matières"""
+        success_count = 0
+        
+        # Supprimer d'abord toutes les matières existantes du deuxième semestre
+        all_subjects = self.data_manager.get_all_subjects()
+        existing_second_subjects = [
+            s for s in all_subjects 
+            if s.get("semestre") == "deuxieme" and s.get("classe") == self.current_class.get("nom", "")
+        ]
+        
+        for subject in existing_second_subjects:
+            self.data_manager.delete_subject(subject["id"])
+        
+        # Copier les matières du premier semestre
+        for i, subject in enumerate(first_semester_subjects):
+            new_subject_data = {
+                "id": f"deuxieme_{self.current_class.get('nom', '')}_{i + 1}",
+                "nom": subject["nom"],
+                "coefficient": subject["coefficient"],
+                "semestre": "deuxieme",
+                "classe": self.current_class.get("nom", ""),
+                "date_creation": datetime.now().isoformat(),
+                "sync_from": subject["id"]  # Référence à la matière d'origine
+            }
+            
+            if self.data_manager.add_subject(new_subject_data):
+                success_count += 1
+        
+        # Afficher le résultat et recharger
+        if success_count > 0:
+            self.show_snackbar(f"{success_count} matière(s) synchronisée(s) avec succès!")
+            self.load_class_subjects()
+            self.page.update()
+        else:
+            self.show_snackbar("Erreur lors de la synchronisation", error=True)
     
     def delete_subject(self, subject):
         """Supprimer une matière avec confirmation"""
