@@ -40,5 +40,19 @@
     "genre": "Masculin",
     "classe": "TS2",
     "date_creation": "2025-07-31T20:56:18.921705"
+  },
+  {
+    "id": 3,
+    "student_id": 3,
+    "prenom": "moise",
+    "nom": "mendy",
+    "nom_complet": "moise mendy",
+    "date_naissance": "11/02/2002",
+    "lieu_naissance": "ouk",
+    "numero_eleve": "778880907",
+    "telephone_parent": "770098708",
+    "genre": "Masculin",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T21:04:32.340457"
   }
 ]
