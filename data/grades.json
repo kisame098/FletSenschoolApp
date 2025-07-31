@@ -6,9 +6,9 @@
     "subject_name": "SVT",
     "semester": "premier",
     "type": "devoir1",
-    "note": 10.0,
-    "date_creation": "2025-07-31T13:04:39.454899",
-    "date_modification": "2025-07-31T13:04:39.454999"
+    "note": 15.0,
+    "date_creation": "2025-07-31T14:04:46.202299",
+    "date_modification": "2025-07-31T14:04:46.202449"
   },
   {
     "id": "1_premier_TS2_1_devoir2",
@@ -17,9 +17,9 @@
     "subject_name": "SVT",
     "semester": "premier",
     "type": "devoir2",
-    "note": 13.0,
-    "date_creation": "2025-07-31T13:04:39.455335",
-    "date_modification": "2025-07-31T13:04:39.455488"
+    "note": 15.0,
+    "date_creation": "2025-07-31T14:04:46.202801",
+    "date_modification": "2025-07-31T14:04:46.202870"
   },
   {
     "id": "1_premier_TS2_1_composition",
@@ -28,9 +28,9 @@
     "subject_name": "SVT",
     "semester": "premier",
     "type": "composition",
-    "note": 19.0,
-    "date_creation": "2025-07-31T13:04:39.455706",
-    "date_modification": "2025-07-31T13:04:39.455773"
+    "note": 15.0,
+    "date_creation": "2025-07-31T14:04:46.203336",
+    "date_modification": "2025-07-31T14:04:46.203796"
   },
   {
     "id": "1_deuxieme_TS2_1_devoir1",
@@ -61,5 +61,48 @@
     "type": "composition",
     "note": 10.0,
     "date_creation": "2025-07-31T12:44:27.536594"
+  },
+  {
+    "id": "1_premier_TS2_1_devoir3",
+    "student_id": 1,
+    "subject_id": "premier_TS2_1",
+    "subject_name": "SVT",
+    "semester": "premier",
+    "type": "devoir3",
+    "note": 12.0,
+    "date_creation": "2025-07-31T14:04:46.203144"
+  },
+  {
+    "id": "1_premier_TS2_2_devoir1",
+    "student_id": 1,
+    "subject_id": "premier_TS2_2",
+    "subject_name": "Français",
+    "semester": "premier",
+    "type": "devoir1",
+    "note": 14.0,
+    "date_creation": "2025-07-31T14:06:22.848318",
+    "date_modification": "2025-07-31T14:06:22.848503"
+  },
+  {
+    "id": "1_premier_TS2_2_devoir2",
+    "student_id": 1,
+    "subject_id": "premier_TS2_2",
+    "subject_name": "Français",
+    "semester": "premier",
+    "type": "devoir2",
+    "note": 14.0,
+    "date_creation": "2025-07-31T14:06:22.849016",
+    "date_modification": "2025-07-31T14:06:22.849124"
+  },
+  {
+    "id": "1_premier_TS2_2_composition",
+    "student_id": 1,
+    "subject_id": "premier_TS2_2",
+    "subject_name": "Français",
+    "semester": "premier",
+    "type": "composition",
+    "note": 14.0,
+    "date_creation": "2025-07-31T14:06:22.854375",
+    "date_modification": "2025-07-31T14:06:22.854525"
   }
 ]

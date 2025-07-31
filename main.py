@@ -4101,8 +4101,11 @@ class StudentRegistrationSystem:
                 if somme_coef_eleve > 0:
                     moyenne_generale_eleve = somme_points_eleve / somme_coef_eleve
                     students_averages.append({
+                        "student_id": student_id,
                         "name": student_name,
                         "general_average": round(moyenne_generale_eleve, 2),
+                        "total_points": round(somme_points_eleve, 2),
+                        "total_coefficient": int(somme_coef_eleve),
                         "subjects": subject_details
                     })
             
@@ -4177,21 +4180,35 @@ class StudentRegistrationSystem:
                 color="#ffffff"
             )
         else:
-            # Créer le tableau des résultats
+            # Créer le tableau des résultats avec les nouvelles colonnes
             columns = [
-                ft.DataColumn(ft.Text("Élève", weight=ft.FontWeight.BOLD, size=12)),
-                ft.DataColumn(ft.Text("Moyenne générale", weight=ft.FontWeight.BOLD, size=12)),
-                ft.DataColumn(ft.Text("Détails matières", weight=ft.FontWeight.BOLD, size=12))
+                ft.DataColumn(ft.Text("Rang", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Points totaux", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Coeff. total", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Moyenne", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Mention", weight=ft.FontWeight.BOLD, size=12))
             ]
             
             rows = []
-            for student_data in sorted(students_averages, key=lambda x: x["general_average"], reverse=True):
-                # Détails des matières
-                subject_details = []
-                for subject in student_data["subjects"]:
-                    subject_details.append(f"{subject['name']}: {subject['average']}/20")
-                
-                details_text = " | ".join(subject_details)
+            # Trier par moyenne décroissante pour le classement
+            sorted_students = sorted(students_averages, key=lambda x: x["general_average"], reverse=True)
+            
+            for rank, student_data in enumerate(sorted_students, 1):
+                # Fonction pour déterminer la mention
+                def get_mention(average):
+                    if average >= 16:
+                        return "Très Bien"
+                    elif average >= 14:
+                        return "Bien"
+                    elif average >= 12:
+                        return "Assez Bien"
+                    elif average >= 10:
+                        return "Passable"
+                    else:
+                        return "Insuffisant"
                 
                 # Couleur selon la moyenne
                 avg = student_data["general_average"]
@@ -4204,10 +4221,33 @@ class StudentRegistrationSystem:
                 else:
                     avg_color = "#ef4444"  # Rouge
                 
+                # Couleur pour la mention
+                mention = get_mention(avg)
+                if mention == "Très Bien":
+                    mention_color = "#059669"
+                elif mention == "Bien":
+                    mention_color = "#0ea5e9"
+                elif mention == "Assez Bien":
+                    mention_color = "#f59e0b"
+                elif mention == "Passable":
+                    mention_color = "#f59e0b"
+                else:
+                    mention_color = "#ef4444"
+                
+                # Séparer prénom et nom
+                name_parts = student_data["name"].split(" ", 1)
+                prenom = name_parts[0] if len(name_parts) > 0 else ""
+                nom = name_parts[1] if len(name_parts) > 1 else ""
+                
                 rows.append(ft.DataRow([
-                    ft.DataCell(ft.Text(student_data["name"], size=12, weight=ft.FontWeight.W_500)),
-                    ft.DataCell(ft.Text(f"{avg}/20", size=12, weight=ft.FontWeight.BOLD, color=avg_color)),
-                    ft.DataCell(ft.Text(details_text, size=10, color="#64748b"))
+                    ft.DataCell(ft.Text(str(rank), size=12, weight=ft.FontWeight.BOLD)),
+                    ft.DataCell(ft.Text(str(student_data["student_id"]), size=12, weight=ft.FontWeight.W_500)),
+                    ft.DataCell(ft.Text(prenom, size=12, weight=ft.FontWeight.W_500)),
+                    ft.DataCell(ft.Text(nom, size=12, weight=ft.FontWeight.W_500)),
+                    ft.DataCell(ft.Text(f"{student_data['total_points']:.2f}", size=12)),
+                    ft.DataCell(ft.Text(str(student_data["total_coefficient"]), size=12)),
+                    ft.DataCell(ft.Text(f"{avg:.2f}/20", size=12, weight=ft.FontWeight.BOLD, color=avg_color)),
+                    ft.DataCell(ft.Text(mention, size=12, weight=ft.FontWeight.BOLD, color=mention_color))
                 ]))
             
             results_table = ft.DataTable(
