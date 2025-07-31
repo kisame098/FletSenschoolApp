@@ -15,6 +15,7 @@ class DataManager:
         self.subjects_file = os.path.join(self.data_dir, "subjects.json")
         self.attendance_file = os.path.join(self.data_dir, "attendance.json")
         self.schedule_file = os.path.join(self.data_dir, "schedule.json")
+        self.homework_config_file = os.path.join(self.data_dir, "homework_config.json")
         
         self._ensure_data_directory()
         self._initialize_files()
@@ -33,7 +34,8 @@ class DataManager:
             self.grades_file,
             self.subjects_file,
             self.attendance_file,
-            self.schedule_file
+            self.schedule_file,
+            self.homework_config_file
         ]
         
         for file_path in files_to_init:
@@ -358,3 +360,42 @@ class DataManager:
             "teachers_by_subject": teachers_by_subject,
             "last_updated": datetime.now().isoformat()
         }
+    
+    # Gestion de la configuration des devoirs
+    def get_homework_config(self, class_name: str, subject_id: str, semester: str) -> int:
+        """Récupérer le nombre de devoirs configuré pour une classe+matière+semestre"""
+        configs = self._load_data(self.homework_config_file)
+        
+        for config in configs:
+            if (config.get("class_name") == class_name and 
+                config.get("subject_id") == subject_id and 
+                config.get("semester") == semester):
+                return config.get("num_homework", 2)  # Par défaut 2 devoirs
+        
+        return 2  # Par défaut 2 devoirs si pas de configuration
+    
+    def set_homework_config(self, class_name: str, subject_id: str, semester: str, num_homework: int) -> bool:
+        """Définir le nombre de devoirs pour une classe+matière+semestre"""
+        configs = self._load_data(self.homework_config_file)
+        
+        # Vérifier si une configuration existe déjà
+        for i, config in enumerate(configs):
+            if (config.get("class_name") == class_name and 
+                config.get("subject_id") == subject_id and 
+                config.get("semester") == semester):
+                configs[i]["num_homework"] = num_homework
+                configs[i]["updated_at"] = datetime.now().isoformat()
+                return self._save_data(self.homework_config_file, configs)
+        
+        # Créer une nouvelle configuration
+        new_config = {
+            "class_name": class_name,
+            "subject_id": subject_id,
+            "semester": semester,
+            "num_homework": num_homework,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        configs.append(new_config)
+        return self._save_data(self.homework_config_file, configs)

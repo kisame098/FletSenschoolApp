@@ -4313,9 +4313,12 @@ class StudentRegistrationSystem:
         self.current_subject = subject
         self.clear_main_content()
         
-        # Initialiser le nombre de devoirs par défaut
-        if not hasattr(self, 'num_devoirs'):
-            self.num_devoirs = 2
+        # Récupérer le nombre de devoirs configuré pour cette classe+matière+semestre
+        class_name = self.current_class.get('nom', '')
+        subject_id = subject.get('id', '')
+        self.num_devoirs = self.data_manager.get_homework_config(
+            class_name, subject_id, self.current_semester
+        )
         
         semester_name = "Premier semestre" if self.current_semester == "premier" else "Deuxième semestre"
         
@@ -4406,6 +4409,14 @@ class StudentRegistrationSystem:
     def on_num_devoirs_change(self, e):
         """Changer le nombre de devoirs et recréer le tableau"""
         self.num_devoirs = int(e.control.value)
+        
+        # Sauvegarder la configuration pour cette classe+matière+semestre
+        class_name = self.current_class.get('nom', '')
+        subject_id = self.current_subject.get('id', '')
+        self.data_manager.set_homework_config(
+            class_name, subject_id, self.current_semester, self.num_devoirs
+        )
+        
         self.create_grades_table()
         
         # Recréer le contenu avec le nouveau tableau
