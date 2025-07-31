@@ -1,0 +1,92 @@
+Objectif :
+Créer une page dédiée permettant de gérer, pour une matière donnée, quels élèves de la classe la suivent, et leur attribuer éventuellement un coefficient personnalisé.
+
+1. Accès à la page
+Dans la page de saisie des notes d’une matière, ajouter un bouton nommé "Paramètres matière" (icône ⚙️).
+
+Lorsqu’on clique dessus, ouvrir une nouvelle page affichant la liste des élèves concernés par cette matière.
+
+2. Contenu de la page
+La page affichera un tableau avec les colonnes suivantes :
+
+ID (ID élève)
+
+Nom
+
+Prénom
+
+Date de naissance
+
+Lieu de naissance
+
+Statut matière → interrupteur ON/OFF :
+
+ON = matière activée pour cet élève
+
+OFF = élève dispensé → matière exclue du calcul et de la saisie de notes
+
+Par défaut, tous les élèves sont en ON
+
+Coefficient personnalisé :
+
+Par défaut = coefficient défini lors de la création de la matière
+
+Modifiable élève par élève
+
+Si modifié, utilisé dans le calcul de moyenne uniquement pour cet élève
+
+3. Règles de fonctionnement
+Si Statut matière = OFF →
+
+L’élève n’apparaît plus dans la page de saisie des notes pour cette matière.
+
+La matière est exclue de son calcul de moyenne.
+
+Si Statut matière = ON mais coef personnalisé modifié →
+
+Le coef personnalisé remplace le coef par défaut dans le calcul de moyenne.
+
+Les modifications doivent être sauvegardées instantanément (auto-save ou bouton "Enregistrer").
+
+4. Impact sur le calcul des moyennes
+Lors du calcul :
+
+Ignorer les matières désactivées pour l’élève.
+
+Utiliser coef personnalisé si défini, sinon coef par défaut.
+
+Adapter la somme des coefficients uniquement aux matières actives.
+
+Pseudo-code :
+
+python
+Copier
+Modifier
+for eleve in classe:
+    somme_points = 0
+    somme_coef = 0
+    for matiere in matieres_activées_par_eleve:
+        coef_utilisé = coef_personnalisé if existe else coef_par_defaut
+        moyenne_matiere = calculer_moyenne(matiere, eleve)
+        somme_points += moyenne_matiere * coef_utilisé
+        somme_coef += coef_utilisé
+    moyenne_generale = somme_points / somme_coef
+5. Exemple d’utilisation
+Matière : EPS (coef par défaut 2)
+
+Élève 1 : EPS ON, coef = 2
+
+Élève 2 : EPS OFF → exclu du calcul
+
+Élève 3 : EPS ON, coef = 1
+
+Résultat :
+
+Élève 1 → prend EPS coef 2
+
+Élève 2 → EPS ignoré
+
+Élève 3 → prend EPS coef 1
+
+6. Contraintes techniques
+La page doit être responsive.
