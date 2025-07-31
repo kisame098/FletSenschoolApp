@@ -3922,7 +3922,7 @@ class StudentRegistrationSystem:
     
     def load_class_subjects(self):
         """Charger les matières de la classe et semestre actuels"""
-        subjects = self.data_manager.get_subjects()
+        subjects = self.data_manager.get_all_subjects()
         filtered_subjects = [s for s in subjects if s.get("semestre") == self.current_semester and s.get("classe") == self.current_class.get("nom", "")]
         self.subjects_grid.controls.clear()
         
@@ -4137,7 +4137,7 @@ class StudentRegistrationSystem:
             return
         
         subject_data = {
-            "id": f"{self.current_semester}_{self.current_class.get('nom', '')}_{len([s for s in self.data_manager.get_subjects() if s.get('semestre') == self.current_semester and s.get('classe') == self.current_class.get('nom', '')]) + 1}",
+            "id": f"{self.current_semester}_{self.current_class.get('nom', '')}_{len([s for s in self.data_manager.get_all_subjects() if s.get('semestre') == self.current_semester and s.get('classe') == self.current_class.get('nom', '')]) + 1}",
             "nom": self.subject_name_field.value,
             "coefficient": coefficient,
             "semestre": self.current_semester,
