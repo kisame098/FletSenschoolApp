@@ -4819,6 +4819,17 @@ class StudentRegistrationSystem:
         # Tableau des notes
         self.create_grades_table()
         
+        # Bouton Paramètres matière
+        subject_settings_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon("settings", color="#ffffff"),
+                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=lambda e: self.show_subject_settings(subject),
+            bgcolor="#6b7280",
+            height=48
+        )
+
         # Bouton de sauvegarde
         save_grades_button = ft.ElevatedButton(
             content=ft.Row([
@@ -4834,6 +4845,8 @@ class StudentRegistrationSystem:
             ft.Row([
                 self.num_devoirs_dropdown,
                 ft.Container(expand=True),  # Espacement
+                subject_settings_button,
+                ft.Container(width=16),  # Espacement
                 save_grades_button
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             ft.Container(height=16),
@@ -4869,6 +4882,17 @@ class StudentRegistrationSystem:
         self.create_grades_table()
         
         # Recréer le contenu avec le nouveau tableau
+        # Bouton Paramètres matière
+        subject_settings_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon("settings", color="#ffffff"),
+                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=lambda e: self.show_subject_settings(self.current_subject),
+            bgcolor="#6b7280",
+            height=48
+        )
+
         save_grades_button = ft.ElevatedButton(
             content=ft.Row([
                 ft.Icon("save", color="#ffffff"),
@@ -4883,6 +4907,8 @@ class StudentRegistrationSystem:
             ft.Row([
                 self.num_devoirs_dropdown,
                 ft.Container(expand=True),  # Espacement
+                subject_settings_button,
+                ft.Container(width=16),  # Espacement
                 save_grades_button
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             ft.Container(height=16),
@@ -5117,6 +5143,279 @@ class StudentRegistrationSystem:
             self.show_snackbar(f"{saved_count} notes sauvegardées avec succès!")
         else:
             self.show_snackbar("Aucune note valide à sauvegarder", error=True)
+    
+    def show_subject_settings(self, subject):
+        """Afficher la page des paramètres de matière pour gérer les élèves"""
+        self.clear_main_content()
+        
+        semester_name = "Premier semestre" if self.current_semester == "premier" else "Deuxième semestre"
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.IconButton(
+                        icon="arrow_back",
+                        on_click=lambda e: self.show_grades_table(subject),
+                        bgcolor="#ffffff",
+                        icon_color="#64748b"
+                    ),
+                    ft.Column([
+                        ft.Text(
+                            f"Paramètres - {subject['nom']} - {self.current_class.get('nom', '')} ({semester_name})",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Gérez les élèves concernés par cette matière et leurs coefficients",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True)
+                ])
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Créer le tableau des paramètres des élèves
+        self.create_subject_settings_table(subject)
+        
+        # Bouton de sauvegarde
+        save_settings_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon("save", color="#ffffff"),
+                ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=lambda e: self.save_subject_settings(subject),
+            bgcolor="#059669",
+            height=48
+        )
+        
+        content = ft.Column([
+            ft.Row([
+                ft.Container(expand=True),  # Espacement
+                save_settings_button
+            ], alignment=ft.MainAxisAlignment.END),
+            ft.Container(height=16),
+            ft.Container(
+                content=self.subject_settings_table,
+                expand=True,
+                alignment=ft.alignment.center
+            )
+        ])
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
+        
+        self.page.update()
+    
+    def create_subject_settings_table(self, subject):
+        """Créer le tableau des paramètres d'élèves pour une matière"""
+        # Récupérer les élèves de la classe sélectionnée
+        all_students = self.data_manager.get_all_students()
+        students = [s for s in all_students if s.get("classe") == self.current_class.get("nom", "")]
+        
+        if not students:
+            # Message si aucun élève
+            self.subject_settings_table = ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon("school", size=64, color="#cbd5e1"),
+                        ft.Container(height=16),
+                        ft.Text(
+                            "Aucun élève inscrit",
+                            size=16,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=16),
+                        ft.ElevatedButton(
+                            "Inscrire un élève",
+                            icon="person_add",
+                            on_click=lambda _: self.show_student_registration(),
+                            bgcolor="#4f46e5",
+                            color="#ffffff"
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=40,
+                    alignment=ft.alignment.center
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+            return
+        
+        # Récupérer les paramètres existants pour cette matière
+        class_name = self.current_class.get('nom', '')
+        subject_id = subject.get('id', '')
+        existing_settings = self.data_manager.get_student_subject_settings(
+            class_name, subject_id, self.current_semester
+        )
+        
+        # Coefficient par défaut de la matière
+        default_coefficient = float(subject.get('coefficient', 1))
+        
+        # Créer les lignes du tableau
+        rows = []
+        self.subject_settings_fields = {}  # Stocker les références des champs
+        
+        for student in students:
+            student_id = student.get("student_id", student.get("id", ""))
+            nom = student.get("nom", "")
+            prenom = student.get("prenom", "")
+            date_naissance = student.get("date_naissance", "")
+            lieu_naissance = student.get("lieu_naissance", "")
+            
+            # Récupérer les paramètres existants pour cet élève
+            student_settings = existing_settings.get(str(student_id), {})
+            is_active = student_settings.get("active", True)  # Par défaut ON
+            custom_coefficient = student_settings.get("coefficient", default_coefficient)
+            
+            # Créer les champs
+            # Switch ON/OFF
+            active_switch = ft.Switch(
+                value=is_active,
+                active_color="#059669",
+                inactive_track_color="#e2e8f0"
+            )
+            
+            # Champ coefficient personnalisé
+            coefficient_field = ft.TextField(
+                value=str(custom_coefficient),
+                width=80,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            
+            # Stocker les références
+            self.subject_settings_fields[student_id] = {
+                "active": active_switch,
+                "coefficient": coefficient_field
+            }
+            
+            row_cells = [
+                ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
+                ft.DataCell(ft.Text(nom, size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(prenom, size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(date_naissance, size=12)),
+                ft.DataCell(ft.Text(lieu_naissance, size=12)),
+                ft.DataCell(active_switch),
+                ft.DataCell(coefficient_field)
+            ]
+            
+            rows.append(ft.DataRow(row_cells))
+        
+        # Créer les colonnes
+        columns = [
+            ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Lieu naissance", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Statut matière", weight=ft.FontWeight.BOLD, size=12)),
+            ft.DataColumn(ft.Text("Coefficient personnalisé", weight=ft.FontWeight.BOLD, size=12))
+        ]
+        
+        # Créer le tableau
+        data_table = ft.DataTable(
+            columns=columns,
+            rows=rows,
+            border=ft.border.all(1, "#e2e8f0"),
+            border_radius=8,
+            vertical_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            horizontal_lines=ft.border.BorderSide(1, "#f1f5f9"),
+            heading_row_color="#f8fafc"
+        )
+        
+        # Container avec la même structure que les autres tableaux
+        self.subject_settings_table = ft.Container(
+            content=ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Row([
+                            ft.Text(
+                                f"Total: {len(students)} élève(s) - Matière: {subject['nom']} (Coeff. par défaut: {default_coefficient})",
+                                size=14,
+                                color="#64748b",
+                                weight=ft.FontWeight.W_500
+                            )
+                        ]),
+                        ft.Container(height=8),
+                        ft.Row([
+                            ft.Text(
+                                "• ON = matière activée pour l'élève | OFF = élève dispensé",
+                                size=12,
+                                color="#64748b",
+                                italic=True
+                            )
+                        ]),
+                        ft.Container(height=16),
+                        ft.Container(
+                            content=ft.Row(
+                                controls=[data_table],
+                                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal
+                                vertical_alignment=ft.CrossAxisAlignment.START,
+                                alignment=ft.MainAxisAlignment.CENTER
+                            ),
+                            height=min(400, max(120, len(students) * 45 + 60)),  # Hauteur dynamique
+                            border_radius=8,
+                            bgcolor="#ffffff",
+                            border=ft.border.all(1, "#e2e8f0"),
+                            clip_behavior=ft.ClipBehavior.HARD_EDGE
+                        )
+                    ]),
+                    padding=24
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            ),
+            alignment=ft.alignment.center
+        )
+    
+    def save_subject_settings(self, subject):
+        """Sauvegarder les paramètres des élèves pour cette matière"""
+        student_settings = {}
+        
+        for student_id, fields in self.subject_settings_fields.items():
+            try:
+                is_active = fields["active"].value
+                coefficient_value = fields["coefficient"].value.strip()
+                
+                if coefficient_value:
+                    coefficient = float(coefficient_value)
+                    if coefficient > 0:  # Validation du coefficient
+                        student_settings[str(student_id)] = {
+                            "active": is_active,
+                            "coefficient": coefficient
+                        }
+            except ValueError:
+                continue  # Ignorer les coefficients non valides
+        
+        # Sauvegarder dans le data manager
+        class_name = self.current_class.get('nom', '')
+        subject_id = subject.get('id', '')
+        
+        if self.data_manager.save_student_subject_settings(
+            class_name, subject_id, self.current_semester, student_settings
+        ):
+            self.show_snackbar("Paramètres sauvegardés avec succès!")
+        else:
+            self.show_snackbar("Erreur lors de la sauvegarde", error=True)
     
     def show_schedule(self):
         """Afficher l'emploi du temps"""

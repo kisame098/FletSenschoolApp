@@ -6,6 +6,29 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
+### Système de paramètres matière par élève (31/07/2025)
+- **Nouvelle page "Paramètres matière"** :
+  - Bouton "Paramètres matière" (⚙️) ajouté dans la page de saisie des notes
+  - Page dédiée pour gérer quels élèves suivent une matière donnée
+  - Interface permettant d'activer/désactiver une matière pour chaque élève individuellement
+
+- **Gestion des statuts et coefficients personnalisés** :
+  - Interrupteur ON/OFF pour chaque élève par matière (par défaut ON)
+  - OFF = élève dispensé → matière exclue du calcul et de la saisie de notes
+  - Coefficient personnalisé modifiable élève par élève
+  - Utilisation du coefficient par défaut de la matière si non modifié
+
+- **Navigation et ergonomie** :
+  - Navigation retour depuis "Paramètres matière" vers la page de saisie des notes
+  - Tableau responsive avec informations complètes des élèves
+  - Colonnes : ID, Nom, Prénom, Date naissance, Lieu naissance, Statut matière, Coefficient personnalisé
+  - Sauvegarde instantanée des paramètres avec validation
+
+- **Impact sur les fonctionnalités existantes** :
+  - Base technique préparée pour l'exclusion des élèves dispensés dans les calculs de moyennes
+  - Système de coefficients personnalisés intégré au data manager
+  - Structure de données compatible avec les fonctionnalités existantes
+
 ### Système complet de calcul des moyennes (31/07/2025)
 - **Nouveau bouton "Calculer les moyennes"** :
   - Accessible après sélection d'un semestre dans Gestion des notes

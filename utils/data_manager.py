@@ -16,6 +16,7 @@ class DataManager:
         self.attendance_file = os.path.join(self.data_dir, "attendance.json")
         self.schedule_file = os.path.join(self.data_dir, "schedule.json")
         self.homework_config_file = os.path.join(self.data_dir, "homework_config.json")
+        self.subject_settings_file = os.path.join(self.data_dir, "subject_settings.json")
         
         self._ensure_data_directory()
         self._initialize_files()
@@ -35,7 +36,8 @@ class DataManager:
             self.subjects_file,
             self.attendance_file,
             self.schedule_file,
-            self.homework_config_file
+            self.homework_config_file,
+            self.subject_settings_file
         ]
         
         for file_path in files_to_init:
@@ -399,3 +401,43 @@ class DataManager:
         
         configs.append(new_config)
         return self._save_data(self.homework_config_file, configs)
+    
+    # Gestion des paramètres de matière par élève
+    def get_student_subject_settings(self, class_name: str, subject_id: str, semester: str) -> Dict:
+        """Récupérer les paramètres d'une matière pour tous les élèves d'une classe"""
+        settings_data = self._load_data(self.subject_settings_file)
+        
+        # Trouver les paramètres pour cette classe+matière+semestre
+        for settings in settings_data:
+            if (settings.get("class_name") == class_name and 
+                settings.get("subject_id") == subject_id and 
+                settings.get("semester") == semester):
+                return settings.get("student_settings", {})
+        
+        return {}  # Retourner vide si aucun paramètre trouvé
+    
+    def save_student_subject_settings(self, class_name: str, subject_id: str, semester: str, student_settings: Dict) -> bool:
+        """Sauvegarder les paramètres d'une matière pour tous les élèves d'une classe"""
+        settings_data = self._load_data(self.subject_settings_file)
+        
+        # Chercher s'il existe déjà des paramètres pour cette classe+matière+semestre
+        for i, settings in enumerate(settings_data):
+            if (settings.get("class_name") == class_name and 
+                settings.get("subject_id") == subject_id and 
+                settings.get("semester") == semester):
+                settings_data[i]["student_settings"] = student_settings
+                settings_data[i]["updated_at"] = datetime.now().isoformat()
+                return self._save_data(self.subject_settings_file, settings_data)
+        
+        # Créer de nouveaux paramètres
+        new_settings = {
+            "class_name": class_name,
+            "subject_id": subject_id,
+            "semester": semester,
+            "student_settings": student_settings,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        settings_data.append(new_settings)
+        return self._save_data(self.subject_settings_file, settings_data)
