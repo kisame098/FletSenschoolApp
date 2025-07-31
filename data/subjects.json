@@ -6,5 +6,22 @@
     "semestre": "premier",
     "classe": "TS2",
     "date_creation": "2025-07-31T11:06:35.563832"
+  },
+  {
+    "id": "premier_3AB_1",
+    "nom": "PC",
+    "coefficient": 3.0,
+    "semestre": "premier",
+    "classe": "3AB",
+    "date_creation": "2025-07-31T11:49:43.723865"
+  },
+  {
+    "id": "deuxieme_TS2_1",
+    "nom": "SVT",
+    "coefficient": 6.0,
+    "semestre": "deuxieme",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T11:53:49.444752",
+    "sync_from": "premier_TS2_1"
   }
 ]

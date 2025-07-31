@@ -4282,7 +4282,7 @@ class StudentRegistrationSystem:
             if self.data_manager.delete_subject(subject["id"]):
                 self.show_snackbar("Matière supprimée avec succès!")
                 self.page.close(self.delete_dialog)
-                self.load_semester_subjects()
+                self.load_class_subjects()
                 self.page.update()
             else:
                 self.show_snackbar("Erreur lors de la suppression", error=True)
