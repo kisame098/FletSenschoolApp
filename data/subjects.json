@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "premier_1",
+    "nom": "Mathématiques",
+    "coefficient": 5.0,
+    "semestre": "premier",
+    "date_creation": "2025-07-30T23:48:56.221278"
+  }
+]

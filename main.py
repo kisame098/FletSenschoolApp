@@ -3784,35 +3784,41 @@ class StudentRegistrationSystem:
         self.subjects_grid.controls.clear()
         
         for subject in subjects:
+            # Limiter le nom à 14 caractères avec des points de suspension
+            subject_name = subject["nom"]
+            if len(subject_name) > 14:
+                display_name = subject_name[:14] + "..."
+            else:
+                display_name = subject_name
+            
             subject_card = ft.Container(
                 content=ft.Column([
-                    ft.Row([
-                        ft.Text(
-                            subject["nom"],
-                            size=16,
-                            weight=ft.FontWeight.BOLD,
-                            color="#1e293b",
-                            text_align=ft.TextAlign.CENTER,
-                            max_lines=2,
-                            expand=True
-                        ),
-                        ft.IconButton(
-                            icon="delete",
-                            icon_color="#ef4444",
-                            icon_size=18,
-                            tooltip="Supprimer la matière",
-                            on_click=lambda e, subj=subject: self.delete_subject(subj)
-                        )
-                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    ft.Container(height=8),
+                    ft.Text(
+                        display_name,
+                        size=16,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b",
+                        text_align=ft.TextAlign.CENTER,
+                        max_lines=1,
+                        overflow=ft.TextOverflow.ELLIPSIS
+                    ),
+                    ft.Container(height=12),
                     ft.IconButton(
                         icon="edit_note",
                         bgcolor="#4f46e5",
                         icon_color="#ffffff",
                         on_click=lambda e, subj=subject: self.show_grades_table(subj),
                         tooltip="Saisir les notes"
+                    ),
+                    ft.Container(height=8),
+                    ft.IconButton(
+                        icon="delete",
+                        icon_color="#ef4444",
+                        icon_size=18,
+                        tooltip="Supprimer la matière",
+                        on_click=lambda e, subj=subject: self.delete_subject(subj)
                     )
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=4),
                 bgcolor="#ffffff",
                 border_radius=12,
                 padding=16,
