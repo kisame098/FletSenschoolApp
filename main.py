@@ -3761,11 +3761,11 @@ class StudentRegistrationSystem:
             )
         ])
         
+        self.page.update()
+        
     def load_classes_for_semester(self):
         """Charger les classes disponibles"""
         classes = self.data_manager.get_all_classes()
-        print(f"DEBUG: Nombre de classes trouvées: {len(classes)}")
-        print(f"DEBUG: Classes: {classes}")
         self.classes_grid.controls.clear()
         
         if not classes:
