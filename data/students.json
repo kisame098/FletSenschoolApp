@@ -54,5 +54,47 @@
     "genre": "Masculin",
     "classe": "TS2",
     "date_creation": "2025-07-31T21:04:32.340457"
+  },
+  {
+    "id": 4,
+    "student_id": 4,
+    "prenom": "rougui",
+    "nom": "diallo",
+    "nom_complet": "rougui diallo",
+    "date_naissance": "11/08/2007",
+    "lieu_naissance": "lome",
+    "numero_eleve": "779998900",
+    "telephone_parent": "789088907",
+    "genre": "Masculin",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T21:10:04.154036"
+  },
+  {
+    "id": 5,
+    "student_id": 5,
+    "prenom": "aminata",
+    "nom": "lom",
+    "nom_complet": "aminata lom",
+    "date_naissance": "09/11/2005",
+    "lieu_naissance": "dakar",
+    "numero_eleve": "774446798",
+    "telephone_parent": "772122243",
+    "genre": "Féminin",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T21:11:24.553817"
+  },
+  {
+    "id": 6,
+    "student_id": 6,
+    "prenom": "aissata",
+    "nom": "diallo",
+    "nom_complet": "aissata diallo",
+    "date_naissance": "01/11/2005",
+    "lieu_naissance": "oyj",
+    "numero_eleve": "776666622",
+    "telephone_parent": "789990053",
+    "genre": "Féminin",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T21:13:17.066872"
   }
 ]
