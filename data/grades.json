@@ -28,5 +28,35 @@
     "type": "composition",
     "note": 19.0,
     "date_creation": "2025-07-31T11:06:54.808279"
+  },
+  {
+    "id": "1_deuxieme_TS2_1_devoir1",
+    "student_id": 1,
+    "subject_id": "deuxieme_TS2_1",
+    "subject_name": "SVT",
+    "semester": "deuxieme",
+    "type": "devoir1",
+    "note": 12.0,
+    "date_creation": "2025-07-31T12:44:27.535885"
+  },
+  {
+    "id": "1_deuxieme_TS2_1_devoir2",
+    "student_id": 1,
+    "subject_id": "deuxieme_TS2_1",
+    "subject_name": "SVT",
+    "semester": "deuxieme",
+    "type": "devoir2",
+    "note": 12.0,
+    "date_creation": "2025-07-31T12:44:27.536265"
+  },
+  {
+    "id": "1_deuxieme_TS2_1_composition",
+    "student_id": 1,
+    "subject_id": "deuxieme_TS2_1",
+    "subject_name": "SVT",
+    "semester": "deuxieme",
+    "type": "composition",
+    "note": 10.0,
+    "date_creation": "2025-07-31T12:44:27.536594"
   }
 ]

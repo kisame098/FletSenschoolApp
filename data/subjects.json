@@ -13,7 +13,41 @@
     "coefficient": 3.0,
     "semestre": "premier",
     "classe": "3AB",
-    "date_creation": "2025-07-31T11:49:43.723865"
+    "date_creation": "2025-07-31T11:58:39.456304"
+  },
+  {
+    "id": "premier_3AB_2",
+    "nom": "SVT",
+    "coefficient": 3.0,
+    "semestre": "premier",
+    "classe": "3AB",
+    "date_creation": "2025-07-31T12:43:48.919575"
+  },
+  {
+    "id": "deuxieme_3AB_1",
+    "nom": "PC",
+    "coefficient": 3.0,
+    "semestre": "deuxieme",
+    "classe": "3AB",
+    "date_creation": "2025-07-31T12:44:02.390075",
+    "sync_from": "premier_3AB_1"
+  },
+  {
+    "id": "deuxieme_3AB_2",
+    "nom": "SVT",
+    "coefficient": 3.0,
+    "semestre": "deuxieme",
+    "classe": "3AB",
+    "date_creation": "2025-07-31T12:44:02.390398",
+    "sync_from": "premier_3AB_2"
+  },
+  {
+    "id": "premier_TS2_2",
+    "nom": "Français",
+    "coefficient": 3.0,
+    "semestre": "premier",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T12:47:01.511861"
   },
   {
     "id": "deuxieme_TS2_1",
@@ -21,7 +55,16 @@
     "coefficient": 6.0,
     "semestre": "deuxieme",
     "classe": "TS2",
-    "date_creation": "2025-07-31T11:53:49.444752",
+    "date_creation": "2025-07-31T12:47:12.536911",
     "sync_from": "premier_TS2_1"
+  },
+  {
+    "id": "deuxieme_TS2_2",
+    "nom": "Français",
+    "coefficient": 3.0,
+    "semestre": "deuxieme",
+    "classe": "TS2",
+    "date_creation": "2025-07-31T12:47:12.537180",
+    "sync_from": "premier_TS2_2"
   }
 ]

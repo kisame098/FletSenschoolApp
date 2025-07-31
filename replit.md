@@ -6,6 +6,24 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
+### Système de devoirs flexibles (31/07/2025)
+- **Nombre de devoirs configurable** :
+  - Nouveau sélecteur permettant de choisir entre 2, 3 ou 4 devoirs par matière
+  - Interface dynamique qui s'adapte au nombre de devoirs sélectionné
+  - Colonnes de tableau générées automatiquement selon le choix (Devoir 1, Devoir 2, Devoir 3, Devoir 4)
+  - Préservation des notes existantes lors du changement de configuration
+
+- **Fonctionnalités avancées** :
+  - Sauvegarde et récupération des notes pour tous les types de devoirs
+  - Validation des notes (0-20) pour tous les devoirs
+  - Interface cohérente avec le système existant
+  - Changement instantané sans rechargement complet de page
+
+- **Interface utilisateur** :
+  - Dropdown "Nombre de devoirs" placé en haut à gauche du tableau de notes
+  - Colonnes redimensionnées automatiquement pour s'adapter aux devoirs supplémentaires
+  - Conservation du style visuel uniforme avec le reste de l'application
+
 ### Synchronisation des matières entre semestres (31/07/2025)
 - **Bouton Synchroniser pour le Deuxième semestre** :
   - Nouveau bouton "Synchroniser" visible uniquement dans la gestion du Deuxième semestre

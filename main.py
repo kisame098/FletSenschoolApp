@@ -4313,6 +4313,10 @@ class StudentRegistrationSystem:
         self.current_subject = subject
         self.clear_main_content()
         
+        # Initialiser le nombre de devoirs par défaut
+        if not hasattr(self, 'num_devoirs'):
+            self.num_devoirs = 2
+        
         semester_name = "Premier semestre" if self.current_semester == "premier" else "Deuxième semestre"
         
         header = ft.Container(
@@ -4344,6 +4348,22 @@ class StudentRegistrationSystem:
             bgcolor="#f8fafc"
         )
         
+        # Sélecteur de nombre de devoirs
+        self.num_devoirs_dropdown = ft.Dropdown(
+            label="Nombre de devoirs",
+            width=180,
+            options=[
+                ft.dropdown.Option("2", "2 devoirs"),
+                ft.dropdown.Option("3", "3 devoirs"),
+                ft.dropdown.Option("4", "4 devoirs")
+            ],
+            value=str(self.num_devoirs),
+            on_change=self.on_num_devoirs_change,
+            bgcolor="#ffffff",
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
         # Tableau des notes
         self.create_grades_table()
         
@@ -4360,8 +4380,10 @@ class StudentRegistrationSystem:
         
         content = ft.Column([
             ft.Row([
+                self.num_devoirs_dropdown,
+                ft.Container(expand=True),  # Espacement
                 save_grades_button
-            ], alignment=ft.MainAxisAlignment.END),
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             ft.Container(height=16),
             ft.Container(
                 content=self.grades_table,
@@ -4379,6 +4401,12 @@ class StudentRegistrationSystem:
             )
         ])
         
+        self.page.update()
+    
+    def on_num_devoirs_change(self, e):
+        """Changer le nombre de devoirs et recréer le tableau"""
+        self.num_devoirs = int(e.control.value)
+        self.create_grades_table()
         self.page.update()
     
     def create_grades_table(self):
@@ -4434,41 +4462,48 @@ class StudentRegistrationSystem:
                 student_id, self.current_subject["id"]
             )
             
-            devoir1_value = ""
-            devoir2_value = ""
+            # Créer dictionnaire pour stocker les valeurs des devoirs
+            devoir_values = {}
             composition_value = ""
             
             for grade in existing_grades:
-                if grade.get("type") == "devoir1":
-                    devoir1_value = str(grade.get("note", ""))
-                elif grade.get("type") == "devoir2":
-                    devoir2_value = str(grade.get("note", ""))
-                elif grade.get("type") == "composition":
+                grade_type = grade.get("type", "")
+                if grade_type.startswith("devoir"):
+                    devoir_values[grade_type] = str(grade.get("note", ""))
+                elif grade_type == "composition":
                     composition_value = str(grade.get("note", ""))
             
-            # Champs de saisie des notes - style minimal pour intégration tableau
-            devoir1_field = ft.TextField(
-                value=devoir1_value,
-                width=70,
-                height=35,
-                text_align=ft.TextAlign.CENTER,
-                border_radius=4,
-                border_color="#e2e8f0",
-                focused_border_color="#4f46e5",
-                content_padding=ft.padding.all(4),
-                text_size=12
-            )
-            devoir2_field = ft.TextField(
-                value=devoir2_value,
-                width=70,
-                height=35,
-                text_align=ft.TextAlign.CENTER,
-                border_radius=4,
-                border_color="#e2e8f0",
-                focused_border_color="#4f46e5",
-                content_padding=ft.padding.all(4),
-                text_size=12
-            )
+            # Créer les champs de saisie selon le nombre de devoirs
+            student_fields = {}
+            row_cells = [
+                ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
+                ft.DataCell(ft.Text(nom, size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(prenom, size=12, weight=ft.FontWeight.W_500)),
+                ft.DataCell(ft.Text(date_naissance, size=12)),
+                ft.DataCell(ft.Text(lieu_naissance, size=12))
+            ]
+            
+            # Ajouter les champs pour chaque devoir
+            for i in range(1, self.num_devoirs + 1):
+                devoir_key = f"devoir{i}"
+                devoir_value = devoir_values.get(devoir_key, "")
+                
+                devoir_field = ft.TextField(
+                    value=devoir_value,
+                    width=70,
+                    height=35,
+                    text_align=ft.TextAlign.CENTER,
+                    border_radius=4,
+                    border_color="#e2e8f0",
+                    focused_border_color="#4f46e5",
+                    content_padding=ft.padding.all(4),
+                    text_size=12
+                )
+                
+                student_fields[devoir_key] = devoir_field
+                row_cells.append(ft.DataCell(devoir_field))
+            
+            # Ajouter le champ composition
             composition_field = ft.TextField(
                 value=composition_value,
                 width=70,
@@ -4481,24 +4516,11 @@ class StudentRegistrationSystem:
                 text_size=12
             )
             
-            # Stocker les références
-            self.grade_fields[student_id] = {
-                "devoir1": devoir1_field,
-                "devoir2": devoir2_field,
-                "composition": composition_field
-            }
+            student_fields["composition"] = composition_field
+            row_cells.append(ft.DataCell(composition_field))
             
-            # Créer la ligne avec le même style que les autres tableaux
-            row_cells = [
-                ft.DataCell(ft.Text(str(student_id), size=12, weight=ft.FontWeight.BOLD)),
-                ft.DataCell(ft.Text(nom, size=12, weight=ft.FontWeight.W_500)),
-                ft.DataCell(ft.Text(prenom, size=12, weight=ft.FontWeight.W_500)),
-                ft.DataCell(ft.Text(date_naissance, size=12)),
-                ft.DataCell(ft.Text(lieu_naissance, size=12)),
-                ft.DataCell(devoir1_field),
-                ft.DataCell(devoir2_field),
-                ft.DataCell(composition_field)
-            ]
+            # Stocker les références
+            self.grade_fields[student_id] = student_fields
             
             rows.append(ft.DataRow(row_cells))
         
@@ -4508,11 +4530,15 @@ class StudentRegistrationSystem:
             ft.DataColumn(ft.Text("Nom", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Prénom", weight=ft.FontWeight.BOLD, size=12)),
             ft.DataColumn(ft.Text("Date naissance", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Lieu naissance", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Devoir 1", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Devoir 2", weight=ft.FontWeight.BOLD, size=12)),
-            ft.DataColumn(ft.Text("Composition", weight=ft.FontWeight.BOLD, size=12))
+            ft.DataColumn(ft.Text("Lieu naissance", weight=ft.FontWeight.BOLD, size=12))
         ]
+        
+        # Ajouter les colonnes pour chaque devoir
+        for i in range(1, self.num_devoirs + 1):
+            columns.append(ft.DataColumn(ft.Text(f"Devoir {i}", weight=ft.FontWeight.BOLD, size=12)))
+        
+        # Ajouter la colonne composition
+        columns.append(ft.DataColumn(ft.Text("Composition", weight=ft.FontWeight.BOLD, size=12)))
         
         # Créer le tableau avec exactement le même style que les autres
         data_table = ft.DataTable(
