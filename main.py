@@ -3745,7 +3745,25 @@ class StudentRegistrationSystem:
         # Charger les classes existantes
         self.load_classes_for_semester()
         
+        # Bouton "Calculer les moyennes"
+        calculate_button = ft.ElevatedButton(
+            content=ft.Row([
+                ft.Icon("calculate", color="#ffffff"),
+                ft.Text("Calculer les moyennes", color="#ffffff", weight=ft.FontWeight.BOLD)
+            ], spacing=8),
+            on_click=lambda e: self.show_average_calculation_options(),
+            bgcolor="#059669",
+            height=48,
+            tooltip="Calculer les moyennes générales des élèves"
+        )
+        
         content = ft.Column([
+            ft.Container(
+                content=ft.Row([
+                    calculate_button
+                ], alignment=ft.MainAxisAlignment.CENTER),
+                margin=ft.margin.only(bottom=24)
+            ),
             ft.Container(
                 content=self.classes_grid,
                 expand=True
@@ -3835,6 +3853,397 @@ class StudentRegistrationSystem:
                     )
                 )
                 self.classes_grid.controls.append(class_card)
+        
+        self.page.update()
+    
+    def show_average_calculation_options(self):
+        """Afficher les options de calcul des moyennes"""
+        def option_best_two_homeworks(e):
+            self.page.close(self.calculation_dialog)
+            self.show_class_selection_for_averages("best_two")
+        
+        def option_all_homeworks(e):
+            self.page.close(self.calculation_dialog)
+            self.show_class_selection_for_averages("all")
+        
+        def cancel_calculation(e):
+            self.page.close(self.calculation_dialog)
+        
+        self.calculation_dialog = ft.AlertDialog(
+            title=ft.Text("Méthode de calcul des moyennes", weight=ft.FontWeight.BOLD),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Choisissez la méthode de calcul des moyennes :",
+                        size=16,
+                        color="#1e293b"
+                    ),
+                    ft.Container(height=20),
+                    ft.ElevatedButton(
+                        content=ft.Column([
+                            ft.Text("Option 1 : Utiliser les 2 meilleurs devoirs", 
+                                   weight=ft.FontWeight.BOLD, 
+                                   size=14,
+                                   text_align=ft.TextAlign.CENTER),
+                            ft.Container(height=8),
+                            ft.Text("Seulement les 2 meilleures notes de devoirs + composition",
+                                   size=12,
+                                   color="#64748b",
+                                   text_align=ft.TextAlign.CENTER)
+                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                        on_click=option_best_two_homeworks,
+                        bgcolor="#4f46e5",
+                        color="#ffffff",
+                        width=400,
+                        height=80
+                    ),
+                    ft.Container(height=16),
+                    ft.ElevatedButton(
+                        content=ft.Column([
+                            ft.Text("Option 2 : Utiliser tous les devoirs", 
+                                   weight=ft.FontWeight.BOLD, 
+                                   size=14,
+                                   text_align=ft.TextAlign.CENTER),
+                            ft.Container(height=8),
+                            ft.Text("Toutes les notes de devoirs + composition",
+                                   size=12,
+                                   color="#64748b",
+                                   text_align=ft.TextAlign.CENTER)
+                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                        on_click=option_all_homeworks,
+                        bgcolor="#059669",
+                        color="#ffffff",
+                        width=400,
+                        height=80
+                    )
+                ]),
+                width=450
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=cancel_calculation)
+            ],
+            modal=True
+        )
+        
+        self.page.open(self.calculation_dialog)
+    
+    def show_class_selection_for_averages(self, calculation_method):
+        """Afficher la sélection de classe pour le calcul des moyennes"""
+        self.calculation_method = calculation_method
+        
+        def select_class_for_averages(classe):
+            self.calculate_class_averages(classe, calculation_method)
+        
+        # Modifier temporairement le comportement des cartes de classe
+        self.temp_class_click_handler = select_class_for_averages
+        
+        # Recharger les classes avec le nouveau comportement
+        self.load_classes_for_semester_averages()
+    
+    def load_classes_for_semester_averages(self):
+        """Charger les classes pour le calcul des moyennes"""
+        classes = self.data_manager.get_all_classes()
+        self.classes_grid.controls.clear()
+        
+        if not classes:
+            empty_state = ft.Container(
+                content=ft.Column([
+                    ft.Text("🏫", size=48),
+                    ft.Text(
+                        "Aucune classe créée",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#64748b"
+                    ),
+                    ft.Text(
+                        "Veuillez d'abord créer des classes",
+                        size=14,
+                        color="#94a3b8"
+                    )
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=8),
+                padding=48
+            )
+            self.classes_grid.controls.append(empty_state)
+        else:
+            for classe in classes:
+                class_card = ft.Container(
+                    content=ft.Column([
+                        ft.Text("🏫", size=32),
+                        ft.Text(
+                            classe.get("nom", ""),
+                            size=16,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=8),
+                        ft.Text(
+                            "Cliquer pour calculer les moyennes",
+                            size=12,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=4),
+                    bgcolor="#ffffff",
+                    border_radius=12,
+                    padding=16,
+                    border=ft.border.all(1, "#e2e8f0"),
+                    shadow=ft.BoxShadow(
+                        spread_radius=0,
+                        blur_radius=4,
+                        offset=ft.Offset(0, 2),
+                        color="#00000010"
+                    ),
+                    on_click=lambda e, cls=classe: self.temp_class_click_handler(cls)
+                )
+                self.classes_grid.controls.append(class_card)
+        
+        self.page.update()
+    
+    def calculate_class_averages(self, classe, method):
+        """Calculer les moyennes d'une classe selon la méthode choisie"""
+        try:
+            class_name = classe.get('nom', '')
+            
+            # Récupérer tous les élèves de cette classe
+            all_students = self.data_manager.get_all_students()
+            students = [s for s in all_students if s.get("classe") == class_name]
+            
+            if not students:
+                self.show_snackbar("Aucun élève trouvé dans cette classe", error=True)
+                return
+            
+            # Récupérer toutes les matières de cette classe pour le semestre actuel
+            all_subjects = self.data_manager.get_all_subjects()
+            subjects = [s for s in all_subjects 
+                       if s.get("classe") == class_name and s.get("semestre") == self.current_semester]
+            
+            if not subjects:
+                self.show_snackbar("Aucune matière trouvée pour cette classe dans ce semestre", error=True)
+                return
+            
+            # Calculer les moyennes
+            students_averages = []
+            
+            for student in students:
+                student_id = student.get("student_id", student.get("id", ""))
+                student_name = f"{student.get('prenom', '')} {student.get('nom', '')}"
+                
+                somme_points_eleve = 0
+                somme_coef_eleve = 0
+                subject_details = []
+                
+                for subject in subjects:
+                    subject_id = subject.get("id", "")
+                    subject_name = subject.get("nom", "")
+                    coefficient = float(subject.get("coefficient", 1))
+                    
+                    # Récupérer les notes de l'élève pour cette matière
+                    grades = self.data_manager.get_student_subject_grades(student_id, subject_id)
+                    
+                    if not grades:
+                        continue  # Pas de notes pour cette matière
+                    
+                    # Séparer les devoirs et la composition
+                    homework_notes = []
+                    composition_note = None
+                    
+                    for grade in grades:
+                        grade_type = grade.get("type", "")
+                        grade_value = grade.get("note")
+                        
+                        if grade_value is not None and grade_value != "":
+                            try:
+                                grade_float = float(grade_value)
+                                if grade_type == "composition":
+                                    composition_note = grade_float
+                                elif grade_type.startswith("devoir"):
+                                    homework_notes.append(grade_float)
+                            except ValueError:
+                                continue
+                    
+                    # Calculer la moyenne de la matière selon la méthode
+                    if composition_note is not None and homework_notes:
+                        if method == "best_two":
+                            # Option 1: Utiliser les 2 meilleurs devoirs
+                            homework_notes.sort(reverse=True)  # Trier par ordre décroissant
+                            if len(homework_notes) >= 2:
+                                meilleur_devoir1 = homework_notes[0]
+                                meilleur_devoir2 = homework_notes[1]
+                                total_points = meilleur_devoir1 + meilleur_devoir2 + composition_note
+                                moyenne_matiere = total_points / 3
+                            elif len(homework_notes) == 1:
+                                # Si un seul devoir, utiliser celui-ci deux fois
+                                total_points = homework_notes[0] * 2 + composition_note
+                                moyenne_matiere = total_points / 3
+                            else:
+                                continue
+                        else:
+                            # Option 2: Utiliser tous les devoirs
+                            total_devoirs = sum(homework_notes)
+                            total_points = total_devoirs + composition_note
+                            denominateur = len(homework_notes) + 1  # +1 pour la composition
+                            moyenne_matiere = total_points / denominateur
+                        
+                        # Ajouter à la moyenne générale
+                        points_pondérés = moyenne_matiere * coefficient
+                        somme_points_eleve += points_pondérés
+                        somme_coef_eleve += coefficient
+                        
+                        subject_details.append({
+                            "name": subject_name,
+                            "average": round(moyenne_matiere, 2),
+                            "coefficient": coefficient,
+                            "homework_count": len(homework_notes)
+                        })
+                
+                # Calculer la moyenne générale
+                if somme_coef_eleve > 0:
+                    moyenne_generale_eleve = somme_points_eleve / somme_coef_eleve
+                    students_averages.append({
+                        "name": student_name,
+                        "general_average": round(moyenne_generale_eleve, 2),
+                        "subjects": subject_details
+                    })
+            
+            # Afficher les résultats
+            self.show_averages_results(classe, method, students_averages)
+            
+        except Exception as e:
+            print(f"Erreur lors du calcul des moyennes: {e}")
+            self.show_snackbar("Erreur lors du calcul des moyennes", error=True)
+    
+    def show_averages_results(self, classe, method, students_averages):
+        """Afficher les résultats du calcul des moyennes"""
+        self.clear_main_content()
+        
+        method_text = "2 meilleurs devoirs" if method == "best_two" else "tous les devoirs"
+        semester_name = "Premier semestre" if self.current_semester == "premier" else "Deuxième semestre"
+        
+        header = ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.IconButton(
+                        icon="arrow_back",
+                        on_click=lambda e: self.show_semester_classes(self.current_semester),
+                        bgcolor="#ffffff",
+                        icon_color="#64748b"
+                    ),
+                    ft.Column([
+                        ft.Text(
+                            f"Moyennes - {classe.get('nom', '')} ({semester_name})",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            f"Méthode : {method_text}",
+                            size=15,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_400
+                        )
+                    ], expand=True)
+                ])
+            ]),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        if not students_averages:
+            content = ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon("info", size=64, color="#cbd5e1"),
+                        ft.Container(height=16),
+                        ft.Text(
+                            "Aucune moyenne calculable",
+                            size=16,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=8),
+                        ft.Text(
+                            "Les élèves doivent avoir au moins une composition et un devoir dans chaque matière",
+                            size=14,
+                            color="#94a3b8",
+                            text_align=ft.TextAlign.CENTER
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=40,
+                    alignment=ft.alignment.center
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+        else:
+            # Créer le tableau des résultats
+            columns = [
+                ft.DataColumn(ft.Text("Élève", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Moyenne générale", weight=ft.FontWeight.BOLD, size=12)),
+                ft.DataColumn(ft.Text("Détails matières", weight=ft.FontWeight.BOLD, size=12))
+            ]
+            
+            rows = []
+            for student_data in sorted(students_averages, key=lambda x: x["general_average"], reverse=True):
+                # Détails des matières
+                subject_details = []
+                for subject in student_data["subjects"]:
+                    subject_details.append(f"{subject['name']}: {subject['average']}/20")
+                
+                details_text = " | ".join(subject_details)
+                
+                # Couleur selon la moyenne
+                avg = student_data["general_average"]
+                if avg >= 16:
+                    avg_color = "#059669"  # Vert
+                elif avg >= 14:
+                    avg_color = "#0ea5e9"  # Bleu
+                elif avg >= 10:
+                    avg_color = "#f59e0b"  # Orange
+                else:
+                    avg_color = "#ef4444"  # Rouge
+                
+                rows.append(ft.DataRow([
+                    ft.DataCell(ft.Text(student_data["name"], size=12, weight=ft.FontWeight.W_500)),
+                    ft.DataCell(ft.Text(f"{avg}/20", size=12, weight=ft.FontWeight.BOLD, color=avg_color)),
+                    ft.DataCell(ft.Text(details_text, size=10, color="#64748b"))
+                ]))
+            
+            results_table = ft.DataTable(
+                columns=columns,
+                rows=rows,
+                border=ft.border.all(1, "#e2e8f0"),
+                border_radius=8,
+                vertical_lines=ft.border.BorderSide(1, "#e2e8f0"),
+                horizontal_lines=ft.border.BorderSide(1, "#e2e8f0"),
+                heading_row_color="#f8fafc"
+            )
+            
+            content = ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Container(
+                            content=results_table,
+                            border_radius=8,
+                            bgcolor="#ffffff"
+                        )
+                    ]),
+                    padding=20
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+        
+        self.main_content.content = ft.Column([
+            header,
+            ft.Container(
+                content=content,
+                padding=ft.padding.all(32),
+                expand=True
+            )
+        ])
         
         self.page.update()
     

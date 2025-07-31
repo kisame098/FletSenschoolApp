@@ -6,6 +6,30 @@ This is a Python-based school management system built with Flet (Flutter for Pyt
 
 ## Recent Changes
 
+### Système complet de calcul des moyennes (31/07/2025)
+- **Nouveau bouton "Calculer les moyennes"** :
+  - Accessible après sélection d'un semestre dans Gestion des notes
+  - Propose deux méthodes de calcul distinctes avec algorithms précis
+  - Interface claire avec options explicites et exemples
+
+- **Option 1 : Utiliser les 2 meilleurs devoirs** :
+  - Algorithme : (meilleur_devoir1 + meilleur_devoir2 + composition) / 3
+  - Tri automatique des notes de devoirs par ordre décroissant
+  - Gestion des cas avec un seul devoir (duplication automatique)
+  - Calcul de moyenne pondérée par coefficient de matière
+
+- **Option 2 : Utiliser tous les devoirs** :
+  - Algorithme : (somme_tous_devoirs + composition) / (nombre_devoirs + 1)
+  - Évite le biais de calcul pour matières avec nombres de devoirs différents
+  - Inclusif de tous les devoirs saisis pour chaque matière
+  - Calcul robuste et équitable
+
+- **Affichage des résultats** :
+  - Tableau trié par moyenne générale décroissante
+  - Code couleur selon performance (vert ≥16, bleu ≥14, orange ≥10, rouge <10)
+  - Détails par matière avec moyennes individuelles
+  - Interface professionnelle avec navigation claire
+
 ### Système de devoirs flexibles (31/07/2025)
 - **Nombre de devoirs configurable** :
   - Nouveau sélecteur permettant de choisir entre 2, 3 ou 4 devoirs par matière

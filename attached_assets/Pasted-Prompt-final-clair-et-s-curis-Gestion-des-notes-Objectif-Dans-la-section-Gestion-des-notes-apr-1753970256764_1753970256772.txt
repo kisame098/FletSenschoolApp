@@ -1,0 +1,82 @@
+Prompt final clair et sécurisé – Gestion des notes
+Objectif :
+Dans la section Gestion des notes, après avoir sélectionné un semestre, permettre le calcul automatique des moyennes selon deux méthodes :
+
+1. Nouveau bouton : "Calculer les moyennes"
+Affiché après sélection d’un semestre.
+
+Au clic, afficher deux choix :
+
+Option 1 : "Utiliser les 2 meilleurs devoirs"
+
+Option 2 : "Utiliser tous les devoirs"
+
+2. Option 1 – Utiliser les 2 meilleurs devoirs
+Algorithme clair avec variables :
+
+plaintext
+Copier
+Modifier
+Pour chaque classe → pour chaque élève → pour chaque matière :
+    1. notes_devoirs[] = liste des notes de devoirs (exclure composition)
+    2. Trier notes_devoirs par ordre décroissant.
+    3. meilleur_devoir1 = notes_devoirs[0]
+       meilleur_devoir2 = notes_devoirs[1]
+    4. total_points = meilleur_devoir1 + meilleur_devoir2 + note_composition
+    5. moyenne_matiere = total_points / 3
+    6. points_pondérés = moyenne_matiere * coef_matiere
+    7. somme_points_eleve += points_pondérés
+       somme_coef_eleve += coef_matiere
+Après toutes les matières :
+    moyenne_generale_eleve = somme_points_eleve / somme_coef_eleve
+Exemple concret :
+
+Devoirs : 12, 8, 15 | Composition : 10 | Coef : 2
+
+2 meilleurs devoirs : 15 et 12
+
+total_points = 15 + 12 + 10 = 37
+
+moyenne_matiere = 37 / 3 ≈ 12.33
+
+points_pondérés = 12.33 × 2 ≈ 24.66
+
+3. Option 2 – Utiliser tous les devoirs
+⚠ Correction importante : la moyenne doit être divisée par (nbre_devoirs + 1) et non pas 3, car +1 correspond à la composition.
+Cela évite un biais de calcul si une matière a plus ou moins de devoirs que d’autres.
+
+Algorithme clair avec variables :
+
+plaintext
+Copier
+Modifier
+Pour chaque classe → pour chaque élève → pour chaque matière :
+    1. notes_devoirs[] = liste des notes de devoirs (exclure composition)
+    2. total_devoirs = somme(notes_devoirs)
+    3. total_points = total_devoirs + note_composition
+    4. denominateur = nombre_devoirs + 1
+    5. moyenne_matiere = total_points / denominateur
+    6. points_pondérés = moyenne_matiere * coef_matiere
+    7. somme_points_eleve += points_pondérés
+       somme_coef_eleve += coef_matiere
+Après toutes les matières :
+    moyenne_generale_eleve = somme_points_eleve / somme_coef_eleve
+Exemple concret :
+
+Devoirs : 12, 8, 15 (3 devoirs) | Composition : 10 | Coef : 2
+
+total_devoirs = 12 + 8 + 15 = 35
+
+total_points = 35 + 10 = 45
+
+denominateur = 3 + 1 = 4
+
+moyenne_matiere = 45 / 4 = 11.25
+
+points_pondérés = 11.25 × 2 = 22.5
+
+4. Résultat final
+L’utilisateur choisit la classe après le calcul pour voir la moyenne générale de tous les élèves.
+
+Les calculs doivent être robustes, sans biais, et sans rechargement complet de page.
+
