@@ -5095,11 +5095,122 @@ class StudentRegistrationSystem:
         
         # Ajouter 2 lignes vides à la fin pour permettre la saisie du dernier élève (n+2 concept)
         for i in range(2):
+            empty_row_id = f"new_student_{i+1}"
+            empty_fields = {}
             empty_cells = []
-            # Créer le même nombre de cellules vides que de colonnes
-            num_columns = 5 + self.num_devoirs + 1  # 5 colonnes fixes + devoirs + composition
-            for j in range(num_columns):
-                empty_cells.append(ft.DataCell(ft.Text("", size=12)))
+            
+            # Champ ID (auto-généré pour nouveau élève)
+            next_id = self.data_manager.get_next_student_id()
+            id_field = ft.TextField(
+                value=str(next_id + i),
+                width=60,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12,
+                read_only=True,
+                bgcolor="#f8fafc"
+            )
+            empty_cells.append(ft.DataCell(id_field))
+            
+            # Champ Nom
+            nom_field = ft.TextField(
+                hint_text="Nom",
+                width=100,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            empty_fields["nom"] = nom_field
+            empty_cells.append(ft.DataCell(nom_field))
+            
+            # Champ Prénom
+            prenom_field = ft.TextField(
+                hint_text="Prénom",
+                width=100,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            empty_fields["prenom"] = prenom_field
+            empty_cells.append(ft.DataCell(prenom_field))
+            
+            # Champ Date naissance
+            date_field = ft.TextField(
+                hint_text="JJ/MM/AAAA",
+                width=100,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            empty_fields["date_naissance"] = date_field
+            empty_cells.append(ft.DataCell(date_field))
+            
+            # Champ Lieu naissance
+            lieu_field = ft.TextField(
+                hint_text="Lieu",
+                width=100,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            empty_fields["lieu_naissance"] = lieu_field
+            empty_cells.append(ft.DataCell(lieu_field))
+            
+            # Champs pour les devoirs
+            for j in range(1, self.num_devoirs + 1):
+                devoir_key = f"devoir{j}"
+                devoir_field = ft.TextField(
+                    hint_text=f"D{j}",
+                    width=70,
+                    height=35,
+                    text_align=ft.TextAlign.CENTER,
+                    border_radius=4,
+                    border_color="#e2e8f0",
+                    focused_border_color="#4f46e5",
+                    content_padding=ft.padding.all(4),
+                    text_size=12
+                )
+                empty_fields[devoir_key] = devoir_field
+                empty_cells.append(ft.DataCell(devoir_field))
+            
+            # Champ composition
+            composition_field = ft.TextField(
+                hint_text="Comp",
+                width=70,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            empty_fields["composition"] = composition_field
+            empty_cells.append(ft.DataCell(composition_field))
+            
+            # Stocker les références des champs vides
+            self.grade_fields[empty_row_id] = empty_fields
+            
             rows.append(ft.DataRow(empty_cells))
         
         # Créer les colonnes avec le même style
@@ -5167,36 +5278,95 @@ class StudentRegistrationSystem:
             self.grades_table_container.content = grades_table
     
     def save_all_grades(self, e):
-        """Sauvegarder toutes les notes du tableau"""
+        """Sauvegarder toutes les notes du tableau et créer de nouveaux élèves si nécessaire"""
         saved_count = 0
+        new_students_count = 0
         
         for student_id, fields in self.grade_fields.items():
-            # Sauvegarder chaque type de note
-            for grade_type, field in fields.items():
-                if field.value and field.value.strip():
-                    try:
-                        note = float(field.value.strip())
-                        if 0 <= note <= 20:  # Validation de la note
-                            grade_data = {
-                                "id": f"{student_id}_{self.current_subject['id']}_{grade_type}",
-                                "student_id": student_id,
-                                "subject_id": self.current_subject["id"],
-                                "subject_name": self.current_subject["nom"],
-                                "semester": self.current_semester,
-                                "type": grade_type,
-                                "note": note,
-                                "date_creation": datetime.now().isoformat()
-                            }
-                            
-                            if self.data_manager.add_grade(grade_data):
-                                saved_count += 1
-                    except ValueError:
-                        continue  # Ignorer les valeurs non numériques
+            # Vérifier si c'est une nouvelle ligne d'élève
+            if student_id.startswith("new_student_"):
+                # Vérifier si au moins nom et prénom sont remplis
+                if ("nom" in fields and fields["nom"].value and fields["nom"].value.strip() and 
+                    "prenom" in fields and fields["prenom"].value and fields["prenom"].value.strip()):
+                    
+                    # Créer le nouvel élève
+                    next_id = self.data_manager.get_next_student_id()
+                    student_data = {
+                        "id": next_id,
+                        "student_id": next_id,
+                        "nom": fields["nom"].value.strip(),
+                        "prenom": fields["prenom"].value.strip(),
+                        "date_naissance": fields["date_naissance"].value.strip() if fields["date_naissance"].value else "",
+                        "lieu_naissance": fields["lieu_naissance"].value.strip() if fields["lieu_naissance"].value else "",
+                        "classe": self.current_class.get("nom", ""),
+                        "genre": "Non défini",  # Valeur par défaut
+                        "numero_eleve": "",
+                        "telephone_parent": "",
+                        "date_creation": datetime.now().isoformat()
+                    }
+                    
+                    # Ajouter l'élève
+                    if self.data_manager.add_student(student_data):
+                        new_students_count += 1
+                        actual_student_id = next_id
+                        
+                        # Maintenant sauvegarder les notes pour ce nouvel élève
+                        for grade_type, field in fields.items():
+                            if grade_type not in ["nom", "prenom", "date_naissance", "lieu_naissance"] and field.value and field.value.strip():
+                                try:
+                                    note = float(field.value.strip())
+                                    if 0 <= note <= 20:  # Validation de la note
+                                        grade_data = {
+                                            "id": f"{actual_student_id}_{self.current_subject['id']}_{grade_type}",
+                                            "student_id": actual_student_id,
+                                            "subject_id": self.current_subject["id"],
+                                            "subject_name": self.current_subject["nom"],
+                                            "semester": self.current_semester,
+                                            "type": grade_type,
+                                            "note": note,
+                                            "date_creation": datetime.now().isoformat()
+                                        }
+                                        
+                                        if self.data_manager.add_grade(grade_data):
+                                            saved_count += 1
+                                except ValueError:
+                                    continue  # Ignorer les valeurs non numériques
+            else:
+                # Élève existant - sauvegarder seulement les notes
+                for grade_type, field in fields.items():
+                    if field.value and field.value.strip():
+                        try:
+                            note = float(field.value.strip())
+                            if 0 <= note <= 20:  # Validation de la note
+                                grade_data = {
+                                    "id": f"{student_id}_{self.current_subject['id']}_{grade_type}",
+                                    "student_id": student_id,
+                                    "subject_id": self.current_subject["id"],
+                                    "subject_name": self.current_subject["nom"],
+                                    "semester": self.current_semester,
+                                    "type": grade_type,
+                                    "note": note,
+                                    "date_creation": datetime.now().isoformat()
+                                }
+                                
+                                if self.data_manager.add_grade(grade_data):
+                                    saved_count += 1
+                        except ValueError:
+                            continue  # Ignorer les valeurs non numériques
         
+        # Messages de confirmation
+        messages = []
+        if new_students_count > 0:
+            messages.append(f"{new_students_count} nouvel(s) élève(s) ajouté(s)")
         if saved_count > 0:
-            self.show_snackbar(f"{saved_count} notes sauvegardées avec succès!")
+            messages.append(f"{saved_count} notes sauvegardées")
+        
+        if messages:
+            self.show_snackbar(" • ".join(messages) + " avec succès!")
+            # Recharger le tableau pour afficher les nouveaux élèves
+            self.create_grades_table()
         else:
-            self.show_snackbar("Aucune note valide à sauvegarder", error=True)
+            self.show_snackbar("Aucune donnée valide à sauvegarder", error=True)
     
     def show_subject_settings(self, subject):
         """Afficher la page des paramètres de matière pour gérer les élèves"""
@@ -5371,10 +5541,68 @@ class StudentRegistrationSystem:
         
         # Ajouter 2 lignes vides à la fin pour permettre la modification du dernier élève (n+2 concept)
         for i in range(2):
+            empty_row_id = f"new_student_settings_{i+1}"
             empty_cells = []
-            # Créer 7 cellules vides (nombre de colonnes dans ce tableau)
-            for j in range(7):
-                empty_cells.append(ft.DataCell(ft.Text("", size=12)))
+            
+            # Champ ID (auto-généré pour nouveau élève)
+            next_id = self.data_manager.get_next_student_id()
+            id_field = ft.TextField(
+                value=str(next_id + i),
+                width=60,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12,
+                read_only=True,
+                bgcolor="#f8fafc"
+            )
+            empty_cells.append(ft.DataCell(id_field))
+            
+            # Champs d'informations élève
+            nom_field = ft.TextField(hint_text="Nom", width=100, height=35, text_align=ft.TextAlign.CENTER, border_radius=4, text_size=12)
+            prenom_field = ft.TextField(hint_text="Prénom", width=100, height=35, text_align=ft.TextAlign.CENTER, border_radius=4, text_size=12)
+            date_field = ft.TextField(hint_text="JJ/MM/AAAA", width=100, height=35, text_align=ft.TextAlign.CENTER, border_radius=4, text_size=12)
+            lieu_field = ft.TextField(hint_text="Lieu", width=100, height=35, text_align=ft.TextAlign.CENTER, border_radius=4, text_size=12)
+            
+            empty_cells.extend([
+                ft.DataCell(nom_field),
+                ft.DataCell(prenom_field),
+                ft.DataCell(date_field),
+                ft.DataCell(lieu_field)
+            ])
+            
+            # Switch et coefficient pour la matière
+            active_switch = ft.Switch(value=True, active_color="#059669", inactive_track_color="#e2e8f0")
+            coefficient_field = ft.TextField(
+                hint_text=str(default_coefficient),
+                width=80,
+                height=35,
+                text_align=ft.TextAlign.CENTER,
+                border_radius=4,
+                border_color="#e2e8f0",
+                focused_border_color="#4f46e5",
+                content_padding=ft.padding.all(4),
+                text_size=12
+            )
+            
+            empty_cells.extend([
+                ft.DataCell(active_switch),
+                ft.DataCell(coefficient_field)
+            ])
+            
+            # Stocker les références des champs vides
+            self.subject_settings_fields[empty_row_id] = {
+                "nom": nom_field,
+                "prenom": prenom_field,
+                "date_naissance": date_field,
+                "lieu_naissance": lieu_field,
+                "active": active_switch,
+                "coefficient": coefficient_field
+            }
+            
             rows.append(ft.DataRow(empty_cells))
         
         # Créer les colonnes
