@@ -1165,7 +1165,7 @@ class StudentRegistrationSystem:
                             scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
                             vertical_alignment=ft.CrossAxisAlignment.START
                         ),
-                        height=min(300, max(120, len(students) * 45 + 60)),  # Hauteur dynamique basée sur le nombre d'élèves
+                        height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
                         border_radius=8,
                         bgcolor="#ffffff",
                         border=ft.border.all(1, "#e2e8f0"),
