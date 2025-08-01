@@ -4977,9 +4977,7 @@ class StudentRegistrationSystem:
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=ft.Column([
-                    content
-                ], scroll=ft.ScrollMode.AUTO),
+                content=content,  # Pas de scroll ici, juste le contenu
                 padding=ft.padding.all(32),
                 expand=True
             )
@@ -5255,9 +5253,7 @@ class StudentRegistrationSystem:
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=ft.Column([
-                    content
-                ], scroll=ft.ScrollMode.AUTO),
+                content=content,  # Pas de scroll ici, juste le contenu
                 padding=ft.padding.all(32),
                 expand=True
             )
