@@ -5510,7 +5510,7 @@ class StudentRegistrationSystem:
             ft.Container(
                 content=ft.Column([
                     ft.Icon(
-                        ft.icons.GROUPS,
+                        "groups",
                         size=48,
                         color="#1f2937"
                     ),
@@ -5542,7 +5542,7 @@ class StudentRegistrationSystem:
             ft.Container(
                 content=ft.Column([
                     ft.Icon(
-                        ft.icons.SCHOOL,
+                        "school",
                         size=48,
                         color="#1f2937"
                     ),
@@ -6097,7 +6097,7 @@ class StudentRegistrationSystem:
         content = ft.Container(
             content=ft.Column([
                 ft.Icon(
-                    ft.icons.SCHOOL,
+                    "school",
                     size=64,
                     color="#6b7280"
                 ),
