@@ -5093,6 +5093,15 @@ class StudentRegistrationSystem:
             
             rows.append(ft.DataRow(row_cells))
         
+        # Ajouter 2 lignes vides à la fin pour permettre la saisie du dernier élève (n+2 concept)
+        for i in range(2):
+            empty_cells = []
+            # Créer le même nombre de cellules vides que de colonnes
+            num_columns = 5 + self.num_devoirs + 1  # 5 colonnes fixes + devoirs + composition
+            for j in range(num_columns):
+                empty_cells.append(ft.DataCell(ft.Text("", size=12)))
+            rows.append(ft.DataRow(empty_cells))
+        
         # Créer les colonnes avec le même style
         columns = [
             ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
@@ -5153,15 +5162,9 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
-        # Ajouter un espace en bas pour pouvoir saisir les notes du dernier élève
-        grades_table_with_spacing = ft.Column([
-            grades_table,
-            ft.Container(height=100)  # Espace en bas
-        ])
-        
         # Mettre à jour le conteneur comme dans gestion élèves (seulement s'il existe)
         if hasattr(self, 'grades_table_container'):
-            self.grades_table_container.content = grades_table_with_spacing
+            self.grades_table_container.content = grades_table
     
     def save_all_grades(self, e):
         """Sauvegarder toutes les notes du tableau"""
@@ -5366,6 +5369,14 @@ class StudentRegistrationSystem:
             
             rows.append(ft.DataRow(row_cells))
         
+        # Ajouter 2 lignes vides à la fin pour permettre la modification du dernier élève (n+2 concept)
+        for i in range(2):
+            empty_cells = []
+            # Créer 7 cellules vides (nombre de colonnes dans ce tableau)
+            for j in range(7):
+                empty_cells.append(ft.DataCell(ft.Text("", size=12)))
+            rows.append(ft.DataRow(empty_cells))
+        
         # Créer les colonnes
         columns = [
             ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD, size=12)),
@@ -5431,15 +5442,9 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
-        # Ajouter un espace en bas pour pouvoir modifier les paramètres du dernier élève
-        subject_settings_table_with_spacing = ft.Column([
-            subject_settings_table,
-            ft.Container(height=100)  # Espace en bas
-        ])
-        
         # Mettre à jour le conteneur comme dans gestion élèves (seulement s'il existe)
         if hasattr(self, 'subject_settings_table_container'):
-            self.subject_settings_table_container.content = subject_settings_table_with_spacing
+            self.subject_settings_table_container.content = subject_settings_table
     
     def save_subject_settings(self, subject):
         """Sauvegarder les paramètres des élèves pour cette matière"""
