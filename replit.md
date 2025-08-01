@@ -24,6 +24,7 @@ Application de gestion scolaire moderne basée sur Flet, conçue pour simplifier
 3. **Gestion des classes** - Organisation des groupes d'élèves
 4. **Gestion des notes** - Saisie et suivi des évaluations par semestre et matière
 5. **Calcul des moyennes** - Système automatisé avec plusieurs méthodes de calcul
+6. **Gestion des emplois du temps** - Système complet avec deux modes (classes et professeurs)
 
 ## Changements récents
 
@@ -62,6 +63,50 @@ Application de gestion scolaire moderne basée sur Flet, conçue pour simplifier
 - Meilleure visibilité du dernier élève dans la liste
 - Interface plus aérée et professionnelle
 - Réduction de la fatigue visuelle lors de la saisie
+
+### 01/08/2025 - Système complet de gestion des emplois du temps
+
+**Fonctionnalité développée :**
+Implémentation complète du système de gestion des emplois du temps selon les spécifications détaillées avec deux modes distincts.
+
+**Architecture technique :**
+
+1. **Extension du DataManager :**
+   - Nouvelles méthodes pour gérer les créneaux d'emploi du temps
+   - Fonctions de détection de conflits d'horaires
+   - Gestion des emplois du temps par classe et par professeur
+   - Persistance dans `data/schedule.json`
+
+2. **Interface utilisateur avancée :**
+   - Sélection du mode (Classes vs Professeurs)
+   - Formulaire d'ajout avec auto-complétion des données professeur
+   - Validation des horaires et détection de conflits
+   - Tableau visuel avec blocs colorés selon la durée des cours
+
+3. **Fonctionnalités implémentées :**
+   - **Mode Classes :** Formulaire complet avec champs auto-remplis pour les professeurs
+   - **Auto-complétion :** Saisie de l'ID professeur → remplissage automatique des informations
+   - **Validation robuste :** Vérification des conflits d'horaires et cohérence des données
+   - **Tableau visuel :** Affichage en grille Lundi-Samedi avec blocs colorés par matière
+   - **Gestion des durées :** Blocs de hauteur variable selon la durée des cours (1h, 2h, etc.)
+   - **Suppression interactive :** Clic sur un cours pour le supprimer
+   - **Codes couleur :** Couleurs distinctes par matière pour une lecture rapide
+
+4. **Spécifications respectées :**
+   - ✅ Deux modes : Classes et Professeurs
+   - ✅ Formulaire avec champs auto-remplis (ID professeur → infos complètes)
+   - ✅ Sélection jour/horaires (Lundi-Samedi, 07h00-20h00)
+   - ✅ Tableau en grille avec créneaux horaires
+   - ✅ Blocs colorés avec durée variable
+   - ✅ Détection et prévention des conflits
+   - ✅ Ajout instantané sans rechargement
+   - ✅ Interface responsive et intuitive
+
+**Impact utilisateur :**
+- Gestion complète des plannings scolaires
+- Prévention automatique des conflits d'horaires
+- Interface visuelle claire avec codes couleur
+- Workflow optimisé avec auto-complétion des données
 
 ## Préférences utilisateur
 - Langue : Français

@@ -1,0 +1,75 @@
+Objectif :
+Mettre en place un système complet de gestion des emplois du temps, avec deux modes : emploi du temps des professeurs et emploi du temps des classes.
+
+1. Sélection du type d’emploi du temps
+Dès l’arrivée sur la page "Emploi du temps", l’utilisateur choisit entre :
+
+Emploi du temps – Professeurs
+
+Emploi du temps – Classes
+
+2. Mode "Emploi du temps – Classe"
+Lorsque l’utilisateur choisit ce mode :
+
+2.1. Premier conteneur (Formulaire d’ajout de cours)
+Champ "Classe" : sélection via un menu déroulant (dropdown).
+
+Champs professeur :
+
+Prénom (non modifiable)
+
+Nom (non modifiable)
+
+Date de naissance (non modifiable)
+
+Matière (non modifiable)
+
+ID Professeur (champ saisissable → déclenche le remplissage automatique des champs ci-dessus).
+
+Dès que l’ID est saisi, le système remplit automatiquement prénom, nom, date de naissance et matière du professeur correspondant.
+
+Sélection du jour : choix entre Lundi → Samedi.
+
+Sélection des horaires :
+
+Heure de début : entre 07h00 et 20h00
+
+Heure de fin : entre 07h00 et 20h00
+
+Bouton "Ajouter" : enregistre le cours et l’envoie au deuxième conteneur.
+
+2.2. Deuxième conteneur (Aperçu de l’emploi du temps)
+Tableau avec les colonnes Lundi → Samedi.
+
+Ligne "Horaires" avec les créneaux :
+
+Copier
+Modifier
+07h00 | 08h00 | 09h00 | 10h00 | 11h00 | 12h00 | 13h00 | 14h00 | 15h00 | 16h00 | 17h00 | 18h00 | 19h00 | 20h00
+Les cours sont affichés sous forme de blocs colorés :
+
+Un cours d’1h : bloc de x → x+1
+
+Un cours de 2h : bloc de x → x+2
+
+Un cours de n heures : bloc de x → x+n
+
+Chaque bloc contient :
+
+Nom de la matière
+
+Nom du professeur
+
+Classe concernée
+
+3. Règles de placement des blocs
+Le bloc se positionne automatiquement au bon jour et à l’horaire de début choisi.
+
+La hauteur du bloc dépend de la durée du cours.
+
+Les chevauchements doivent être détectés et empêchés avec un message d’alerte.
+
+4. Contraintes techniques
+Affichage responsive et clair.
+
+Ajout instantané d’un cours dans le tableau après clic sur "Ajouter" (pas de rechargement complet).

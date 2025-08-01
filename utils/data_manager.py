@@ -344,26 +344,7 @@ class DataManager:
         attendance_records = self.get_all_attendance()
         return [a for a in attendance_records if a.get("student_id") == student_id]
     
-    # Gestion de l'emploi du temps
-    def get_all_schedules(self) -> List[Dict]:
-        """Récupérer tous les emplois du temps"""
-        return self._load_data(self.schedule_file)
-    
-    def add_schedule(self, schedule_data: Dict) -> bool:
-        """Ajouter un emploi du temps"""
-        schedules = self.get_all_schedules()
-        schedules.append(schedule_data)
-        return self._save_data(self.schedule_file, schedules)
-    
-    def get_class_schedule(self, class_id: str) -> List[Dict]:
-        """Récupérer l'emploi du temps d'une classe"""
-        schedules = self.get_all_schedules()
-        return [s for s in schedules if s.get("class_id") == class_id]
-    
-    def get_teacher_schedule(self, teacher_id: str) -> List[Dict]:
-        """Récupérer l'emploi du temps d'un professeur"""
-        schedules = self.get_all_schedules()
-        return [s for s in schedules if s.get("teacher_id") == teacher_id]
+    # Ancienne gestion de l'emploi du temps (remplacée par les nouvelles méthodes en fin de fichier)
     
     # Statistiques
     def get_statistics(self) -> Dict:
@@ -471,3 +452,60 @@ class DataManager:
         
         settings_data.append(new_settings)
         return self._save_data(self.subject_settings_file, settings_data)
+    
+    # Gestion des emplois du temps
+    def get_all_schedules(self) -> List[Dict]:
+        """Récupérer tous les emplois du temps"""
+        return self._load_data(self.schedule_file)
+    
+    def add_schedule_slot(self, schedule_data: Dict) -> bool:
+        """Ajouter un créneau à l'emploi du temps"""
+        schedules = self.get_all_schedules()
+        
+        # Générer un ID unique
+        schedule_data["id"] = max([s.get("id", 0) for s in schedules], default=0) + 1
+        schedule_data["created_at"] = datetime.now().isoformat()
+        
+        schedules.append(schedule_data)
+        return self._save_data(self.schedule_file, schedules)
+    
+    def get_schedule_by_class(self, class_name: str) -> List[Dict]:
+        """Récupérer l'emploi du temps d'une classe"""
+        schedules = self.get_all_schedules()
+        return [s for s in schedules if s.get("class_name") == class_name]
+    
+    def get_schedule_by_teacher(self, teacher_id: str) -> List[Dict]:
+        """Récupérer l'emploi du temps d'un professeur"""
+        schedules = self.get_all_schedules()
+        return [s for s in schedules if s.get("teacher_id") == teacher_id]
+    
+    def check_schedule_conflict(self, class_name: str, day: str, start_time: str, end_time: str, exclude_id: Optional[int] = None) -> bool:
+        """Vérifier s'il y a un conflit d'horaire pour une classe"""
+        schedules = self.get_schedule_by_class(class_name)
+        
+        for schedule in schedules:
+            if exclude_id and schedule.get("id") == exclude_id:
+                continue
+                
+            if schedule.get("day") == day:
+                # Convertir les heures en minutes pour comparaison
+                def time_to_minutes(time_str):
+                    hour, minute = map(int, time_str.split(':'))
+                    return hour * 60 + minute
+                
+                existing_start = time_to_minutes(schedule.get("start_time", "00:00"))
+                existing_end = time_to_minutes(schedule.get("end_time", "00:00"))
+                new_start = time_to_minutes(start_time)
+                new_end = time_to_minutes(end_time)
+                
+                # Vérifier chevauchement
+                if (new_start < existing_end and new_end > existing_start):
+                    return True
+        
+        return False
+    
+    def delete_schedule_slot(self, schedule_id: int) -> bool:
+        """Supprimer un créneau de l'emploi du temps"""
+        schedules = self.get_all_schedules()
+        schedules = [s for s in schedules if s.get("id") != schedule_id]
+        return self._save_data(self.schedule_file, schedules)
