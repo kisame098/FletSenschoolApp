@@ -28,6 +28,65 @@ Application de gestion scolaire moderne basée sur Flet, conçue pour simplifier
 
 ## Changements récents
 
+### 01/08/2025 - Refonte complète du système d'emploi du temps (interface professionnelle)
+
+**Problème identifié :**
+- L'ancienne implémentation de l'emploi du temps était jugée "médiocre" par l'utilisateur
+- Interface basique sans grille visuelle professionnelle
+- Manque de positionnement précis des blocs de cours
+- Absence de design moderne et intuitif
+
+**Solution implémentée (approche rigoureuse inspirée du code HTML professionnel) :**
+
+1. **Interface d'accueil moderne :**
+   - Menu principal avec cartes navigables (Classes/Professeurs)
+   - Design épuré inspiré des meilleures pratiques web
+   - Navigation intuitive avec boutons de retour
+
+2. **Grille d'emploi du temps professionnelle :**
+   - Structure en colonnes : Horaires + 6 jours (Lundi-Samedi)
+   - Utilisation de `ft.Stack` pour positionnement absolu des blocs
+   - Créneaux de 65px de hauteur (8h-19h) 
+   - Bordures et séparations visuelles précises
+
+3. **Positionnement précis des blocs de cours :**
+   - Calcul mathématique exact basé sur les horaires
+   - Fonction `calculate_course_position()` pour conversion heure→pixels
+   - Support des cours de durées variables (30min, 1h, 2h, etc.)
+   - Positionnement au pixel près comme dans l'exemple HTML
+
+4. **Blocs de cours visuels :**
+   - Couleurs distinctes par matière (10 couleurs prédéfinies)
+   - Affichage : Matière, Professeur, Horaires
+   - Blocs cliquables pour suppression
+   - Design avec coins arrondis et ombres
+
+5. **Formulaire d'ajout optimisé :**
+   - Layout en 2 lignes : Classe/Jour/Début/Fin puis Professeur/Matière/Bouton
+   - Validation complète des conflits d'horaires
+   - Créneaux de 30 minutes (07:00 à 19:30)
+   - Réinitialisation automatique après ajout
+
+6. **Architecture technique robuste :**
+   - Séparation claire entre affichage et logique
+   - Gestion d'erreurs complète avec messages utilisateur
+   - Performance optimisée avec mise à jour ciblée
+   - Code maintenable et extensible
+
+**Spécifications respectées (inspiration HTML) :**
+- ✅ Grille visuelle professionnelle avec positionnement précis
+- ✅ Blocs colorés de taille variable selon durée
+- ✅ Interface de navigation moderne
+- ✅ Formulaire optimisé avec validation
+- ✅ Suppression interactive par clic
+- ✅ Design cohérent avec les meilleures pratiques
+
+**Impact utilisateur :**
+- Interface d'emploi du temps de qualité professionnelle
+- Visualisation claire et précise des plannings
+- Gestion intuitive avec feedback immédiat
+- Respect des standards de l'industrie
+
 ### 01/08/2025 - Amélioration ergonomique des tableaux de notes
 
 **Problème identifié :**

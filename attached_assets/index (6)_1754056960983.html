@@ -1,0 +1,1242 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emploi du Temps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main-container {
+            background-color: #fafafa;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #1f2937;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #111827;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .input {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #1f2937;
+            box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
+        }
+
+        .color-picker {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            width: 100%;
+            height: 45px;
+            cursor: pointer;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(6, 1fr);
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .time-slot {
+            padding: 16px 8px;
+            border-bottom: 1px solid #f3f4f6;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            background: #f9fafb;
+            height: 65px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-header {
+            padding: 20px 16px;
+            text-align: center;
+            font-weight: 600;
+            color: #111827;
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .day-column {
+            border-left: 1px solid #f3f4f6;
+            position: relative;
+            min-height: 780px; /* 12 heures × 65px = 780px */
+            box-sizing: border-box;
+        }
+
+        .time-column {
+            background: #f9fafb;
+            border-right: 2px solid #e5e7eb;
+        }
+
+        .course-item {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            color: white;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 13px;
+            cursor: move;
+            transition: all 0.2s ease;
+            margin: 2px 0;
+            user-select: none;
+        }
+
+        .course-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .course-item.dragging {
+            opacity: 0.7;
+            z-index: 1000;
+        }
+
+        .course-subject {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .course-teacher {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .course-time {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .course-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: none;
+        }
+
+        .course-item:hover .course-actions {
+            display: flex;
+            gap: 2px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #374151;
+            border: none;
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 32px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            border-color: #1f2937;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 48px;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1f2937;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .floating-btn:hover {
+            background: #111827;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #6b7280;
+            min-height: 50px;
+            margin: 4px 0;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+    </style>
+</head>
+<body class="main-container">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="card p-8 mb-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Emploi du Temps</h1>
+            <p class="text-gray-600">Gestion simple et efficace des plannings</p>
+        </div>
+
+        <!-- Navigation -->
+        <div id="mainMenu" class="grid md:grid-cols-2 gap-6 mb-8">
+            <div onclick="showClassSchedule()" class="nav-item">
+                <div class="nav-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Classes</h3>
+                <p class="text-gray-600">Gérer les emplois du temps par classe</p>
+            </div>
+            <div onclick="showTeacherSchedule()" class="nav-item">
+                <div class="nav-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Professeurs</h3>
+                <p class="text-gray-600">Consulter les plannings des enseignants</p>
+            </div>
+        </div>
+
+        <!-- Section Classes -->
+        <div id="classSection" class="hidden">
+            <div class="card p-6 mb-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900">Emploi du temps - Classes</h2>
+                    <div class="flex gap-4">
+                        <button onclick="exportToPDF()" class="btn-primary" id="exportBtn" disabled>
+                            <i class="fas fa-file-pdf mr-2"></i>Exporter PDF
+                        </button>
+                        <button onclick="showMainMenu()" class="btn-secondary">
+                            <i class="fas fa-arrow-left mr-2"></i>Retour
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulaire -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Classe</label>
+                            <select id="classSelect" onchange="loadClassSchedule()" class="input">
+                                <option value="">Sélectionner une classe</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jour</label>
+                            <select id="daySelect" class="input">
+                                <option value="">Sélectionner un jour</option>
+                                <option value="Lundi">Lundi</option>
+                                <option value="Mardi">Mardi</option>
+                                <option value="Mercredi">Mercredi</option>
+                                <option value="Jeudi">Jeudi</option>
+                                <option value="Vendredi">Vendredi</option>
+                                <option value="Samedi">Samedi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Début</label>
+                            <select id="startTime" class="input">
+                                <option value="">Heure de début</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Fin</label>
+                            <select id="endTime" class="input">
+                                <option value="">Heure de fin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
+                            <input type="color" id="courseColor" value="#1f2937" class="color-picker">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Professeur</label>
+                            <select id="teacherSelect" class="input">
+                                <option value="">Sélectionner un professeur</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Matière</label>
+                            <input type="text" id="subject" placeholder="Nom de la matière" class="input">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="addCourse()" class="btn-primary w-full">
+                                <i class="fas fa-plus mr-2"></i>Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <!-- Planning -->
+                <div class="schedule-grid" id="classScheduleBody">
+                    <!-- Contenu généré dynamiquement -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Professeurs -->
+        <div id="teacherSection" class="hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900">Emploi du temps - Professeurs</h2>
+                    <button onclick="showMainMenu()" class="btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour
+                    </button>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Professeur</label>
+                    <select id="teacherViewSelect" onchange="loadTeacherSchedule()" class="input max-w-md">
+                        <option value="">Sélectionner un professeur</option>
+                    </select>
+                </div>
+
+                <div class="schedule-grid" id="teacherScheduleBody">
+                    <!-- Contenu généré dynamiquement -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bouton flottant -->
+        <div class="floating-btn" onclick="showClassSchedule()">
+            <i class="fas fa-plus text-lg"></i>
+        </div>
+    </div>
+
+    <!-- Modal d'édition -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-lg font-semibold mb-4">Modifier le cours</h3>
+            <div class="grid gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Matière</label>
+                    <input type="text" id="editSubject" class="input">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Professeur</label>
+                    <select id="editTeacher" class="input">
+                        <!-- Options générées dynamiquement -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jour</label>
+                    <select id="editDay" class="input">
+                        <option value="Lundi">Lundi</option>
+                        <option value="Mardi">Mardi</option>
+                        <option value="Mercredi">Mercredi</option>
+                        <option value="Jeudi">Jeudi</option>
+                        <option value="Vendredi">Vendredi</option>
+                        <option value="Samedi">Samedi</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Début</label>
+                        <select id="editStartTime" class="input">
+                            <!-- Options générées dynamiquement -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fin</label>
+                        <select id="editEndTime" class="input">
+                            <!-- Options générées dynamiquement -->
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
+                    <input type="color" id="editColor" class="color-picker">
+                </div>
+            </div>
+            <div class="flex justify-end gap-4 mt-6">
+                <button onclick="closeEditModal()" class="btn-secondary">Annuler</button>
+                <button onclick="saveCourseEdit()" class="btn-primary">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données
+        let classes = ['6ème A', '6ème B', '5ème A', '5ème B', '4ème A', '4ème B', '3ème A', '3ème B'];
+        let teachers = ['M. Dupont', 'Mme Martin', 'M. Bernard', 'Mme Durand', 'M. Moreau', 'Mme Petit'];
+        let timeSlots = [];
+        let days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        let scheduleData = {};
+        let editingCourseKey = null;
+        let draggedCourse = null;
+
+        function generateTimeSlots() {
+            timeSlots = [];
+            for (let hour = 7; hour <= 19; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                    timeSlots.push(timeString);
+                }
+            }
+        }
+
+        function generateTimeSlotDisplay() {
+            let html = '';
+            for (let hour = 8; hour <= 19; hour++) {
+                html += `<div class="time-slot">${hour}h</div>`;
+            }
+            return html;
+        }
+
+        function calculateCoursePosition(startTime, endTime) {
+            const startHour = parseInt(startTime.split(':')[0]);
+            const startMinute = parseInt(startTime.split(':')[1]);
+            const endHour = parseInt(endTime.split(':')[0]);
+            const endMinute = parseInt(endTime.split(':')[1]);
+
+            // Calcul précis basé sur les créneaux horaires
+            // Chaque heure = 65px (hauteur des créneaux horaires)
+            const hourHeight = 65;
+            
+            // Position de départ - CORRECTION : les horaires commencent à 8h dans l'affichage
+            // donc un cours à 8h doit avoir une position top = 0
+            const relativeStartHour = startHour - 8; // 8h devient 0, 9h devient 1, etc.
+            const topPosition = (relativeStartHour * hourHeight) + ((startMinute / 60) * hourHeight);
+            
+            // Durée en minutes
+            const durationMinutes = ((endHour - startHour) * 60) + (endMinute - startMinute);
+            
+            // Hauteur du bloc (avec une petite marge pour l'espacement)
+            const height = (durationMinutes / 60) * hourHeight - 4; // 4px d'espacement entre les blocs
+            
+            return { 
+                top: Math.round(topPosition + 2), // 2px de marge en haut pour l'espacement
+                height: Math.max(Math.round(height), 30) // Hauteur minimale de 30px
+            };
+        }
+
+        function initializeApp() {
+            generateTimeSlots();
+            populateSelects();
+            createEmptyScheduleTables();
+            setupDragAndDrop();
+        }
+
+        function populateSelects() {
+            const classSelect = document.getElementById('classSelect');
+            const teacherSelect = document.getElementById('teacherSelect');
+            const teacherViewSelect = document.getElementById('teacherViewSelect');
+            const editTeacher = document.getElementById('editTeacher');
+            const startTime = document.getElementById('startTime');
+            const endTime = document.getElementById('endTime');
+            const editStartTime = document.getElementById('editStartTime');
+            const editEndTime = document.getElementById('editEndTime');
+
+            classes.forEach(className => {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                classSelect.appendChild(option);
+            });
+
+            teachers.forEach(teacher => {
+                const option1 = document.createElement('option');
+                option1.value = teacher;
+                option1.textContent = teacher;
+                teacherSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = teacher;
+                option2.textContent = teacher;
+                teacherViewSelect.appendChild(option2);
+
+                const option3 = document.createElement('option');
+                option3.value = teacher;
+                option3.textContent = teacher;
+                editTeacher.appendChild(option3);
+            });
+
+            timeSlots.forEach(time => {
+                [startTime, endTime, editStartTime, editEndTime].forEach(select => {
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function createEmptyScheduleTables() {
+            const classContainer = document.getElementById('classScheduleBody');
+            const teacherContainer = document.getElementById('teacherScheduleBody');
+
+            classContainer.innerHTML = '';
+            teacherContainer.innerHTML = '';
+
+            // Colonne horaire
+            const timeColumnClass = document.createElement('div');
+            timeColumnClass.className = 'time-column';
+            timeColumnClass.innerHTML = `
+                <div class="day-header">Horaires</div>
+                <div>${generateTimeSlotDisplay()}</div>
+            `;
+            classContainer.appendChild(timeColumnClass);
+
+            const timeColumnTeacher = document.createElement('div');
+            timeColumnTeacher.className = 'time-column';
+            timeColumnTeacher.innerHTML = `
+                <div class="day-header">Horaires</div>
+                <div>${generateTimeSlotDisplay()}</div>
+            `;
+            teacherContainer.appendChild(timeColumnTeacher);
+
+            // Colonnes des jours
+            days.forEach(day => {
+                const classCol = document.createElement('div');
+                classCol.innerHTML = `
+                    <div class="day-header">${day}</div>
+                    <div class="day-column drop-zone" id="class-${day}" data-day="${day}"></div>
+                `;
+                classContainer.appendChild(classCol);
+
+                const teacherCol = document.createElement('div');
+                teacherCol.innerHTML = `
+                    <div class="day-header">${day}</div>
+                    <div class="day-column drop-zone" id="teacher-${day}" data-day="${day}"></div>
+                `;
+                teacherContainer.appendChild(teacherCol);
+            });
+        }
+
+        function setupDragAndDrop() {
+            document.addEventListener('dragover', handleDragOver);
+            document.addEventListener('drop', handleDrop);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('drag-over');
+            });
+
+            if (!draggedCourse) return;
+
+            const dropZone = e.target.closest('.drop-zone');
+            if (!dropZone) return;
+
+            const newDay = dropZone.dataset.day;
+            if (!newDay) return;
+
+            const courseData = scheduleData[draggedCourse];
+            if (!courseData) return;
+
+            // Vérifier les conflits
+            if (checkConflictForMove(courseData.className, newDay, courseData.startTime, courseData.endTime, courseData.teacher, draggedCourse)) {
+                showAlert('Impossible de déplacer - conflit détecté', 'error');
+                draggedCourse = null;
+                return;
+            }
+
+            // Mettre à jour le cours
+            const oldKey = draggedCourse;
+            delete scheduleData[oldKey];
+            
+            const newKey = `${courseData.className}-${newDay}-${courseData.startTime}-${courseData.endTime}`;
+            scheduleData[newKey] = { ...courseData, day: newDay };
+
+            updateScheduleDisplay();
+            showAlert('Cours déplacé avec succès', 'success');
+            draggedCourse = null;
+        }
+
+        function checkConflictForMove(className, day, startTime, endTime, teacher, excludeKey) {
+            for (let key in scheduleData) {
+                if (key === excludeKey) continue;
+                
+                const course = scheduleData[key];
+                if (course.day === day && (course.className === className || course.teacher === teacher)) {
+                    if ((startTime >= course.startTime && startTime < course.endTime) ||
+                        (endTime > course.startTime && endTime <= course.endTime) ||
+                        (startTime <= course.startTime && endTime >= course.endTime)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function showMainMenu() {
+            document.getElementById('mainMenu').classList.remove('hidden');
+            document.getElementById('classSection').classList.add('hidden');
+            document.getElementById('teacherSection').classList.add('hidden');
+        }
+
+        function showClassSchedule() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('classSection').classList.remove('hidden');
+            document.getElementById('teacherSection').classList.add('hidden');
+        }
+
+        function showTeacherSchedule() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('classSection').classList.add('hidden');
+            document.getElementById('teacherSection').classList.remove('hidden');
+        }
+
+        function addCourse() {
+            const className = document.getElementById('classSelect').value;
+            const day = document.getElementById('daySelect').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const teacher = document.getElementById('teacherSelect').value;
+            const subject = document.getElementById('subject').value;
+            const color = document.getElementById('courseColor').value;
+
+            if (!className || !day || !startTime || !endTime || !teacher || !subject) {
+                showAlert('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            if (startTime >= endTime) {
+                showAlert('L\'heure de fin doit être après l\'heure de début', 'error');
+                return;
+            }
+
+            if (checkConflict(className, day, startTime, endTime, teacher)) {
+                showAlert('Conflit détecté - ce créneau est déjà occupé', 'error');
+                return;
+            }
+
+            const courseKey = `${className}-${day}-${startTime}-${endTime}`;
+            scheduleData[courseKey] = {
+                className, day, startTime, endTime, teacher, subject, color
+            };
+
+            updateScheduleDisplay();
+            showAlert('Cours ajouté avec succès', 'success');
+            clearForm();
+        }
+
+        function editCourse(courseKey) {
+            editingCourseKey = courseKey;
+            const course = scheduleData[courseKey];
+            
+            document.getElementById('editSubject').value = course.subject;
+            document.getElementById('editTeacher').value = course.teacher;
+            document.getElementById('editDay').value = course.day;
+            document.getElementById('editStartTime').value = course.startTime;
+            document.getElementById('editEndTime').value = course.endTime;
+            document.getElementById('editColor').value = course.color || '#1f2937';
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingCourseKey = null;
+        }
+
+        function saveCourseEdit() {
+            if (!editingCourseKey) return;
+
+            const course = scheduleData[editingCourseKey];
+            const newSubject = document.getElementById('editSubject').value;
+            const newTeacher = document.getElementById('editTeacher').value;
+            const newDay = document.getElementById('editDay').value;
+            const newStartTime = document.getElementById('editStartTime').value;
+            const newEndTime = document.getElementById('editEndTime').value;
+            const newColor = document.getElementById('editColor').value;
+
+            if (!newSubject || !newTeacher || !newDay || !newStartTime || !newEndTime) {
+                showAlert('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            if (newStartTime >= newEndTime) {
+                showAlert('L\'heure de fin doit être après l\'heure de début', 'error');
+                return;
+            }
+
+            // Vérifier les conflits (exclure le cours actuel)
+            if (checkConflictForMove(course.className, newDay, newStartTime, newEndTime, newTeacher, editingCourseKey)) {
+                showAlert('Conflit détecté - ce créneau est déjà occupé', 'error');
+                return;
+            }
+
+            // Supprimer l'ancien cours
+            delete scheduleData[editingCourseKey];
+
+            // Créer le nouveau cours
+            const newKey = `${course.className}-${newDay}-${newStartTime}-${newEndTime}`;
+            scheduleData[newKey] = {
+                className: course.className,
+                day: newDay,
+                startTime: newStartTime,
+                endTime: newEndTime,
+                teacher: newTeacher,
+                subject: newSubject,
+                color: newColor
+            };
+
+            updateScheduleDisplay();
+            showAlert('Cours modifié avec succès', 'success');
+            closeEditModal();
+        }
+
+        function deleteCourse(courseKey) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) {
+                delete scheduleData[courseKey];
+                updateScheduleDisplay();
+                showAlert('Cours supprimé avec succès', 'success');
+            }
+        }
+
+        function checkConflict(className, day, startTime, endTime, teacher) {
+            for (let key in scheduleData) {
+                const course = scheduleData[key];
+                if (course.day === day && (course.className === className || course.teacher === teacher)) {
+                    if ((startTime >= course.startTime && startTime < course.endTime) ||
+                        (endTime > course.startTime && endTime <= course.endTime) ||
+                        (startTime <= course.startTime && endTime >= course.endTime)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function updateScheduleDisplay() {
+            updateClassScheduleDisplay();
+            updateTeacherScheduleDisplay();
+        }
+
+        function updateClassScheduleDisplay() {
+            const selectedClass = document.getElementById('classSelect').value;
+            const exportBtn = document.getElementById('exportBtn');
+            
+            if (!selectedClass) {
+                exportBtn.disabled = true;
+                return;
+            }
+
+            exportBtn.disabled = false;
+
+            days.forEach(day => {
+                const container = document.getElementById(`class-${day}`);
+                if (container) container.innerHTML = '';
+            });
+
+            const coursesByDay = {};
+            days.forEach(day => coursesByDay[day] = []);
+
+            for (let key in scheduleData) {
+                const course = scheduleData[key];
+                if (course.className === selectedClass) {
+                    coursesByDay[course.day].push({ ...course, key });
+                }
+            }
+
+            days.forEach(day => {
+                const container = document.getElementById(`class-${day}`);
+                if (container) {
+                    if (coursesByDay[day].length === 0) {
+                        container.innerHTML = '<div class="empty-state">Aucun cours</div>';
+                    } else {
+                        coursesByDay[day].forEach(course => {
+                            const position = calculateCoursePosition(course.startTime, course.endTime);
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = 'course-item';
+                            courseDiv.style.top = position.top + 'px';
+                            courseDiv.style.height = position.height + 'px';
+                            courseDiv.style.backgroundColor = course.color || '#1f2937';
+                            courseDiv.draggable = true;
+                            courseDiv.innerHTML = `
+                                <div class="course-actions">
+                                    <button class="action-btn" onclick="editCourse('${course.key}')" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="deleteCourse('${course.key}')" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="course-subject">${course.subject}</div>
+                                <div class="course-teacher">${course.teacher}</div>
+                                <div class="course-time">${course.startTime}-${course.endTime}</div>
+                            `;
+                            
+                            courseDiv.addEventListener('dragstart', (e) => {
+                                draggedCourse = course.key;
+                                courseDiv.classList.add('dragging');
+                            });
+                            
+                            courseDiv.addEventListener('dragend', () => {
+                                courseDiv.classList.remove('dragging');
+                            });
+                            
+                            container.appendChild(courseDiv);
+                        });
+                    }
+                }
+            });
+        }
+
+        // === FONCTION DE RECUPERATION DES DONNÉES ===
+        function getScheduleDataForClass(className) {
+            const classSchedule = {};
+            
+            // Initialiser chaque jour
+            days.forEach(day => {
+                classSchedule[day] = [];
+            });
+            
+            // Récupérer tous les cours de la classe sélectionnée
+            for (let key in scheduleData) {
+                const course = scheduleData[key];
+                if (course.className === className) {
+                    const [startH, startM] = course.startTime.split(':').map(Number);
+                    const [endH, endM] = course.endTime.split(':').map(Number);
+                    
+                    classSchedule[course.day].push({
+                        subject: course.subject,
+                        teacher: course.teacher,
+                        startTime: course.startTime,
+                        endTime: course.endTime,
+                        startDecimal: startH + (startM / 60),
+                        endDecimal: endH + (endM / 60)
+                    });
+                }
+            }
+            
+            // Trier les cours par heure de début pour chaque jour
+            days.forEach(day => {
+                classSchedule[day].sort((a, b) => a.startDecimal - b.startDecimal);
+            });
+            
+            return classSchedule;
+        }
+
+        // === CREATION COMPLETE DU PDF DEPUIS LES DONNEES ===
+        function exportToPDF() {
+            const selectedClass = document.getElementById('classSelect').value;
+            if (!selectedClass) {
+                showAlert('Veuillez sélectionner une classe', 'error');
+                return;
+            }
+
+            try {
+                // Récupérer les données complètes
+                const classData = getScheduleDataForClass(selectedClass);
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape', 'mm', 'a4');
+                
+                // === CONSTANTES DIMENSIONNELLES ===
+                const PAGE_WIDTH = 297;
+                const PAGE_HEIGHT = 210;
+                const MARGIN = 15;
+                const TITLE_Y = 20;
+                const GRID_START_Y = 35;
+                const TIME_COL_WIDTH = 25;
+                const DAY_COL_WIDTH = (PAGE_WIDTH - MARGIN * 2 - TIME_COL_WIDTH) / 6;
+                const HEADER_HEIGHT = 12;
+                const HOUR_HEIGHT = 12;
+                const TOTAL_HOURS = 12; // 8h à 19h (12 heures)
+                
+                const gridX = MARGIN;
+                const gridY = GRID_START_Y;
+                const gridWidth = PAGE_WIDTH - (MARGIN * 2);
+                const gridHeight = HEADER_HEIGHT + (TOTAL_HOURS * HOUR_HEIGHT);
+                
+                // === 1. TITRE ===
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Emploi du temps - ${selectedClass}`, PAGE_WIDTH / 2, TITLE_Y, { align: 'center' });
+                
+                // === 2. CADRE PRINCIPAL ===
+                doc.setDrawColor(0, 0, 0);
+                doc.setLineWidth(1);
+                doc.rect(gridX, gridY, gridWidth, gridHeight);
+                
+                // === 3. EN-TÊTES ===
+                doc.setFillColor(245, 245, 245);
+                doc.rect(gridX, gridY, gridWidth, HEADER_HEIGHT, 'F');
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 0, 0);
+                
+                // En-tête colonne horaires
+                doc.text('Horaires', gridX + TIME_COL_WIDTH/2, gridY + HEADER_HEIGHT/2 + 2, { align: 'center' });
+                
+                // En-têtes jours
+                days.forEach((day, index) => {
+                    const dayX = gridX + TIME_COL_WIDTH + (index * DAY_COL_WIDTH);
+                    doc.text(day, dayX + DAY_COL_WIDTH/2, gridY + HEADER_HEIGHT/2 + 2, { align: 'center' });
+                });
+                
+                // === 4. LIGNES HORIZONTALES (SÉPARATION HEURES) ===
+                doc.setDrawColor(180, 180, 180);
+                doc.setLineWidth(0.3);
+                
+                // Ligne séparation en-têtes (plus épaisse)
+                doc.setLineWidth(1);
+                doc.setDrawColor(0, 0, 0);
+                doc.line(gridX, gridY + HEADER_HEIGHT, gridX + gridWidth, gridY + HEADER_HEIGHT);
+                
+                // Petites lignes horizontales de séparation des heures
+                doc.setDrawColor(180, 180, 180);
+                doc.setLineWidth(0.4);
+                for (let hour = 1; hour < TOTAL_HOURS; hour++) {
+                    const y = gridY + HEADER_HEIGHT + (hour * HOUR_HEIGHT);
+                    doc.line(gridX, y, gridX + gridWidth, y);
+                }
+                
+                // === 5. LIGNES VERTICALES ===
+                doc.setDrawColor(0, 0, 0);
+                doc.setLineWidth(1);
+                
+                // Ligne séparation colonne horaires
+                doc.line(gridX + TIME_COL_WIDTH, gridY, gridX + TIME_COL_WIDTH, gridY + gridHeight);
+                
+                // Lignes verticales entre les jours
+                for (let day = 1; day <= 6; day++) {
+                    const x = gridX + TIME_COL_WIDTH + (day * DAY_COL_WIDTH);
+                    doc.line(x, gridY, x, gridY + gridHeight);
+                }
+                
+                // === 6. LABELS HORAIRES ===
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(80, 80, 80);
+                
+                for (let hour = 0; hour < TOTAL_HOURS; hour++) {
+                    const currentHour = 8 + hour;
+                    const y = gridY + HEADER_HEIGHT + (hour * HOUR_HEIGHT) + (HOUR_HEIGHT/2) + 2;
+                    doc.text(`${currentHour}h`, gridX + TIME_COL_WIDTH/2, y, { align: 'center' });
+                }
+                
+                // === 7. PLACEMENT DES COURS ===
+                days.forEach((day, dayIndex) => {
+                    const dayStartX = gridX + TIME_COL_WIDTH + (dayIndex * DAY_COL_WIDTH);
+                    const courses = classData[day];
+                    
+                    courses.forEach(course => {
+                        // Calculs de position précis
+                        const startHourDecimal = course.startDecimal;
+                        const endHourDecimal = course.endDecimal;
+                        
+                        // Position relative par rapport à 8h
+                        const relativeStart = startHourDecimal - 8;
+                        const relativeEnd = endHourDecimal - 8;
+                        
+                        const courseStartY = gridY + HEADER_HEIGHT + (relativeStart * HOUR_HEIGHT);
+                        const courseEndY = gridY + HEADER_HEIGHT + (relativeEnd * HOUR_HEIGHT);
+                        const courseHeight = courseEndY - courseStartY;
+                        
+                        // Dessiner les bordures de début/fin de cours
+                        doc.setDrawColor(0, 0, 0);
+                        doc.setLineWidth(1.2);
+                        doc.line(dayStartX, courseStartY, dayStartX + DAY_COL_WIDTH, courseStartY);
+                        doc.line(dayStartX, courseEndY, dayStartX + DAY_COL_WIDTH, courseEndY);
+                        
+                        // Zone de cours (fond blanc)
+                        doc.setFillColor(255, 255, 255);
+                        doc.rect(dayStartX + 0.5, courseStartY, DAY_COL_WIDTH - 1, courseHeight, 'F');
+                        
+                        // Centrage du texte
+                        const centerX = dayStartX + (DAY_COL_WIDTH / 2);
+                        const centerY = courseStartY + (courseHeight / 2);
+                        
+                        // Calcul de la taille de police adaptative
+                        const baseFontSize = Math.max(6, Math.min(10, courseHeight / 4));
+                        const lineSpacing = Math.max(2.5, baseFontSize * 0.8);
+                        
+                        let textY = centerY - lineSpacing;
+                        
+                        // Matière (en gras)
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(baseFontSize + 1);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(course.subject, centerX, textY, { 
+                            align: 'center',
+                            maxWidth: DAY_COL_WIDTH - 3
+                        });
+                        
+                        textY += lineSpacing;
+                        
+                        // Professeur
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(baseFontSize);
+                        doc.text(course.teacher, centerX, textY, { 
+                            align: 'center',
+                            maxWidth: DAY_COL_WIDTH - 3
+                        });
+                        
+                        textY += lineSpacing;
+                        
+                        // Horaires
+                        doc.setFontSize(baseFontSize - 1);
+                        doc.setTextColor(60, 60, 60);
+                        doc.text(`${course.startTime}-${course.endTime}`, centerX, textY, { 
+                            align: 'center',
+                            maxWidth: DAY_COL_WIDTH - 3
+                        });
+                    });
+                });
+                
+                // === 8. EXPORT ===
+                doc.save(`emploi-du-temps-${selectedClass}.pdf`);
+                showAlert('PDF généré avec succès !', 'success');
+                
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                showAlert('Erreur lors de la génération du PDF', 'error');
+            }
+        }
+
+        function updateTeacherScheduleDisplay() {
+            const selectedTeacher = document.getElementById('teacherViewSelect').value;
+            if (!selectedTeacher) return;
+
+            days.forEach(day => {
+                const container = document.getElementById(`teacher-${day}`);
+                if (container) container.innerHTML = '';
+            });
+
+            const coursesByDay = {};
+            days.forEach(day => coursesByDay[day] = []);
+
+            for (let key in scheduleData) {
+                const course = scheduleData[key];
+                if (course.teacher === selectedTeacher) {
+                    coursesByDay[course.day].push({ ...course, key });
+                }
+            }
+
+            days.forEach(day => {
+                const container = document.getElementById(`teacher-${day}`);
+                if (container) {
+                    if (coursesByDay[day].length === 0) {
+                        container.innerHTML = '<div class="empty-state">Aucun cours</div>';
+                    } else {
+                        coursesByDay[day].forEach(course => {
+                            const position = calculateCoursePosition(course.startTime, course.endTime);
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = 'course-item';
+                            courseDiv.style.top = position.top + 'px';
+                            courseDiv.style.height = position.height + 'px';
+                            courseDiv.style.backgroundColor = course.color || '#1f2937';
+                            courseDiv.innerHTML = `
+                                <div class="course-subject">${course.subject}</div>
+                                <div class="course-teacher">${course.className}</div>
+                                <div class="course-time">${course.startTime}-${course.endTime}</div>
+                            `;
+                            container.appendChild(courseDiv);
+                        });
+                    }
+                }
+            });
+        }
+
+        function loadClassSchedule() {
+            updateClassScheduleDisplay();
+        }
+
+        function loadTeacherSchedule() {
+            updateTeacherScheduleDisplay();
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} mr-2"></i>
+                ${message}
+            `;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 4000);
+        }
+
+        function clearForm() {
+            document.getElementById('daySelect').value = '';
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('teacherSelect').value = '';
+            document.getElementById('subject').value = '';
+            document.getElementById('courseColor').value = '#1f2937';
+        }
+
+        window.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
