@@ -4908,11 +4908,7 @@ class StudentRegistrationSystem:
                 save_grades_button
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             ft.Container(height=16),
-            ft.Container(
-                content=self.grades_table,
-                expand=True,
-                alignment=ft.alignment.center
-            )
+            self.grades_table  # Directement la Card, sans conteneur supplémentaire
         ])
         
         self.main_content.content = ft.Column([
@@ -4972,11 +4968,7 @@ class StudentRegistrationSystem:
                 save_grades_button
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             ft.Container(height=16),
-            ft.Container(
-                content=self.grades_table,
-                expand=True,
-                alignment=ft.alignment.center
-            )
+            self.grades_table  # Directement la Card, sans conteneur supplémentaire
         ])
         
         # Garder le header existant et mettre à jour seulement le contenu
@@ -5137,42 +5129,37 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Container avec la même structure que les autres tableaux et centré
-        self.grades_table = ft.Container(
-            content=ft.Card(
-                content=ft.Container(
-                    content=ft.Column([
-                        ft.Row([
-                            ft.Text(
-                                f"Total: {len(students)} élève(s) - Matière: {self.current_subject['nom']}",
-                                size=14,
-                                color="#64748b",
-                                weight=ft.FontWeight.W_500
-                            )
-                        ]),
-                        ft.Container(height=16),
-                        ft.Container(
-                            content=ft.Row(
-                                controls=[data_table],
-                                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal
-                                vertical_alignment=ft.CrossAxisAlignment.START,
-                                alignment=ft.MainAxisAlignment.CENTER  # Centrer le tableau
-                            ),
-                            height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
-                            border_radius=8,
-                            bgcolor="#ffffff",
-                            border=ft.border.all(1, "#e2e8f0"),
-                            clip_behavior=ft.ClipBehavior.HARD_EDGE
-                        ),
-                        ft.Container(height=80)  # Espace supplémentaire sous le tableau pour faciliter la saisie
+        # Retourner directement la Card comme dans la gestion des élèves
+        self.grades_table = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(students)} élève(s) - Matière: {self.current_subject['nom']}",
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        )
                     ]),
-                    padding=24
-                ),
-                elevation=0,
-                surface_tint_color="#ffffff",
-                color="#ffffff"
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=ft.Row(
+                            controls=[data_table],
+                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                            vertical_alignment=ft.CrossAxisAlignment.START
+                        ),
+                        height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        border=ft.border.all(1, "#e2e8f0"),
+                        clip_behavior=ft.ClipBehavior.HARD_EDGE
+                    )
+                ]),
+                padding=24
             ),
-            alignment=ft.alignment.center  # Centrer la carte entière
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
         )
     
     def save_all_grades(self, e):
@@ -5262,11 +5249,7 @@ class StudentRegistrationSystem:
                 save_settings_button
             ], alignment=ft.MainAxisAlignment.END),
             ft.Container(height=16),
-            ft.Container(
-                content=self.subject_settings_table,
-                expand=True,
-                alignment=ft.alignment.center
-            )
+            self.subject_settings_table  # Directement la Card, sans conteneur supplémentaire
         ])
         
         self.main_content.content = ft.Column([
@@ -5406,51 +5389,46 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Container avec la même structure que les autres tableaux
-        self.subject_settings_table = ft.Container(
-            content=ft.Card(
-                content=ft.Container(
-                    content=ft.Column([
-                        ft.Row([
-                            ft.Text(
-                                f"Total: {len(students)} élève(s) - Matière: {subject['nom']} (Coeff. par défaut: {default_coefficient})",
-                                size=14,
-                                color="#64748b",
-                                weight=ft.FontWeight.W_500
-                            )
-                        ]),
-                        ft.Container(height=8),
-                        ft.Row([
-                            ft.Text(
-                                "• ON = matière activée pour l'élève | OFF = élève dispensé",
-                                size=12,
-                                color="#64748b",
-                                italic=True
-                            )
-                        ]),
-                        ft.Container(height=16),
-                        ft.Container(
-                            content=ft.Row(
-                                controls=[data_table],
-                                scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal
-                                vertical_alignment=ft.CrossAxisAlignment.START,
-                                alignment=ft.MainAxisAlignment.CENTER
-                            ),
-                            height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
-                            border_radius=8,
-                            bgcolor="#ffffff",
-                            border=ft.border.all(1, "#e2e8f0"),
-                            clip_behavior=ft.ClipBehavior.HARD_EDGE
-                        ),
-                        ft.Container(height=80)  # Espace supplémentaire sous le tableau pour faciliter la saisie
+        # Retourner directement la Card comme dans la gestion des élèves
+        self.subject_settings_table = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.Text(
+                            f"Total: {len(students)} élève(s) - Matière: {subject['nom']} (Coeff. par défaut: {default_coefficient})",
+                            size=14,
+                            color="#64748b",
+                            weight=ft.FontWeight.W_500
+                        )
                     ]),
-                    padding=24
-                ),
-                elevation=0,
-                surface_tint_color="#ffffff",
-                color="#ffffff"
+                    ft.Container(height=8),
+                    ft.Row([
+                        ft.Text(
+                            "• ON = matière activée pour l'élève | OFF = élève dispensé",
+                            size=12,
+                            color="#64748b",
+                            italic=True
+                        )
+                    ]),
+                    ft.Container(height=16),
+                    ft.Container(
+                        content=ft.Row(
+                            controls=[data_table],
+                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
+                            vertical_alignment=ft.CrossAxisAlignment.START
+                        ),
+                        height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        border=ft.border.all(1, "#e2e8f0"),
+                        clip_behavior=ft.ClipBehavior.HARD_EDGE
+                    )
+                ]),
+                padding=24
             ),
-            alignment=ft.alignment.center
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
         )
     
     def save_subject_settings(self, subject):
