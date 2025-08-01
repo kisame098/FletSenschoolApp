@@ -4937,39 +4937,8 @@ class StudentRegistrationSystem:
         
         self.create_grades_table()
         
-        # Recréer le contenu avec le nouveau tableau
-        # Bouton Paramètres matière
-        subject_settings_button = ft.ElevatedButton(
-            content=ft.Row([
-                ft.Icon("settings", color="#ffffff"),
-                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
-            ], spacing=8),
-            on_click=lambda e: self.show_subject_settings(self.current_subject),
-            bgcolor="#6b7280",
-            height=48
-        )
-
-        save_grades_button = ft.ElevatedButton(
-            content=ft.Row([
-                ft.Icon("save", color="#ffffff"),
-                ft.Text("Sauvegarder les notes", color="#ffffff", weight=ft.FontWeight.BOLD)
-            ], spacing=8),
-            on_click=self.save_all_grades,
-            bgcolor="#059669",
-            height=48
-        )
-        
-        content = ft.Column([
-            ft.Row([
-                self.num_devoirs_dropdown,
-                ft.Container(expand=True),  # Espacement
-                subject_settings_button,
-                ft.Container(width=16),  # Espacement
-                save_grades_button
-            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            ft.Container(height=16),
-            self.grades_table  # Directement la Card, sans conteneur supplémentaire
-        ])
+        # Maintenant la Card contient tout (boutons + tableau)
+        content = self.grades_table
         
         # Garder le header existant et mettre à jour seulement le contenu
         header = self.main_content.content.controls[0]  # Récupérer l'en-tête existant
@@ -5127,10 +5096,35 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Retourner directement la Card comme dans la gestion des élèves
+        # Structure EXACTE comme dans la gestion des élèves
         self.grades_table = ft.Card(
             content=ft.Container(
                 content=ft.Column([
+                    # Boutons en haut de la Card (comme Paramètres dans gestion élèves)
+                    ft.Row([
+                        self.num_devoirs_dropdown,
+                        ft.Container(expand=True),  # Espacement
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("settings", color="#ffffff"),
+                                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=lambda e: self.show_subject_settings(self.current_subject),
+                            bgcolor="#6b7280",
+                            height=48
+                        ),
+                        ft.Container(width=16),
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("save", color="#ffffff"),
+                                ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=self.save_all_grades,
+                            bgcolor="#059669",
+                            height=48
+                        )
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    ft.Container(height=16),
                     ft.Row([
                         ft.Text(
                             f"Total: {len(students)} élève(s) - Matière: {self.current_subject['nom']}",
@@ -5227,28 +5221,11 @@ class StudentRegistrationSystem:
             bgcolor="#f8fafc"
         )
         
-        # Créer le tableau des paramètres des élèves
+        # Créer le tableau des paramètres des élèves qui contient maintenant tout
         self.create_subject_settings_table(subject)
         
-        # Bouton de sauvegarde
-        save_settings_button = ft.ElevatedButton(
-            content=ft.Row([
-                ft.Icon("save", color="#ffffff"),
-                ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
-            ], spacing=8),
-            on_click=lambda e: self.save_subject_settings(subject),
-            bgcolor="#059669",
-            height=48
-        )
-        
-        content = ft.Column([
-            ft.Row([
-                ft.Container(expand=True),  # Espacement
-                save_settings_button
-            ], alignment=ft.MainAxisAlignment.END),
-            ft.Container(height=16),
-            self.subject_settings_table  # Directement la Card, sans conteneur supplémentaire
-        ])
+        # Maintenant la Card contient tout (bouton + tableau)
+        content = self.subject_settings_table
         
         self.main_content.content = ft.Column([
             header,
@@ -5386,9 +5363,24 @@ class StudentRegistrationSystem:
         )
         
         # Retourner directement la Card comme dans la gestion des élèves
+        # Structure EXACTE comme dans la gestion des élèves
         self.subject_settings_table = ft.Card(
             content=ft.Container(
                 content=ft.Column([
+                    # Bouton en haut de la Card
+                    ft.Row([
+                        ft.Container(expand=True),  # Espacement
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("save", color="#ffffff"),
+                                ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=lambda e: self.save_subject_settings(subject),
+                            bgcolor="#059669",
+                            height=48
+                        )
+                    ], alignment=ft.MainAxisAlignment.END),
+                    ft.Container(height=16),
                     ft.Row([
                         ft.Text(
                             f"Total: {len(students)} élève(s) - Matière: {subject['nom']} (Coeff. par défaut: {default_coefficient})",
