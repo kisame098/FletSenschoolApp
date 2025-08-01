@@ -5093,14 +5093,7 @@ class StudentRegistrationSystem:
             
             rows.append(ft.DataRow(row_cells))
         
-        # Ajouter 2 lignes vides à la fin pour faciliter la saisie du dernier élève (espacement visuel)
-        for i in range(2):
-            empty_cells = []
-            # Créer le même nombre de cellules vides que de colonnes
-            num_columns = 5 + self.num_devoirs + 1  # 5 colonnes fixes + devoirs + composition
-            for j in range(num_columns):
-                empty_cells.append(ft.DataCell(ft.Text("", size=12)))
-            rows.append(ft.DataRow(empty_cells))
+        # Plus de lignes vides - utilisation d'espacement via conteneur
         
         # Créer les colonnes avec le même style
         columns = [
@@ -5143,12 +5136,16 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=16),
                     ft.Container(
-                        content=ft.Row(
-                            controls=[data_table],
-                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
-                            vertical_alignment=ft.CrossAxisAlignment.START
-                        ),
-                        height=max(120, len(students) * 45 + 150),  # Hauteur dynamique avec espacement pour les 2 lignes vides
+                        content=ft.Column([
+                            ft.Row(
+                                controls=[data_table],
+                                scroll=ft.ScrollMode.ALWAYS,
+                                vertical_alignment=ft.CrossAxisAlignment.START
+                            ),
+                            # Espacement rigoureux en bas via conteneur vide
+                            ft.Container(height=100, bgcolor="#ffffff")  
+                        ], spacing=0),
+                        height=max(120, len(students) * 45 + 150),
                         border_radius=8,
                         bgcolor="#ffffff",
                         border=ft.border.all(1, "#e2e8f0"),
@@ -5369,13 +5366,7 @@ class StudentRegistrationSystem:
             
             rows.append(ft.DataRow(row_cells))
         
-        # Ajouter 2 lignes vides à la fin pour faciliter la saisie du dernier élève (espacement visuel)
-        for i in range(2):
-            empty_cells = []
-            # Créer 7 cellules vides (nombre de colonnes dans ce tableau)
-            for j in range(7):
-                empty_cells.append(ft.DataCell(ft.Text("", size=12)))
-            rows.append(ft.DataRow(empty_cells))
+        # Plus de lignes vides - utilisation d'espacement via conteneur
         
         # Créer les colonnes
         columns = [
@@ -5423,12 +5414,16 @@ class StudentRegistrationSystem:
                     ]),
                     ft.Container(height=16),
                     ft.Container(
-                        content=ft.Row(
-                            controls=[data_table],
-                            scroll=ft.ScrollMode.ALWAYS,  # Scroll horizontal toujours visible
-                            vertical_alignment=ft.CrossAxisAlignment.START
-                        ),
-                        height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
+                        content=ft.Column([
+                            ft.Row(
+                                controls=[data_table],
+                                scroll=ft.ScrollMode.ALWAYS,
+                                vertical_alignment=ft.CrossAxisAlignment.START
+                            ),
+                            # Espacement rigoureux en bas via conteneur vide
+                            ft.Container(height=100, bgcolor="#ffffff")
+                        ], spacing=0),
+                        height=max(120, len(students) * 45 + 150),
                         border_radius=8,
                         bgcolor="#ffffff",
                         border=ft.border.all(1, "#e2e8f0"),

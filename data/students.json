@@ -96,5 +96,19 @@
     "genre": "Féminin",
     "classe": "TS2",
     "date_creation": "2025-07-31T21:13:17.066872"
+  },
+  {
+    "id": 7,
+    "student_id": 7,
+    "prenom": "RAW",
+    "nom": "SARR",
+    "nom_complet": "RAW SARR",
+    "date_naissance": "14/08/2007",
+    "lieu_naissance": "DAKAR",
+    "numero_eleve": "773335445",
+    "telephone_parent": "789908778",
+    "genre": "Masculin",
+    "classe": "TS2",
+    "date_creation": "2025-08-01T13:13:27.640522"
   }
 ]

@@ -34,22 +34,28 @@ Application de gestion scolaire moderne basée sur Flet, conçue pour simplifier
 - Manque d'espacement visuel en bas du tableau causant une gêne ergonomique
 - Interface trop compacte rendant la saisie inconfortable
 
-**Solution implémentée :**
+**Solution implémentée (approche rigoureuse) :**
 
-1. **Ajout de lignes d'espacement visuel :**
-   - Ajout de 2 lignes vides en bas de chaque tableau de notes
-   - Ces lignes servent uniquement d'espacement visuel (pas de saisie de données)
-   - Amélioration de l'ergonomie pour la saisie des notes du dernier élève
+1. **Espacement via conteneur dédié :**
+   - Remplacement des lignes vides factices par un conteneur d'espacement
+   - Utilisation de `ft.Container(height=100, bgcolor="#ffffff")` pour créer l'espacement
+   - Architecture plus propre et maintenable
 
-2. **Ajustement de la hauteur des tableaux :**
-   - Augmentation de la hauteur dynamique des conteneurs de tableau
-   - Passage de `len(students) * 45 + 60` à `len(students) * 45 + 150`
-   - Meilleur confort visuel avec espacement suffisant
+2. **Structure en colonnes pour les tableaux :**
+   - Migration vers `ft.Column([data_table, espacement_container])`
+   - Séparation claire entre le contenu et l'espacement
+   - Meilleur contrôle de la mise en page
 
-3. **Application à tous les tableaux concernés :**
-   - Tableau principal des notes (`create_grades_table`)
-   - Tableau des paramètres de matière (`create_subject_settings_table`)
-   - Maintien de la cohérence visuelle
+3. **Ajustement coordonné des hauteurs :**
+   - Hauteur des conteneurs ajustée : `len(students) * 45 + 150`
+   - Espacement fixe de 100px via conteneur dédié
+   - Cohérence visuelle maintenue sur tous les tableaux
+
+4. **Avantages de cette approche :**
+   - Plus maintenable (pas de fausses données dans le DataTable)
+   - Meilleure séparation des responsabilités
+   - Facilite les futures modifications d'espacement
+   - Respect des bonnes pratiques de développement UI
 
 **Impact utilisateur :**
 - Amélioration significative du confort de saisie
