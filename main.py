@@ -4935,10 +4935,9 @@ class StudentRegistrationSystem:
             class_name, subject_id, self.current_semester, self.num_devoirs
         )
         
+        # Structure EXACTE comme la gestion des élèves avec conteneur
+        self.grades_table_container = ft.Container()
         self.create_grades_table()
-        
-        # Maintenant la Card contient tout (boutons + tableau)
-        content = self.grades_table
         
         # Garder le header existant et mettre à jour seulement le contenu
         header = self.main_content.content.controls[0]  # Récupérer l'en-tête existant
@@ -4946,7 +4945,34 @@ class StudentRegistrationSystem:
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=content,  # Pas de scroll ici, juste le contenu
+                content=ft.Column([
+                    # Boutons en dehors du tableau, comme dans gestion élèves
+                    ft.Row([
+                        self.num_devoirs_dropdown,
+                        ft.Container(expand=True),  # Espacement
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("settings", color="#ffffff"),
+                                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=lambda e: self.show_subject_settings(self.current_subject),
+                            bgcolor="#6b7280",
+                            height=48
+                        ),
+                        ft.Container(width=16),
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("save", color="#ffffff"),
+                                ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=self.save_all_grades,
+                            bgcolor="#059669",
+                            height=48
+                        )
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    ft.Container(height=20),
+                    self.grades_table_container  # Conteneur comme dans gestion élèves
+                ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
             )
@@ -5096,35 +5122,10 @@ class StudentRegistrationSystem:
             heading_row_color="#f8fafc"
         )
         
-        # Structure EXACTE comme dans la gestion des élèves
-        self.grades_table = ft.Card(
+        # Structure EXACTE comme dans la gestion des élèves - juste le tableau dans une Card
+        grades_table = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    # Boutons en haut de la Card (comme Paramètres dans gestion élèves)
-                    ft.Row([
-                        self.num_devoirs_dropdown,
-                        ft.Container(expand=True),  # Espacement
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("settings", color="#ffffff"),
-                                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=lambda e: self.show_subject_settings(self.current_subject),
-                            bgcolor="#6b7280",
-                            height=48
-                        ),
-                        ft.Container(width=16),
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("save", color="#ffffff"),
-                                ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=self.save_all_grades,
-                            bgcolor="#059669",
-                            height=48
-                        )
-                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    ft.Container(height=16),
                     ft.Row([
                         ft.Text(
                             f"Total: {len(students)} élève(s) - Matière: {self.current_subject['nom']}",
@@ -5153,6 +5154,9 @@ class StudentRegistrationSystem:
             surface_tint_color="#ffffff",
             color="#ffffff"
         )
+        
+        # Mettre à jour le conteneur comme dans gestion élèves
+        self.grades_table_container.content = grades_table
     
     def save_all_grades(self, e):
         """Sauvegarder toutes les notes du tableau"""
@@ -5221,16 +5225,30 @@ class StudentRegistrationSystem:
             bgcolor="#f8fafc"
         )
         
-        # Créer le tableau des paramètres des élèves qui contient maintenant tout
+        # Structure EXACTE comme la gestion des élèves avec conteneur
+        self.subject_settings_table_container = ft.Container()
         self.create_subject_settings_table(subject)
-        
-        # Maintenant la Card contient tout (bouton + tableau)
-        content = self.subject_settings_table
         
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=content,  # Pas de scroll ici, juste le contenu
+                content=ft.Column([
+                    # Bouton en dehors du tableau
+                    ft.Row([
+                        ft.Container(expand=True),  # Espacement
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("save", color="#ffffff"),
+                                ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=lambda e: self.save_subject_settings(subject),
+                            bgcolor="#059669",
+                            height=48
+                        )
+                    ], alignment=ft.MainAxisAlignment.END),
+                    ft.Container(height=20),
+                    self.subject_settings_table_container  # Conteneur comme dans gestion élèves
+                ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True
             )
@@ -5363,24 +5381,10 @@ class StudentRegistrationSystem:
         )
         
         # Retourner directement la Card comme dans la gestion des élèves
-        # Structure EXACTE comme dans la gestion des élèves
-        self.subject_settings_table = ft.Card(
+        # Structure EXACTE comme dans la gestion des élèves - juste le tableau dans une Card
+        subject_settings_table = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    # Bouton en haut de la Card
-                    ft.Row([
-                        ft.Container(expand=True),  # Espacement
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("save", color="#ffffff"),
-                                ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=lambda e: self.save_subject_settings(subject),
-                            bgcolor="#059669",
-                            height=48
-                        )
-                    ], alignment=ft.MainAxisAlignment.END),
-                    ft.Container(height=16),
                     ft.Row([
                         ft.Text(
                             f"Total: {len(students)} élève(s) - Matière: {subject['nom']} (Coeff. par défaut: {default_coefficient})",
@@ -5418,6 +5422,9 @@ class StudentRegistrationSystem:
             surface_tint_color="#ffffff",
             color="#ffffff"
         )
+        
+        # Mettre à jour le conteneur comme dans gestion élèves
+        self.subject_settings_table_container.content = subject_settings_table
     
     def save_subject_settings(self, subject):
         """Sauvegarder les paramètres des élèves pour cette matière"""
