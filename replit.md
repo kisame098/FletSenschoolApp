@@ -27,48 +27,35 @@ Application de gestion scolaire moderne basée sur Flet, conçue pour simplifier
 
 ## Changements récents
 
-### 01/08/2025 - Correction du système de lignes vides dans les tableaux de notes
+### 01/08/2025 - Amélioration ergonomique des tableaux de notes
 
 **Problème identifié :**
-- Les lignes vides (concept n+2) dans les tableaux de gestion des notes n'étaient pas fonctionnelles
-- Les lignes contenaient uniquement du texte vide au lieu de champs de saisie interactifs
-- Impossibilité d'ajouter de nouveaux élèves directement depuis le tableau des notes
+- Difficulté de saisie des notes pour le dernier élève du tableau
+- Manque d'espacement visuel en bas du tableau causant une gêne ergonomique
+- Interface trop compacte rendant la saisie inconfortable
 
-**Corrections apportées :**
+**Solution implémentée :**
 
-1. **Tableau des notes principales (fonction `create_grades_table`) :**
-   - Remplacement des cellules texte vides par des champs TextField interactifs
-   - Ajout de champs pour toutes les informations élève : ID (auto-généré), nom, prénom, date de naissance, lieu de naissance
-   - Création automatique des champs pour tous les devoirs et la composition
-   - Gestion des hints appropriés pour chaque champ
-   - Stockage des références dans `self.grade_fields` avec clés `new_student_1` et `new_student_2`
+1. **Ajout de lignes d'espacement visuel :**
+   - Ajout de 2 lignes vides en bas de chaque tableau de notes
+   - Ces lignes servent uniquement d'espacement visuel (pas de saisie de données)
+   - Amélioration de l'ergonomie pour la saisie des notes du dernier élève
 
-2. **Tableau des paramètres de matière (fonction `create_subject_settings_table`) :**
-   - Même approche pour les lignes vides dans les paramètres des matières
-   - Ajout de champs informationnels + switch actif/inactif + coefficient personnalisé
-   - Stockage des références dans `self.subject_settings_fields`
+2. **Ajustement de la hauteur des tableaux :**
+   - Augmentation de la hauteur dynamique des conteneurs de tableau
+   - Passage de `len(students) * 45 + 60` à `len(students) * 45 + 150`
+   - Meilleur confort visuel avec espacement suffisant
 
-3. **Fonction de sauvegarde améliorée (`save_all_grades`) :**
-   - Détection automatique des nouvelles entrées (lignes commençant par `new_student_`)
-   - Validation : nom et prénom obligatoires pour créer un nouvel élève
-   - Création automatique de l'élève avec ID auto-incrémenté
-   - Assignation automatique à la classe courante
-   - Sauvegarde simultanée des notes saisies pour le nouvel élève
-   - Messages de confirmation détaillés (élèves ajoutés + notes sauvegardées)
-   - Rechargement automatique du tableau après ajout
-
-**Fonctionnalités ajoutées :**
-- Possibilité d'ajouter jusqu'à 2 nouveaux élèves par session depuis le tableau des notes
-- Saisie simultanée des informations élève et de leurs notes
-- Validation automatique des notes (0-20)
-- Gestion des erreurs pour valeurs non numériques
-- Interface intuitive avec hints explicites dans chaque champ
+3. **Application à tous les tableaux concernés :**
+   - Tableau principal des notes (`create_grades_table`)
+   - Tableau des paramètres de matière (`create_subject_settings_table`)
+   - Maintien de la cohérence visuelle
 
 **Impact utilisateur :**
-- Accélération significative du workflow de saisie des notes
-- Réduction des allers-retours entre les différentes sections
-- Possibilité d'inscription rapide d'élèves tard dans l'année scolaire
-- Maintien de la cohérence des données avec validation automatique
+- Amélioration significative du confort de saisie
+- Meilleure visibilité du dernier élève dans la liste
+- Interface plus aérée et professionnelle
+- Réduction de la fatigue visuelle lors de la saisie
 
 ## Préférences utilisateur
 - Langue : Français
