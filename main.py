@@ -4874,48 +4874,40 @@ class StudentRegistrationSystem:
             focused_border_color="#4f46e5"
         )
         
-        # Tableau des notes
+        # Structure EXACTE comme la gestion des élèves avec conteneur
+        self.grades_table_container = ft.Container()
         self.create_grades_table()
-        
-        # Bouton Paramètres matière
-        subject_settings_button = ft.ElevatedButton(
-            content=ft.Row([
-                ft.Icon("settings", color="#ffffff"),
-                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
-            ], spacing=8),
-            on_click=lambda e: self.show_subject_settings(subject),
-            bgcolor="#6b7280",
-            height=48
-        )
-
-        # Bouton de sauvegarde
-        save_grades_button = ft.ElevatedButton(
-            content=ft.Row([
-                ft.Icon("save", color="#ffffff"),
-                ft.Text("Sauvegarder les notes", color="#ffffff", weight=ft.FontWeight.BOLD)
-            ], spacing=8),
-            on_click=self.save_all_grades,
-            bgcolor="#059669",
-            height=48
-        )
-        
-        content = ft.Column([
-            ft.Row([
-                self.num_devoirs_dropdown,
-                ft.Container(expand=True),  # Espacement
-                subject_settings_button,
-                ft.Container(width=16),  # Espacement
-                save_grades_button
-            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            ft.Container(height=16),
-            self.grades_table  # Directement la Card, sans conteneur supplémentaire
-        ])
         
         self.main_content.content = ft.Column([
             header,
             ft.Container(
                 content=ft.Column([
-                    content
+                    # Boutons en dehors du tableau, comme dans gestion élèves
+                    ft.Row([
+                        self.num_devoirs_dropdown,
+                        ft.Container(expand=True),  # Espacement
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("settings", color="#ffffff"),
+                                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=lambda e: self.show_subject_settings(subject),
+                            bgcolor="#6b7280",
+                            height=48
+                        ),
+                        ft.Container(width=16),
+                        ft.ElevatedButton(
+                            content=ft.Row([
+                                ft.Icon("save", color="#ffffff"),
+                                ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
+                            ], spacing=8),
+                            on_click=self.save_all_grades,
+                            bgcolor="#059669",
+                            height=48
+                        )
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    ft.Container(height=20),
+                    self.grades_table_container  # Conteneur comme dans gestion élèves
                 ], scroll=ft.ScrollMode.AUTO),
                 padding=ft.padding.all(32),
                 expand=True

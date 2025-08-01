@@ -1,0 +1,45 @@
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'StudentRegistrationSystem' object has no attribute 'grades_table'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 4484, in <lambda>
+    on_click=lambda e, subj=subject: self.show_grades_table(subj),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 4911, in show_grades_table
+    self.grades_table  # Directement la Card, sans conteneur supplémentaire
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRegistrationSystem' object has no attribute 'grades_table'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'StudentRegistrationSystem' object has no attribute 'grades_table'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 4484, in <lambda>
+    on_click=lambda e, subj=subject: self.show_grades_table(subj),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 4911, in show_grades_table
+    self.grades_table  # Directement la Card, sans conteneur supplémentaire
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRegistrationSystem' object has no attribute 'grades_table'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'StudentRegistrationSystem' object has no attribute 'grades_table'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 4484, in <lambda>
+    on_click=lambda e, subj=subject: self.show_grades_table(subj),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 4911, in show_grades_table
+    self.grades_table  # Directement la Card, sans conteneur supplémentaire
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRegistrationSystem' object has no attribute 'grades_table'
