@@ -4880,36 +4880,39 @@ class StudentRegistrationSystem:
         
         self.main_content.content = ft.Column([
             header,
+            # Conteneur 1: Boutons fixes (sans scroll)
+            ft.Container(
+                content=ft.Row([
+                    self.num_devoirs_dropdown,
+                    ft.Container(expand=True),  # Espacement
+                    ft.ElevatedButton(
+                        content=ft.Row([
+                            ft.Icon("settings", color="#ffffff"),
+                            ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+                        ], spacing=8),
+                        on_click=lambda e: self.show_subject_settings(subject),
+                        bgcolor="#6b7280",
+                        height=48
+                    ),
+                    ft.Container(width=16),
+                    ft.ElevatedButton(
+                        content=ft.Row([
+                            ft.Icon("save", color="#ffffff"),
+                            ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
+                        ], spacing=8),
+                        on_click=self.save_all_grades,
+                        bgcolor="#059669",
+                        height=48
+                    )
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                padding=ft.padding.only(left=32, right=32, top=32, bottom=16)
+            ),
+            # Conteneur 2: Tableau avec scroll
             ft.Container(
                 content=ft.Column([
-                    # Boutons en dehors du tableau, comme dans gestion élèves
-                    ft.Row([
-                        self.num_devoirs_dropdown,
-                        ft.Container(expand=True),  # Espacement
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("settings", color="#ffffff"),
-                                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=lambda e: self.show_subject_settings(subject),
-                            bgcolor="#6b7280",
-                            height=48
-                        ),
-                        ft.Container(width=16),
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("save", color="#ffffff"),
-                                ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=self.save_all_grades,
-                            bgcolor="#059669",
-                            height=48
-                        )
-                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    ft.Container(height=20),
-                    self.grades_table_container  # Conteneur comme dans gestion élèves
+                    self.grades_table_container
                 ], scroll=ft.ScrollMode.AUTO),
-                padding=ft.padding.all(32),
+                padding=ft.padding.only(left=32, right=32, bottom=32),
                 expand=True
             )
         ])
@@ -4936,36 +4939,39 @@ class StudentRegistrationSystem:
         
         self.main_content.content = ft.Column([
             header,
+            # Conteneur 1: Boutons fixes (sans scroll)
+            ft.Container(
+                content=ft.Row([
+                    self.num_devoirs_dropdown,
+                    ft.Container(expand=True),  # Espacement
+                    ft.ElevatedButton(
+                        content=ft.Row([
+                            ft.Icon("settings", color="#ffffff"),
+                            ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
+                        ], spacing=8),
+                        on_click=lambda e: self.show_subject_settings(self.current_subject),
+                        bgcolor="#6b7280",
+                        height=48
+                    ),
+                    ft.Container(width=16),
+                    ft.ElevatedButton(
+                        content=ft.Row([
+                            ft.Icon("save", color="#ffffff"),
+                            ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
+                        ], spacing=8),
+                        on_click=self.save_all_grades,
+                        bgcolor="#059669",
+                        height=48
+                    )
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                padding=ft.padding.only(left=32, right=32, top=32, bottom=16)
+            ),
+            # Conteneur 2: Tableau avec scroll
             ft.Container(
                 content=ft.Column([
-                    # Boutons en dehors du tableau, comme dans gestion élèves
-                    ft.Row([
-                        self.num_devoirs_dropdown,
-                        ft.Container(expand=True),  # Espacement
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("settings", color="#ffffff"),
-                                ft.Text("Paramètres matière", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=lambda e: self.show_subject_settings(self.current_subject),
-                            bgcolor="#6b7280",
-                            height=48
-                        ),
-                        ft.Container(width=16),
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("save", color="#ffffff"),
-                                ft.Text("Sauvegarder", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=self.save_all_grades,
-                            bgcolor="#059669",
-                            height=48
-                        )
-                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    ft.Container(height=20),
-                    self.grades_table_container  # Conteneur comme dans gestion élèves
+                    self.grades_table_container
                 ], scroll=ft.ScrollMode.AUTO),
-                padding=ft.padding.all(32),
+                padding=ft.padding.only(left=32, right=32, bottom=32),
                 expand=True
             )
         ])
@@ -5224,25 +5230,28 @@ class StudentRegistrationSystem:
         
         self.main_content.content = ft.Column([
             header,
+            # Conteneur 1: Bouton fixe (sans scroll)
+            ft.Container(
+                content=ft.Row([
+                    ft.Container(expand=True),  # Espacement
+                    ft.ElevatedButton(
+                        content=ft.Row([
+                            ft.Icon("save", color="#ffffff"),
+                            ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
+                        ], spacing=8),
+                        on_click=lambda e: self.save_subject_settings(subject),
+                        bgcolor="#059669",
+                        height=48
+                    )
+                ], alignment=ft.MainAxisAlignment.END),
+                padding=ft.padding.only(left=32, right=32, top=32, bottom=16)
+            ),
+            # Conteneur 2: Tableau avec scroll
             ft.Container(
                 content=ft.Column([
-                    # Bouton en dehors du tableau
-                    ft.Row([
-                        ft.Container(expand=True),  # Espacement
-                        ft.ElevatedButton(
-                            content=ft.Row([
-                                ft.Icon("save", color="#ffffff"),
-                                ft.Text("Enregistrer les paramètres", color="#ffffff", weight=ft.FontWeight.BOLD)
-                            ], spacing=8),
-                            on_click=lambda e: self.save_subject_settings(subject),
-                            bgcolor="#059669",
-                            height=48
-                        )
-                    ], alignment=ft.MainAxisAlignment.END),
-                    ft.Container(height=20),
-                    self.subject_settings_table_container  # Conteneur comme dans gestion élèves
+                    self.subject_settings_table_container
                 ], scroll=ft.ScrollMode.AUTO),
-                padding=ft.padding.all(32),
+                padding=ft.padding.only(left=32, right=32, bottom=32),
                 expand=True
             )
         ])
