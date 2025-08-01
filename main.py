@@ -5158,7 +5158,7 @@ class StudentRegistrationSystem:
                                 vertical_alignment=ft.CrossAxisAlignment.START,
                                 alignment=ft.MainAxisAlignment.CENTER  # Centrer le tableau
                             ),
-                            height=min(400, max(120, len(students) * 45 + 60)),  # Hauteur dynamique
+                            height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
                             border_radius=8,
                             bgcolor="#ffffff",
                             border=ft.border.all(1, "#e2e8f0"),
@@ -5436,7 +5436,7 @@ class StudentRegistrationSystem:
                                 vertical_alignment=ft.CrossAxisAlignment.START,
                                 alignment=ft.MainAxisAlignment.CENTER
                             ),
-                            height=min(400, max(120, len(students) * 45 + 60)),  # Hauteur dynamique
+                            height=max(120, len(students) * 45 + 60),  # Hauteur dynamique sans limitation maximale
                             border_radius=8,
                             bgcolor="#ffffff",
                             border=ft.border.all(1, "#e2e8f0"),
