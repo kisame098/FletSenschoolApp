@@ -5153,9 +5153,15 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
+        # Ajouter un espace en bas pour pouvoir saisir les notes du dernier élève
+        grades_table_with_spacing = ft.Column([
+            grades_table,
+            ft.Container(height=100)  # Espace en bas
+        ])
+        
         # Mettre à jour le conteneur comme dans gestion élèves (seulement s'il existe)
         if hasattr(self, 'grades_table_container'):
-            self.grades_table_container.content = grades_table
+            self.grades_table_container.content = grades_table_with_spacing
     
     def save_all_grades(self, e):
         """Sauvegarder toutes les notes du tableau"""
@@ -5425,9 +5431,15 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
+        # Ajouter un espace en bas pour pouvoir modifier les paramètres du dernier élève
+        subject_settings_table_with_spacing = ft.Column([
+            subject_settings_table,
+            ft.Container(height=100)  # Espace en bas
+        ])
+        
         # Mettre à jour le conteneur comme dans gestion élèves (seulement s'il existe)
         if hasattr(self, 'subject_settings_table_container'):
-            self.subject_settings_table_container.content = subject_settings_table
+            self.subject_settings_table_container.content = subject_settings_table_with_spacing
     
     def save_subject_settings(self, subject):
         """Sauvegarder les paramètres des élèves pour cette matière"""
