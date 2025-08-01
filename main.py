@@ -4935,7 +4935,7 @@ class StudentRegistrationSystem:
             class_name, subject_id, self.current_semester, self.num_devoirs
         )
         
-        # Structure EXACTE comme la gestion des élèves avec conteneur
+        # Créer le conteneur avant d'appeler create_grades_table
         self.grades_table_container = ft.Container()
         self.create_grades_table()
         
@@ -5155,8 +5155,9 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
-        # Mettre à jour le conteneur comme dans gestion élèves
-        self.grades_table_container.content = grades_table
+        # Mettre à jour le conteneur comme dans gestion élèves (seulement s'il existe)
+        if hasattr(self, 'grades_table_container'):
+            self.grades_table_container.content = grades_table
     
     def save_all_grades(self, e):
         """Sauvegarder toutes les notes du tableau"""
@@ -5423,8 +5424,9 @@ class StudentRegistrationSystem:
             color="#ffffff"
         )
         
-        # Mettre à jour le conteneur comme dans gestion élèves
-        self.subject_settings_table_container.content = subject_settings_table
+        # Mettre à jour le conteneur comme dans gestion élèves (seulement s'il existe)
+        if hasattr(self, 'subject_settings_table_container'):
+            self.subject_settings_table_container.content = subject_settings_table
     
     def save_subject_settings(self, subject):
         """Sauvegarder les paramètres des élèves pour cette matière"""
