@@ -983,6 +983,11 @@ class StudentRegistrationSystem:
     def create_filtered_students_table(self, students, selected_class):
         """Créer la table des élèves filtrée avec scrollbars"""
         
+        # Debug: afficher le nombre d'élèves reçus
+        print(f"[DEBUG] create_filtered_students_table - Nombre d'élèves reçus: {len(students) if students else 0}")
+        for i, student in enumerate(students or []):
+            print(f"[DEBUG] Élève {i}: ID={student.get('id')}, nom_complet={student.get('nom_complet')}")
+        
         if not students:
             return ft.Card(
                 content=ft.Container(
@@ -5158,7 +5163,8 @@ class StudentRegistrationSystem:
                             bgcolor="#ffffff",
                             border=ft.border.all(1, "#e2e8f0"),
                             clip_behavior=ft.ClipBehavior.HARD_EDGE
-                        )
+                        ),
+                        ft.Container(height=80)  # Espace supplémentaire sous le tableau pour faciliter la saisie
                     ]),
                     padding=24
                 ),
@@ -5435,7 +5441,8 @@ class StudentRegistrationSystem:
                             bgcolor="#ffffff",
                             border=ft.border.all(1, "#e2e8f0"),
                             clip_behavior=ft.ClipBehavior.HARD_EDGE
-                        )
+                        ),
+                        ft.Container(height=80)  # Espace supplémentaire sous le tableau pour faciliter la saisie
                     ]),
                     padding=24
                 ),
