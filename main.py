@@ -6035,24 +6035,41 @@ class StudentRegistrationSystem:
         
         # Créer le contenu du menu avec style moderne
         menu_content = ft.Column([
-            # En-tête du menu avec infos du cours
+            # En-tête du menu avec infos du cours et bouton fermer
             ft.Container(
-                content=ft.Column([
-                    ft.Text(
-                        course.get('subject', 'Matière'),
-                        size=16,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b",
-                        text_align=ft.TextAlign.CENTER
+                content=ft.Stack([
+                    # Contenu principal de l'en-tête
+                    ft.Container(
+                        content=ft.Column([
+                            ft.Text(
+                                course.get('subject', 'Matière'),
+                                size=16,
+                                weight=ft.FontWeight.BOLD,
+                                color="#1e293b",
+                                text_align=ft.TextAlign.CENTER
+                            ),
+                            ft.Text(
+                                f"{course.get('teacher_name', '')} • {course.get('start_time', '')}-{course.get('end_time', '')}",
+                                size=12,
+                                color="#64748b",
+                                text_align=ft.TextAlign.CENTER
+                            )
+                        ], spacing=4),
+                        padding=ft.padding.all(16)
                     ),
-                    ft.Text(
-                        f"{course.get('teacher_name', '')} • {course.get('start_time', '')}-{course.get('end_time', '')}",
-                        size=12,
-                        color="#64748b",
-                        text_align=ft.TextAlign.CENTER
+                    # Bouton fermer en haut à droite
+                    ft.Container(
+                        content=ft.IconButton(
+                            icon="close",
+                            icon_size=18,
+                            icon_color="#64748b",
+                            tooltip="Fermer",
+                            on_click=close_menu
+                        ),
+                        right=4,
+                        top=4
                     )
-                ], spacing=4),
-                padding=ft.padding.all(16),
+                ]),
                 bgcolor="#f8fafc",
                 border_radius=ft.border_radius.only(top_left=12, top_right=12)
             ),
