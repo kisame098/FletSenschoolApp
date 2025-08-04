@@ -5481,93 +5481,92 @@ class StudentRegistrationSystem:
         self.selected_class = None
         self.selected_teacher = None
         
-        # Header principal
+        # Header principal harmonisé
         header = ft.Container(
             content=ft.Column([
                 ft.Text(
-                    "Emploi du Temps",
-                    size=32,
+                    "Emploi du temps",
+                    size=28,
                     weight=ft.FontWeight.BOLD,
-                    color="#111827"
+                    color="#1e293b"
                 ),
                 ft.Text(
-                    "Gestion simple et efficace des plannings",
-                    size=16,
-                    color="#6b7280"
+                    "Gestion des plannings scolaires",
+                    size=15,
+                    color="#64748b",
+                    weight=ft.FontWeight.W_400
                 )
-            ], 
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+            ]),
             padding=ft.padding.all(32),
-            bgcolor="#ffffff",
-            border_radius=12,
-            border=ft.border.all(1, "#e5e7eb"),
-            margin=ft.margin.only(bottom=32)
+            bgcolor="#f8fafc"
         )
         
-        # Menu de navigation principal (comme dans le HTML)
+        # Menu de navigation principal harmonisé
         nav_menu = ft.Row([
             # Carte Classes
-            ft.Container(
-                content=ft.Column([
-                    ft.Icon(
-                        "groups",
-                        size=48,
-                        color="#1f2937"
-                    ),
-                    ft.Text(
-                        "Classes",
-                        size=20,
-                        weight=ft.FontWeight.W_600,
-                        color="#111827"
-                    ),
-                    ft.Text(
-                        "Gérer les emplois du temps par classe",
-                        size=14,
-                        color="#6b7280",
-                        text_align=ft.TextAlign.CENTER
-                    )
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=16),
-                bgcolor="#ffffff",
-                border=ft.border.all(1, "#e5e7eb"),
-                border_radius=12,
-                padding=ft.padding.all(32),
-                expand=True,
-                on_click=lambda e: self.show_class_schedule_interface(),
-                ink=True
+            ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon(
+                            "groups",
+                            size=48,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Classes",
+                            size=20,
+                            weight=ft.FontWeight.W_600,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Gérer les emplois du temps par classe",
+                            size=14,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        )
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=16),
+                    padding=28,
+                    on_click=lambda e: self.show_class_schedule_interface(),
+                    ink=True
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
             ),
             ft.Container(width=24),  # Espacement
             # Carte Professeurs
-            ft.Container(
-                content=ft.Column([
-                    ft.Icon(
-                        "school",
-                        size=48,
-                        color="#1f2937"
-                    ),
-                    ft.Text(
-                        "Professeurs",
-                        size=20,
-                        weight=ft.FontWeight.W_600,
-                        color="#111827"
-                    ),
-                    ft.Text(
-                        "Consulter les plannings des enseignants",
-                        size=14,
-                        color="#6b7280",
-                        text_align=ft.TextAlign.CENTER
-                    )
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=16),
-                bgcolor="#ffffff",
-                border=ft.border.all(1, "#e5e7eb"),
-                border_radius=12,
-                padding=ft.padding.all(32),
-                expand=True,
-                on_click=lambda e: self.show_teacher_schedule_interface(),
-                ink=True
+            ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Icon(
+                            "school",
+                            size=48,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Professeurs",
+                            size=20,
+                            weight=ft.FontWeight.W_600,
+                            color="#1e293b"
+                        ),
+                        ft.Text(
+                            "Consulter les plannings des enseignants",
+                            size=14,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        )
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=16),
+                    padding=28,
+                    on_click=lambda e: self.show_teacher_schedule_interface(),
+                    ink=True
+                ),
+                elevation=0,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
             )
         ])
         
@@ -5579,46 +5578,46 @@ class StudentRegistrationSystem:
             nav_menu
         ])
         
+        # Contenu principal avec scrollbar uniforme
         self.main_content.content = ft.Column([
             header,
             ft.Container(
-                content=self.schedule_main_container,
-                padding=ft.padding.symmetric(horizontal=32),
+                content=ft.Column([
+                    self.schedule_main_container
+                ], scroll=ft.ScrollMode.AUTO),
+                padding=ft.padding.all(32),
                 expand=True
             )
-        ])
+        ], spacing=0)
         
         self.page.update()
     
     def show_class_schedule_interface(self):
         """Interface d'emploi du temps des classes - Style professionnel"""
         
-        # Header avec bouton retour
+        # Header avec bouton retour harmonisé
         header = ft.Container(
             content=ft.Row([
                 ft.Text(
                     "Emploi du temps - Classes",
                     size=24,
                     weight=ft.FontWeight.W_600,
-                    color="#111827"
+                    color="#1e293b"
                 ),
                 ft.Row([
                     ft.ElevatedButton(
                         text="← Retour",
                         on_click=lambda e: self.show_schedule(),
                         style=ft.ButtonStyle(
-                            bgcolor="#f3f4f6",
-                            color="#374151",
+                            bgcolor="#f8fafc",
+                            color="#64748b",
                             padding=ft.padding.symmetric(horizontal=16, vertical=8)
                         )
                     )
                 ])
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            padding=ft.padding.all(24),
-            bgcolor="#ffffff",
-            border_radius=12,
-            border=ft.border.all(1, "#e5e7eb"),
-            margin=ft.margin.only(bottom=24)
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
         )
         
         # Récupérer données
@@ -5638,12 +5637,15 @@ class StudentRegistrationSystem:
                 time_str = f"{hour:02d}:{minute:02d}"
                 time_options.append(ft.dropdown.Option(key=time_str, text=time_str))
         
-        # Formulaire d'ajout - Style moderne
+        # Formulaire d'ajout - Style harmonisé
         self.class_dropdown = ft.Dropdown(
             label="Classe",
             options=class_options,
             on_change=self.on_class_selected_new,
-            border_color="#d1d5db",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
             expand=True
         )
         
@@ -5657,89 +5659,104 @@ class StudentRegistrationSystem:
                 ft.dropdown.Option(key="Vendredi", text="Vendredi"),
                 ft.dropdown.Option(key="Samedi", text="Samedi")
             ],
-            border_color="#d1d5db",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
             expand=True
         )
         
         self.start_time_dropdown = ft.Dropdown(
             label="Début",
             options=time_options,
-            border_color="#d1d5db",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
             expand=True
         )
         
         self.end_time_dropdown = ft.Dropdown(
             label="Fin",
             options=time_options,
-            border_color="#d1d5db",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
             expand=True
         )
         
         self.teacher_dropdown = ft.Dropdown(
             label="Professeur",
             options=teacher_options,
-            border_color="#d1d5db",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
             expand=True
         )
         
         self.subject_field = ft.TextField(
             label="Matière",
-            border_color="#d1d5db",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
             expand=True
         )
         
-        # Conteneur formulaire
-        form_container = ft.Container(
-            content=ft.Column([
-                # Première ligne: Classe, Jour, Début, Fin, Couleur
-                ft.Row([
-                    self.class_dropdown,
-                    ft.Container(width=16),
-                    self.day_dropdown,
-                    ft.Container(width=16),
-                    self.start_time_dropdown,
-                    ft.Container(width=16),
-                    self.end_time_dropdown
-                ]),
-                ft.Container(height=16),
-                # Deuxième ligne: Professeur, Matière, Bouton
-                ft.Row([
-                    self.teacher_dropdown,
-                    ft.Container(width=16),
-                    self.subject_field,
-                    ft.Container(width=16),
-                    ft.ElevatedButton(
-                        text="+ Ajouter",
-                        on_click=self.add_course_new,
-                        style=ft.ButtonStyle(
-                            bgcolor="#1f2937",
-                            color="#ffffff",
-                            padding=ft.padding.symmetric(horizontal=24, vertical=16)
+        # Conteneur formulaire harmonisé
+        form_container = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    # Première ligne: Classe, Jour, Début, Fin
+                    ft.Row([
+                        self.class_dropdown,
+                        ft.Container(width=16),
+                        self.day_dropdown,
+                        ft.Container(width=16),
+                        self.start_time_dropdown,
+                        ft.Container(width=16),
+                        self.end_time_dropdown
+                    ]),
+                    ft.Container(height=16),
+                    # Deuxième ligne: Professeur, Matière, Bouton
+                    ft.Row([
+                        self.teacher_dropdown,
+                        ft.Container(width=16),
+                        self.subject_field,
+                        ft.Container(width=16),
+                        ft.ElevatedButton(
+                            text="+ Ajouter",
+                            on_click=self.add_course_new,
+                            style=ft.ButtonStyle(
+                                bgcolor="#4f46e5",
+                                color="#ffffff",
+                                padding=ft.padding.symmetric(horizontal=24, vertical=16)
+                            )
                         )
-                    )
-                ])
-            ]),
-            padding=ft.padding.all(24),
-            bgcolor="#f9fafb",
-            border_radius=8,
+                    ])
+                ]),
+                padding=28
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff",
             margin=ft.margin.only(bottom=24)
         )
         
         # Conteneur pour la grille d'emploi du temps
         self.schedule_grid_container = ft.Container()
         
-        # Interface complète
+        # Interface complète avec scrollbar
         content = ft.Column([
             header,
             ft.Container(
                 content=ft.Column([
                     form_container,
                     self.schedule_grid_container
-                ]),
-                padding=ft.padding.all(24),
-                bgcolor="#ffffff",
-                border_radius=12,
-                border=ft.border.all(1, "#e5e7eb")
+                ], scroll=ft.ScrollMode.AUTO),
+                expand=True
             )
         ])
         
@@ -6033,12 +6050,13 @@ class StudentRegistrationSystem:
             if self.data_manager.add_schedule_slot(course_data):
                 self.show_snackbar("Cours ajouté avec succès !")
                 
-                # Réinitialiser les champs
+                # Réinitialiser tous les champs sauf la classe
                 self.day_dropdown.value = None
                 self.start_time_dropdown.value = None
                 self.end_time_dropdown.value = None
                 self.teacher_dropdown.value = None
                 self.subject_field.value = ""
+                # La classe reste sélectionnée pour faciliter l'ajout de plusieurs cours
                 
                 # Recharger l'emploi du temps
                 self.load_class_schedule()
@@ -6065,76 +6083,81 @@ class StudentRegistrationSystem:
     def show_teacher_schedule_interface(self):
         """Interface d'emploi du temps des professeurs - Style moderne"""
         
-        # Header avec bouton retour
+        # Header avec bouton retour harmonisé
         header = ft.Container(
             content=ft.Row([
                 ft.Text(
                     "Emploi du temps - Professeurs",
                     size=24,
                     weight=ft.FontWeight.W_600,
-                    color="#111827"
+                    color="#1e293b"
                 ),
                 ft.Row([
                     ft.ElevatedButton(
                         text="← Retour",
                         on_click=lambda e: self.show_schedule(),
                         style=ft.ButtonStyle(
-                            bgcolor="#f3f4f6",
-                            color="#374151",
+                            bgcolor="#f8fafc",
+                            color="#64748b",
                             padding=ft.padding.symmetric(horizontal=16, vertical=8)
                         )
                     )
                 ])
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            padding=ft.padding.all(24),
-            bgcolor="#ffffff",
-            border_radius=12,
-            border=ft.border.all(1, "#e5e7eb"),
-            margin=ft.margin.only(bottom=24)
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
         )
         
-        # Interface simplifiée pour l'instant
-        content = ft.Container(
-            content=ft.Column([
-                ft.Icon(
-                    "school",
-                    size=64,
-                    color="#6b7280"
-                ),
-                ft.Container(height=24),
-                ft.Text(
-                    "Emploi du temps des professeurs",
-                    size=24,
-                    weight=ft.FontWeight.BOLD,
-                    color="#111827",
-                    text_align=ft.TextAlign.CENTER
-                ),
-                ft.Container(height=16),
-                ft.Text(
-                    "Cette fonctionnalité sera développée prochainement.\n\n"
-                    "Elle permettra de :\n"
-                    "• Voir l'emploi du temps d'un professeur spécifique\n"
-                    "• Gérer les conflits d'horaires des enseignants\n"
-                    "• Optimiser la répartition des cours\n"
-                    "• Visualiser la charge de travail par professeur",
-                    size=16,
-                    color="#6b7280",
-                    text_align=ft.TextAlign.CENTER
-                )
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-            padding=ft.padding.all(80),
-            bgcolor="#ffffff",
-            border_radius=12,
-            border=ft.border.all(1, "#e5e7eb"),
-            alignment=ft.alignment.center
+        # Interface simplifiée harmonisée
+        content = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Icon(
+                        "school",
+                        size=64,
+                        color="#64748b"
+                    ),
+                    ft.Container(height=24),
+                    ft.Text(
+                        "Emploi du temps des professeurs",
+                        size=24,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b",
+                        text_align=ft.TextAlign.CENTER
+                    ),
+                    ft.Container(height=16),
+                    ft.Text(
+                        "Cette fonctionnalité sera développée prochainement.\n\n"
+                        "Elle permettra de :\n"
+                        "• Voir l'emploi du temps d'un professeur spécifique\n"
+                        "• Gérer les conflits d'horaires des enseignants\n"
+                        "• Optimiser la répartition des cours\n"
+                        "• Visualiser la charge de travail par professeur",
+                        size=14,
+                        color="#64748b",
+                        text_align=ft.TextAlign.CENTER,
+                        weight=ft.FontWeight.W_400
+                    )
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                padding=80,
+                alignment=ft.alignment.center
+            ),
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff"
         )
         
-        # Interface complète
+        # Interface complète avec scrollbar
         interface = ft.Column([
             header,
-            content
-        ])
+            ft.Container(
+                content=ft.Column([
+                    content
+                ], scroll=ft.ScrollMode.AUTO),
+                expand=True
+            )
+        ], spacing=0)
         
         self.schedule_main_container.content = interface
         self.page.update()
