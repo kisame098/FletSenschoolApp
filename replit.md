@@ -28,6 +28,48 @@ Application de gestion scolaire moderne basée sur Flet, conçue pour simplifier
 
 ## Changements récents
 
+### 04/08/2025 - Nouvelle approche d'édition/suppression des blocs dans l'emploi du temps
+
+**Objectif :**
+Rendre l'interface des blocs de cours plus discrète et épurée en supprimant les icônes visibles directement sur les blocs, tout en conservant les fonctionnalités de modification et suppression.
+
+**Améliorations implémentées :**
+
+1. **Suppression des icônes visibles :**
+   - Retrait complet des icônes "Modifier" et "Supprimer" affichées sur les blocs de cours
+   - Interface plus épurée et moderne
+   - Réduction de l'encombrement visuel
+
+2. **Menu contextuel interactif :**
+   - Système de clic sur les blocs pour ouvrir un menu contextuel élégant
+   - Interface modal avec style cohérent à la charte graphique
+   - Affichage des informations du cours (matière, professeur, horaires)
+
+3. **Bouton de fermeture optimisé :**
+   - Croix de fermeture positionnée dans le coin supérieur droit exact
+   - Design circulaire avec style moderne
+   - Tooltip "Fermer" pour une meilleure UX
+
+4. **Préservation des fonctionnalités :**
+   - Options "Modifier ce cours" et "Supprimer ce cours" accessibles via le menu
+   - Fonctionnement interne identique (pas de rechargement de page)
+   - Conservation de toutes les validations et confirmations existantes
+
+**Spécifications respectées :**
+- ✅ Interface épurée sans icônes visibles sur les blocs
+- ✅ Menu contextuel fluide et instantané au clic
+- ✅ Style cohérent avec la charte graphique de l'application
+- ✅ Aucun rechargement complet nécessaire après modification/suppression
+- ✅ Bouton de fermeture correctement positionné
+
+**Impact utilisateur :**
+- Interface plus professionnelle et moins chargée visuellement
+- Interaction intuitive avec feedback immédiat
+- Meilleure expérience utilisateur avec menu contextuel moderne
+- Conservation de toutes les fonctionnalités existantes
+
+## Changements récents
+
 ### 01/08/2025 - Refonte complète du système d'emploi du temps (interface professionnelle)
 
 **Problème identifié :**
