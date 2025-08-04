@@ -6513,9 +6513,17 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
+        print(f"DEBUG: Création du dialogue de suppression...")
+        
+        # S'assurer qu'aucun autre dialogue n'est ouvert
+        if self.page.dialog:
+            self.page.dialog.open = False
+        
         self.page.dialog = dialog
         dialog.open = True
+        print(f"DEBUG: Mise à jour de la page...")
         self.page.update()
+        print(f"DEBUG: Dialogue de suppression affiché")
     
     def add_schedule_slot(self, e):
         """Ajouter un créneau à l'emploi du temps"""
