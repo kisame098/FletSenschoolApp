@@ -6038,9 +6038,9 @@ class StudentRegistrationSystem:
             # En-tête du menu avec infos du cours
             ft.Container(
                 content=ft.Row([
-                    # Contenu principal de l'en-tête
-                    ft.Expanded(
-                        child=ft.Column([
+                    # Contenu principal de l'en-tête (prend l'espace disponible)
+                    ft.Container(
+                        content=ft.Column([
                             ft.Text(
                                 course.get('subject', 'Matière'),
                                 size=16,
@@ -6054,7 +6054,8 @@ class StudentRegistrationSystem:
                                 color="#64748b",
                                 text_align=ft.TextAlign.CENTER
                             )
-                        ], spacing=4)
+                        ], spacing=4),
+                        expand=True
                     ),
                     # Bouton fermer à droite
                     ft.IconButton(
