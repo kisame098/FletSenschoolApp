@@ -504,6 +504,31 @@ class DataManager:
         
         return False
     
+    def check_teacher_schedule_conflict(self, teacher_id: str, day: str, start_time: str, end_time: str, exclude_id: Optional[int] = None) -> bool:
+        """Vérifier s'il y a un conflit d'horaire pour un professeur"""
+        schedules = self.get_schedule_by_teacher(teacher_id)
+        
+        for schedule in schedules:
+            if exclude_id and schedule.get("id") == exclude_id:
+                continue
+                
+            if schedule.get("day") == day:
+                # Convertir les heures en minutes pour comparaison
+                def time_to_minutes(time_str):
+                    hour, minute = map(int, time_str.split(':'))
+                    return hour * 60 + minute
+                
+                existing_start = time_to_minutes(schedule.get("start_time", "00:00"))
+                existing_end = time_to_minutes(schedule.get("end_time", "00:00"))
+                new_start = time_to_minutes(start_time)
+                new_end = time_to_minutes(end_time)
+                
+                # Vérifier chevauchement
+                if (new_start < existing_end and new_end > existing_start):
+                    return True
+        
+        return False
+    
     def delete_schedule_slot(self, schedule_id: int) -> bool:
         """Supprimer un créneau de l'emploi du temps"""
         schedules = self.get_all_schedules()

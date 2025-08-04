@@ -1,0 +1,63 @@
+Objectif :Mettre en place la section Emploi du Temps – Professeurs avec une interface claire, proche de celle de l’Emploi du Temps des classes, mais adaptée aux spécificités des enseignants.Inclure un système de synchronisation bidirectionnelle entre les deux types d’emplois du temps pour éviter les doubles saisies.
+
+1. Accès et affichage initial
+
+Lorsqu’on clique sur "Emploi du Temps – Professeurs" :
+
+Afficher la liste des professeurs existants sous forme de cartes disposées en grille.
+
+Chaque carte affiche :
+
+Nom
+
+Prénom
+
+ID Professeur
+
+Matière(s) enseignée(s)
+
+Chaque carte est cliquable → ouvre l’emploi du temps du professeur sélectionné.
+
+2. Page d’édition d’un emploi du temps professeur
+
+Interface quasiment identique à celle de l’"Emploi du Temps – Classe", avec :
+
+Tableau hebdomadaire (Lundi → Samedi, créneaux horaires de 07h00 à 20h00).
+
+Blocs de cours placés selon horaire et durée.
+
+Bouton "Ajouter un cours".
+
+3. Différences spécifiques pour l’emploi du temps des professeurs
+
+Dans le formulaire d’ajout :
+
+Pas de champ "Matière" → car la matière est déjà associée au professeur.
+
+Pas de dropdown "Professeur" → remplacé par un dropdown "Classe" pour choisir la classe à qui il donnera le cours.
+
+Dans les blocs de cours affichés :
+
+Afficher la classe (et non la matière, comme c’est le cas pour les classes).
+
+4. Synchronisation bidirectionnelle intelligente
+
+Règle 1 :
+
+Si un cours est ajouté dans l’emploi du temps d’une classe → il apparaît automatiquement dans l’emploi du temps du professeur concerné (même jour, même horaire, même durée).
+
+Règle 2 :
+
+Si un cours est ajouté dans l’emploi du temps d’un professeur → il apparaît automatiquement dans l’emploi du temps de la classe concernée.
+
+Règle 3 :
+
+En cas de modification ou suppression d’un cours dans l’un des emplois du temps, la modification/suppression doit être répercutée automatiquement dans l’autre emploi du temps lié.
+
+Avantage :
+
+Évite toute saisie en double et permet de gagner énormément de temps.
+
+5. Contraintes et bonnes pratiques
+
+Prévenir tout chevauchement d’horaires lors de l’ajout, que ce soit côté professeur ou côté classe.

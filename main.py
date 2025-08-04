@@ -6194,9 +6194,9 @@ class StudentRegistrationSystem:
         self.show_delete_course_dialog(course_id)
     
     def show_teacher_schedule_interface(self):
-        """Interface d'emploi du temps des professeurs - Style moderne"""
+        """Interface d'emploi du temps des professeurs - Grille de sélection"""
         
-        # Header avec bouton retour harmonisé
+        # Header avec bouton retour
         header = ft.Container(
             content=ft.Row([
                 ft.Text(
@@ -6221,47 +6221,100 @@ class StudentRegistrationSystem:
             bgcolor="#f8fafc"
         )
         
-        # Interface simplifiée harmonisée
-        content = ft.Card(
-            content=ft.Container(
+        # Récupérer tous les professeurs
+        teachers = self.data_manager.get_all_teachers()
+        
+        # Créer les cartes des professeurs
+        teacher_cards = []
+        for teacher in teachers:
+            # Récupérer les matières enseignées par ce professeur
+            teacher_subjects = self.get_teacher_subjects(teacher.get('teacher_id', teacher.get('id')))
+            subjects_text = ", ".join(teacher_subjects) if teacher_subjects else "Aucune matière assignée"
+            
+            card = ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Text(
+                            f"{teacher.get('prenom', '')} {teacher.get('nom', '')}",
+                            size=16,
+                            weight=ft.FontWeight.BOLD,
+                            color="#1e293b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=8),
+                        ft.Text(
+                            f"ID: {teacher.get('teacher_id', teacher.get('id', 'N/A'))}",
+                            size=12,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                        ft.Container(height=4),
+                        ft.Text(
+                            f"Matières: {subjects_text}",
+                            size=11,
+                            color="#64748b",
+                            text_align=ft.TextAlign.CENTER,
+                            max_lines=2,
+                            overflow=ft.TextOverflow.ELLIPSIS
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=ft.padding.all(16),
+                    on_click=lambda e, t_id=teacher.get('teacher_id', teacher.get('id')): self.show_teacher_schedule_editor(t_id),
+                    ink=True
+                ),
+                elevation=2,
+                surface_tint_color="#ffffff",
+                color="#ffffff"
+            )
+            teacher_cards.append(card)
+        
+        # Grille de cartes (3 colonnes)
+        grid_rows = []
+        for i in range(0, len(teacher_cards), 3):
+            row_cards = teacher_cards[i:i+3]
+            # Compléter la ligne avec des conteneurs vides si nécessaire
+            while len(row_cards) < 3:
+                row_cards.append(ft.Container(expand=True))
+            
+            grid_rows.append(ft.Row(row_cards, spacing=16))
+        
+        # Contenu principal
+        if not teachers:
+            content = ft.Container(
                 content=ft.Column([
-                    ft.Icon(
-                        "school",
-                        size=64,
-                        color="#64748b"
-                    ),
-                    ft.Container(height=24),
-                    ft.Text(
-                        "Emploi du temps des professeurs",
-                        size=24,
-                        weight=ft.FontWeight.BOLD,
-                        color="#1e293b",
-                        text_align=ft.TextAlign.CENTER
-                    ),
+                    ft.Icon("person_off", size=64, color="#64748b"),
                     ft.Container(height=16),
                     ft.Text(
-                        "Cette fonctionnalité sera développée prochainement.\n\n"
-                        "Elle permettra de :\n"
-                        "• Voir l'emploi du temps d'un professeur spécifique\n"
-                        "• Gérer les conflits d'horaires des enseignants\n"
-                        "• Optimiser la répartition des cours\n"
-                        "• Visualiser la charge de travail par professeur",
+                        "Aucun professeur trouvé",
+                        size=18,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b"
+                    ),
+                    ft.Text(
+                        "Ajoutez des professeurs pour gérer leurs emplois du temps.",
                         size=14,
-                        color="#64748b",
-                        text_align=ft.TextAlign.CENTER,
-                        weight=ft.FontWeight.W_400
+                        color="#64748b"
                     )
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                padding=80,
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                padding=ft.padding.all(80),
                 alignment=ft.alignment.center
-            ),
-            elevation=0,
-            surface_tint_color="#ffffff",
-            color="#ffffff"
-        )
+            )
+        else:
+            content = ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        "Sélectionnez un professeur pour gérer son emploi du temps",
+                        size=16,
+                        color="#64748b",
+                        text_align=ft.TextAlign.CENTER
+                    ),
+                    ft.Container(height=24),
+                    ft.Column(grid_rows, spacing=16)
+                ]),
+                padding=ft.padding.all(32)
+            )
         
-        # Interface complète avec scrollbar
+        # Interface complète
         interface = ft.Column([
             header,
             ft.Container(
@@ -6274,6 +6327,684 @@ class StudentRegistrationSystem:
         
         self.schedule_main_container.content = interface
         self.page.update()
+    
+    def get_teacher_subjects(self, teacher_id):
+        """Récupérer les matières enseignées par un professeur basé sur son emploi du temps"""
+        schedules = self.data_manager.get_all_schedules()
+        subjects = set()
+        
+        for schedule in schedules:
+            if schedule.get('teacher_id') == teacher_id or \
+               (schedule.get('teacher_name') and teacher_id and str(teacher_id) in str(schedule.get('teacher_name', ''))):
+                subject = schedule.get('subject')
+                if subject:
+                    subjects.add(subject)
+        
+        return list(subjects)
+    
+    def show_teacher_schedule_editor(self, teacher_id):
+        """Afficher l'éditeur d'emploi du temps pour un professeur spécifique"""
+        # Récupérer les informations du professeur
+        teachers = self.data_manager.get_all_teachers()
+        teacher = next((t for t in teachers if str(t.get('teacher_id', t.get('id'))) == str(teacher_id)), None)
+        
+        if not teacher:
+            self.show_validation_alert("Erreur", "Professeur introuvable")
+            return
+        
+        teacher_name = f"{teacher.get('prenom', '')} {teacher.get('nom', '')}"
+        
+        # Header avec navigation
+        header = ft.Container(
+            content=ft.Row([
+                ft.Column([
+                    ft.Text(
+                        f"Emploi du temps - {teacher_name}",
+                        size=24,
+                        weight=ft.FontWeight.W_600,
+                        color="#1e293b"
+                    ),
+                    ft.Text(
+                        f"ID: {teacher_id}",
+                        size=12,
+                        color="#64748b"
+                    )
+                ], spacing=4),
+                ft.Row([
+                    ft.ElevatedButton(
+                        text="← Retour aux professeurs",
+                        on_click=lambda e: self.show_teacher_schedule_interface(),
+                        style=ft.ButtonStyle(
+                            bgcolor="#f8fafc",
+                            color="#64748b",
+                            padding=ft.padding.symmetric(horizontal=16, vertical=8)
+                        )
+                    )
+                ])
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+            padding=ft.padding.all(32),
+            bgcolor="#f8fafc"
+        )
+        
+        # Initialiser les variables pour l'emploi du temps du professeur
+        self.current_teacher_id = teacher_id
+        self.current_teacher_name = teacher_name
+        
+        # Formulaire d'ajout de cours spécifique au professeur
+        form_content = self.create_teacher_course_form()
+        
+        # Grille d'emploi du temps (similaire aux classes mais adaptée)
+        schedule_grid = self.create_teacher_schedule_grid()
+        
+        # Interface principale
+        main_content = ft.Row([
+            # Formulaire à gauche
+            ft.Container(
+                content=form_content,
+                width=350,
+                bgcolor="#ffffff",
+                border_radius=12,
+                padding=ft.padding.all(24),
+                border=ft.border.all(1, "#e2e8f0")
+            ),
+            # Grille à droite
+            ft.Container(
+                content=schedule_grid,
+                expand=True,
+                margin=ft.margin.only(left=16)
+            )
+        ], spacing=0, expand=True)
+        
+        # Interface complète
+        interface = ft.Column([
+            header,
+            ft.Container(
+                content=main_content,
+                expand=True,
+                padding=ft.padding.symmetric(horizontal=32, vertical=16)
+            )
+        ], spacing=0)
+        
+        self.schedule_main_container.content = interface
+        # Charger l'emploi du temps du professeur
+        self.load_teacher_schedule()
+        self.page.update()
+    
+    def create_teacher_course_form(self):
+        """Créer le formulaire d'ajout de cours pour un professeur"""
+        # Récupérer les classes disponibles
+        classes = self.data_manager.get_all_classes()
+        class_options = [ft.dropdown.Option(key=cls['nom'], text=cls['nom']) for cls in classes]
+        
+        # Options d'horaires (identiques aux classes)
+        time_options = []
+        for hour in range(7, 20):
+            for minute in [0, 30]:
+                if hour == 19 and minute == 30:
+                    break
+                time_str = f"{hour:02d}:{minute:02d}"
+                time_options.append(ft.dropdown.Option(key=time_str, text=time_str))
+        
+        # Dropdown pour la classe (remplace le dropdown professeur)
+        self.teacher_class_dropdown = ft.Dropdown(
+            label="Classe",
+            options=class_options,
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        # Dropdown pour le jour
+        self.teacher_day_dropdown = ft.Dropdown(
+            label="Jour",
+            options=[
+                ft.dropdown.Option(key="Lundi", text="Lundi"),
+                ft.dropdown.Option(key="Mardi", text="Mardi"),
+                ft.dropdown.Option(key="Mercredi", text="Mercredi"),
+                ft.dropdown.Option(key="Jeudi", text="Jeudi"),
+                ft.dropdown.Option(key="Vendredi", text="Vendredi"),
+                ft.dropdown.Option(key="Samedi", text="Samedi")
+            ],
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        # Dropdowns pour les horaires
+        self.teacher_start_time_dropdown = ft.Dropdown(
+            label="Début",
+            options=time_options,
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        self.teacher_end_time_dropdown = ft.Dropdown(
+            label="Fin",
+            options=time_options,
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        # Champ matière (pré-rempli basé sur les matières du professeur)
+        teacher_subjects = self.get_teacher_subjects(self.current_teacher_id)
+        default_subject = teacher_subjects[0] if teacher_subjects else ""
+        
+        self.teacher_subject_field = ft.TextField(
+            label="Matière",
+            value=default_subject,
+            hint_text="Matière enseignée",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5"
+        )
+        
+        # Dropdown couleur (identique aux classes)
+        color_options = [
+            ft.dropdown.Option(key="#4f46e5", text="Bleu", data="#4f46e5"),
+            ft.dropdown.Option(key="#059669", text="Vert", data="#059669"),
+            ft.dropdown.Option(key="#dc2626", text="Rouge", data="#dc2626"),
+            ft.dropdown.Option(key="#d97706", text="Orange", data="#d97706"),
+            ft.dropdown.Option(key="#7c3aed", text="Violet", data="#7c3aed"),
+            ft.dropdown.Option(key="#db2777", text="Rose", data="#db2777"),
+            ft.dropdown.Option(key="#0891b2", text="Cyan", data="#0891b2"),
+            ft.dropdown.Option(key="#65a30d", text="Lime", data="#65a30d"),
+            ft.dropdown.Option(key="#dc2626", text="Rouge foncé", data="#dc2626"),
+            ft.dropdown.Option(key="#1f2937", text="Gris foncé", data="#1f2937")
+        ]
+        
+        self.teacher_color_dropdown = ft.Dropdown(
+            label="Couleur",
+            options=color_options,
+            value="#4f46e5",
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        # Bouton d'ajout
+        add_button = ft.ElevatedButton(
+            text="Ajouter le cours",
+            on_click=self.add_teacher_course,
+            style=ft.ButtonStyle(
+                bgcolor="#4f46e5",
+                color="#ffffff",
+                padding=ft.padding.symmetric(horizontal=24, vertical=12)
+            ),
+            width=200
+        )
+        
+        # Layout du formulaire
+        form_content = ft.Column([
+            ft.Text(
+                "Ajouter un cours",
+                size=18,
+                weight=ft.FontWeight.BOLD,
+                color="#1e293b"
+            ),
+            ft.Container(height=16),
+            
+            # Première ligne : Classe et Jour
+            ft.Row([
+                self.teacher_class_dropdown,
+                self.teacher_day_dropdown
+            ], spacing=12),
+            
+            # Deuxième ligne : Horaires
+            ft.Row([
+                self.teacher_start_time_dropdown,
+                self.teacher_end_time_dropdown
+            ], spacing=12),
+            
+            # Troisième ligne : Matière et Couleur
+            self.teacher_subject_field,
+            self.teacher_color_dropdown,
+            
+            # Bouton
+            ft.Container(height=16),
+            add_button
+        ], spacing=12)
+        
+        return form_content
+    
+    def create_teacher_schedule_grid(self):
+        """Créer la grille d'emploi du temps pour un professeur"""
+        # Header des jours
+        days = ["Horaires", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
+        header_row = ft.Row([
+            ft.Container(
+                content=ft.Text(
+                    day,
+                    size=14,
+                    weight=ft.FontWeight.BOLD,
+                    color="#374151",
+                    text_align=ft.TextAlign.CENTER
+                ),
+                width=140 if day == "Horaires" else None,
+                expand=True if day != "Horaires" else False,
+                bgcolor="#f8fafc",
+                padding=ft.padding.all(12),
+                border=ft.border.all(1, "#e2e8f0")
+            ) for day in days
+        ], spacing=0)
+        
+        # Créer les colonnes pour les jours (identique aux classes)
+        self.teacher_day_columns = {}
+        day_containers = []
+        
+        for i, day in enumerate(days):
+            if day == "Horaires":
+                # Colonne des horaires
+                time_slots = []
+                for hour in range(8, 19):
+                    time_slots.append(
+                        ft.Container(
+                            content=ft.Text(
+                                f"{hour:02d}:00",
+                                size=12,
+                                color="#64748b",
+                                text_align=ft.TextAlign.CENTER
+                            ),
+                            height=65,
+                            bgcolor="#f8fafc",
+                            border=ft.border.all(1, "#e2e8f0"),
+                            padding=ft.padding.all(8),
+                            alignment=ft.alignment.center
+                        )
+                    )
+                
+                day_container = ft.Container(
+                    content=ft.Column(time_slots, spacing=0),
+                    width=140
+                )
+            else:
+                # Colonnes des jours
+                day_column = ft.Stack(
+                    controls=[],
+                    height=65 * 11 + 11,  # 11 créneaux de 65px + bordures
+                    expand=True
+                )
+                self.teacher_day_columns[day] = day_column
+                
+                day_container = ft.Container(
+                    content=day_column,
+                    border=ft.border.all(1, "#e2e8f0"),
+                    bgcolor="#ffffff",
+                    expand=True
+                )
+            
+            day_containers.append(day_container)
+        
+        # Grille complète
+        grid_content = ft.Column([
+            header_row,
+            ft.Row(day_containers, spacing=0, expand=True)
+        ], spacing=0)
+        
+        return ft.Container(
+            content=grid_content,
+            bgcolor="#ffffff",
+            border_radius=12,
+            border=ft.border.all(1, "#e2e8f0"),
+            padding=ft.padding.all(16)
+        )
+    
+    def load_teacher_schedule(self):
+        """Charger l'emploi du temps d'un professeur"""
+        # Vider les colonnes
+        for day_column in self.teacher_day_columns.values():
+            day_column.controls.clear()
+        
+        # Récupérer les cours du professeur
+        teacher_schedules = self.data_manager.get_schedule_by_teacher(str(self.current_teacher_id))
+        
+        # Ajouter chaque cours à la grille
+        for schedule in teacher_schedules:
+            self.add_teacher_course_to_grid(schedule)
+        
+        self.page.update()
+    
+    def add_teacher_course_to_grid(self, course_data):
+        """Ajouter un bloc de cours à la grille du professeur"""
+        day = course_data.get('day')
+        start_time = course_data.get('start_time', '08:00')
+        end_time = course_data.get('end_time', '09:00')
+        class_name = course_data.get('class_name', '')
+        subject = course_data.get('subject', '')
+        course_color = course_data.get('color', '#4f46e5')
+        course_id = course_data.get('id')
+        
+        if day not in self.teacher_day_columns:
+            return
+        
+        # Calculer la position (même logique que pour les classes)
+        position = self.calculate_course_position(start_time, end_time)
+        
+        # Créer le contenu du bloc (afficher la classe au lieu de la matière)
+        content_column = ft.Column([
+            ft.Text(
+                class_name,  # Afficher la classe
+                size=12,
+                weight=ft.FontWeight.BOLD,
+                color="#ffffff",
+                text_align=ft.TextAlign.CENTER
+            ),
+            ft.Text(
+                subject,  # Afficher la matière en second
+                size=10,
+                color="rgba(255,255,255,0.8)",
+                text_align=ft.TextAlign.CENTER
+            ),
+            ft.Container(
+                content=ft.Text(
+                    f"{start_time}-{end_time}",
+                    size=9,
+                    color="#ffffff"
+                ),
+                bgcolor="rgba(255,255,255,0.2)",
+                padding=ft.padding.symmetric(horizontal=4, vertical=1),
+                border_radius=3
+            )
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=5)
+        
+        # Créer le bloc de cours cliquable
+        course_block = ft.Container(
+            content=content_column,
+            left=6,
+            right=6,
+            top=position['top'],
+            height=position['height'],
+            bgcolor=course_color,
+            border_radius=8,
+            padding=ft.padding.all(6),
+            border=ft.border.all(2, "rgba(255,255,255,0.3)"),
+            on_click=lambda e, cid=course_id: self.show_teacher_course_context_menu(e, cid),
+            ink=True
+        )
+        
+        # Ajouter le bloc à la colonne du jour
+        self.teacher_day_columns[day].controls.append(course_block)
+    
+    def show_teacher_course_context_menu(self, e, course_id):
+        """Afficher le menu contextuel pour un cours dans l'emploi du temps professeur"""
+        # Réutiliser la même logique que pour les classes mais adapter les méthodes
+        course = self.data_manager.get_schedule_by_id(course_id)
+        if not course:
+            self.show_validation_alert("Erreur", "Cours introuvable")
+            return
+        
+        def close_menu(e):
+            self.page.close(dialog)
+        
+        def edit_course(e):
+            self.page.close(dialog)
+            self.show_edit_teacher_course_dialog(course_id)
+        
+        def delete_course(e):
+            self.page.close(dialog)
+            self.show_delete_teacher_course_dialog(course_id)
+        
+        # Menu contextuel identique mais adapté
+        menu_content = ft.Column([
+            # En-tête du menu
+            ft.Container(
+                content=ft.Row([
+                    ft.Container(
+                        content=ft.Column([
+                            ft.Text(
+                                course.get('class_name', 'Classe'),  # Afficher la classe
+                                size=16,
+                                weight=ft.FontWeight.BOLD,
+                                color="#1e293b",
+                                text_align=ft.TextAlign.CENTER
+                            ),
+                            ft.Text(
+                                f"{course.get('subject', '')} • {course.get('start_time', '')}-{course.get('end_time', '')}",
+                                size=12,
+                                color="#64748b",
+                                text_align=ft.TextAlign.CENTER
+                            )
+                        ], spacing=4),
+                        expand=True
+                    ),
+                    ft.IconButton(
+                        icon="close",
+                        icon_size=18,
+                        icon_color="#64748b",
+                        tooltip="Fermer",
+                        on_click=close_menu,
+                        style=ft.ButtonStyle(padding=ft.padding.all(4))
+                    )
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                padding=ft.padding.symmetric(horizontal=16, vertical=12),
+                bgcolor="#f8fafc",
+                border_radius=ft.border_radius.only(top_left=12, top_right=12)
+            ),
+            
+            ft.Divider(height=1, color="#e2e8f0"),
+            
+            # Options du menu
+            ft.Container(
+                content=ft.Column([
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon("edit", size=20, color="#4f46e5"),
+                            ft.Text("Modifier ce cours", size=14, color="#374151", weight=ft.FontWeight.W_500)
+                        ], spacing=12),
+                        padding=ft.padding.all(12),
+                        on_click=edit_course,
+                        ink=True,
+                        border_radius=8,
+                        on_hover=lambda e: setattr(e.control, 'bgcolor', 
+                                                 "#f1f5f9" if e.data == "true" else "transparent") or self.page.update()
+                    ),
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon("delete", size=20, color="#ef4444"),
+                            ft.Text("Supprimer ce cours", size=14, color="#ef4444", weight=ft.FontWeight.W_500)
+                        ], spacing=12),
+                        padding=ft.padding.all(12),
+                        on_click=delete_course,
+                        ink=True,
+                        border_radius=8,
+                        on_hover=lambda e: setattr(e.control, 'bgcolor', 
+                                                 "#fef2f2" if e.data == "true" else "transparent") or self.page.update()
+                    )
+                ], spacing=4),
+                padding=ft.padding.all(8)
+            )
+        ], spacing=0, tight=True)
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            content=ft.Container(
+                content=menu_content,
+                width=280,
+                bgcolor="#ffffff",
+                border_radius=12,
+                border=ft.border.all(1, "#e2e8f0")
+            ),
+            actions=[],
+            actions_alignment=ft.MainAxisAlignment.CENTER,
+            on_dismiss=close_menu,
+            bgcolor="transparent",
+            elevation=0,
+            title=None,
+            content_padding=0
+        )
+        
+        self.page.open(dialog)
+    
+    def add_teacher_course(self, e):
+        """Ajouter un nouveau cours depuis l'emploi du temps professeur avec synchronisation"""
+        try:
+            # Validation des champs
+            validation_errors = self.validate_teacher_course_fields()
+            
+            if validation_errors:
+                error_message = "Veuillez corriger les erreurs suivantes :\n\n" + "\n".join(validation_errors)
+                self.show_validation_alert("Erreurs de validation", error_message)
+                return
+            
+            # Créer les données du cours
+            course_data = {
+                "class_name": self.teacher_class_dropdown.value,
+                "day": self.teacher_day_dropdown.value,
+                "start_time": self.teacher_start_time_dropdown.value,
+                "end_time": self.teacher_end_time_dropdown.value,
+                "teacher_id": str(self.current_teacher_id),
+                "teacher_name": self.current_teacher_name,
+                "subject": self.teacher_subject_field.value.strip(),
+                "color": self.teacher_color_dropdown.value or "#4f46e5"
+            }
+            
+            # Vérifier les conflits d'horaires (classe ET professeur)
+            if self.check_bidirectional_conflicts(course_data):
+                return
+            
+            # Sauvegarder le cours (synchronisation automatique via DataManager)
+            if self.data_manager.add_schedule_slot(course_data):
+                self.show_snackbar("✅ Cours ajouté avec succès et synchronisé !")
+                
+                # Réinitialiser les champs
+                self.teacher_class_dropdown.value = None
+                self.teacher_day_dropdown.value = None
+                self.teacher_start_time_dropdown.value = None
+                self.teacher_end_time_dropdown.value = None
+                self.teacher_subject_field.value = ""
+                self.teacher_color_dropdown.value = "#4f46e5"
+                
+                # Recharger l'emploi du temps du professeur
+                self.load_teacher_schedule()
+                self.page.update()
+            else:
+                self.show_validation_alert("Erreur", "Impossible d'ajouter le cours. Veuillez réessayer.")
+                
+        except Exception as e:
+            print(f"Erreur lors de l'ajout du cours professeur: {e}")
+            self.show_validation_alert("Erreur technique", f"Une erreur s'est produite : {str(e)}")
+    
+    def validate_teacher_course_fields(self):
+        """Valider les champs du formulaire professeur"""
+        errors = []
+        
+        if not self.teacher_class_dropdown.value:
+            errors.append("• La classe est obligatoire")
+        
+        if not self.teacher_day_dropdown.value:
+            errors.append("• Le jour est obligatoire")
+        
+        if not self.teacher_start_time_dropdown.value:
+            errors.append("• L'heure de début est obligatoire")
+        
+        if not self.teacher_end_time_dropdown.value:
+            errors.append("• L'heure de fin est obligatoire")
+        
+        if not self.teacher_subject_field.value or not self.teacher_subject_field.value.strip():
+            errors.append("• La matière est obligatoire")
+        
+        # Vérifier que l'heure de fin est après l'heure de début
+        if self.teacher_start_time_dropdown.value and self.teacher_end_time_dropdown.value:
+            start_parts = self.teacher_start_time_dropdown.value.split(':')
+            end_parts = self.teacher_end_time_dropdown.value.split(':')
+            
+            start_minutes = int(start_parts[0]) * 60 + int(start_parts[1])
+            end_minutes = int(end_parts[0]) * 60 + int(end_parts[1])
+            
+            if end_minutes <= start_minutes:
+                errors.append("• L'heure de fin doit être après l'heure de début")
+        
+        return errors
+    
+    def check_bidirectional_conflicts(self, course_data):
+        """Vérifier les conflits d'horaires côté classe ET professeur"""
+        class_name = course_data["class_name"]
+        teacher_id = course_data["teacher_id"]
+        day = course_data["day"]
+        start_time = course_data["start_time"]
+        end_time = course_data["end_time"]
+        
+        # Vérifier conflit pour la classe
+        if self.data_manager.check_schedule_conflict(class_name, day, start_time, end_time):
+            self.show_validation_alert(
+                "Conflit d'horaire - Classe",
+                f"La classe {class_name} a déjà un cours à cet horaire ({day} {start_time}-{end_time})."
+            )
+            return True
+        
+        # Vérifier conflit pour le professeur
+        if self.data_manager.check_teacher_schedule_conflict(teacher_id, day, start_time, end_time):
+            self.show_validation_alert(
+                "Conflit d'horaire - Professeur",
+                f"Le professeur a déjà un cours à cet horaire ({day} {start_time}-{end_time})."
+            )
+            return True
+        
+        return False
+    
+    def show_edit_teacher_course_dialog(self, course_id):
+        """Afficher le dialogue de modification d'un cours depuis l'emploi du temps professeur"""
+        course = self.data_manager.get_schedule_by_id(course_id)
+        if not course:
+            self.show_validation_alert("Erreur", "Cours introuvable")
+            return
+        
+        self.show_snackbar("✅ Fonction d'édition en cours de développement")
+    
+    def show_delete_teacher_course_dialog(self, course_id):
+        """Afficher le dialogue de suppression d'un cours depuis l'emploi du temps professeur"""
+        course = self.data_manager.get_schedule_by_id(course_id)
+        if not course:
+            self.show_validation_alert("Erreur", "Cours introuvable")
+            return
+        
+        def confirm_delete(e):
+            if self.data_manager.delete_schedule_slot(course_id):
+                self.show_snackbar("✅ Cours supprimé avec succès !")
+                self.load_teacher_schedule()
+                self.page.close(dialog)
+            else:
+                self.show_validation_alert("Erreur", "Impossible de supprimer le cours")
+        
+        def cancel_delete(e):
+            self.page.close(dialog)
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmer la suppression", weight=ft.FontWeight.BOLD, color="#ef4444"),
+            content=ft.Text(
+                f"Êtes-vous sûr de vouloir supprimer ce cours ?\n\n"
+                f"• Classe: {course.get('class_name', '')}\n"
+                f"• Matière: {course.get('subject', '')}\n"
+                f"• Horaire: {course.get('start_time', '')} - {course.get('end_time', '')}\n"
+                f"• Jour: {course.get('day', '')}\n\n"
+                f"Ce cours sera également supprimé de l'emploi du temps de la classe.",
+                color="#374151"
+            ),
+            actions=[
+                ft.TextButton("Annuler", on_click=cancel_delete, style=ft.ButtonStyle(color="#64748b")),
+                ft.ElevatedButton("Supprimer", on_click=confirm_delete, 
+                                style=ft.ButtonStyle(bgcolor="#ef4444", color="#ffffff"))
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.open(dialog)
     
     # =================== FONCTIONS D'AMÉLIORATION DE L'EMPLOI DU TEMPS ===================
     
