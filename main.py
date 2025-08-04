@@ -5986,8 +5986,7 @@ class StudentRegistrationSystem:
             padding=ft.padding.all(6),
             border=ft.border.all(2, "rgba(255,255,255,0.3)"),
             on_click=lambda e, cid=course_id: self.show_course_context_menu(e, cid),
-            ink=True,  # Effet de clic visuel
-            animate=ft.animation.Animation(100, "bounceOut")
+            ink=True  # Effet de clic visuel
         )
         
         # Ajouter le bloc à la colonne du jour
