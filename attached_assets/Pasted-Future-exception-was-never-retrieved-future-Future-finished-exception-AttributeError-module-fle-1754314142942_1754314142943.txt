@@ -1,0 +1,38 @@
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("module 'flet' has no attribute 'icons'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5531, in <lambda>
+    on_click=lambda e: self.show_class_schedule_interface(),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 5797, in show_class_schedule_interface
+    self.load_class_schedule()
+  File "/home/runner/workspace/main.py", line 5933, in load_class_schedule
+    self.add_course_to_grid(schedule)
+  File "/home/runner/workspace/main.py", line 5981, in add_course_to_grid
+    icon=ft.icons.EDIT,
+         ^^^^^^^^
+AttributeError: module 'flet' has no attribute 'icons'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("module 'flet' has no attribute 'icons'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5531, in <lambda>
+    on_click=lambda e: self.show_class_schedule_interface(),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 5797, in show_class_schedule_interface
+    self.load_class_schedule()
+  File "/home/runner/workspace/main.py", line 5933, in load_class_schedule
+    self.add_course_to_grid(schedule)
+  File "/home/runner/workspace/main.py", line 5981, in add_course_to_grid
+    icon=ft.icons.EDIT,
+         ^^^^^^^^
+AttributeError: module 'flet' has no attribute 'icons'

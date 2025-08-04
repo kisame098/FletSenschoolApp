@@ -5978,14 +5978,14 @@ class StudentRegistrationSystem:
             # Boutons d'action
             ft.Row([
                 ft.IconButton(
-                    icon=ft.icons.EDIT,
+                    icon="edit",
                     icon_size=16,
                     icon_color="#ffffff",
                     tooltip="Modifier",
                     on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
                 ),
                 ft.IconButton(
-                    icon=ft.icons.DELETE,
+                    icon="delete",
                     icon_size=16,
                     icon_color="#ffffff",
                     tooltip="Supprimer",
@@ -6081,16 +6081,8 @@ class StudentRegistrationSystem:
             self.show_validation_alert("Erreur technique", f"Une erreur s'est produite : {str(e)}")
     
     def delete_course_from_grid(self, course_id):
-        """Supprimer un cours de la grille"""
-        try:
-            if self.data_manager.delete_schedule_slot(course_id):
-                self.show_snackbar("Cours supprimé avec succès !")
-                self.load_class_schedule()
-            else:
-                self.show_snackbar("Erreur lors de la suppression", error=True)
-        except Exception as e:
-            print(f"Erreur lors de la suppression: {e}")
-            self.show_snackbar("Erreur lors de la suppression", error=True)
+        """Supprimer un cours de la grille - redirige vers le dialogue de confirmation"""
+        self.show_delete_course_dialog(course_id)
     
     def show_teacher_schedule_interface(self):
         """Interface d'emploi du temps des professeurs - Style moderne"""
