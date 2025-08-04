@@ -6061,13 +6061,18 @@ class StudentRegistrationSystem:
                     ft.Container(
                         content=ft.IconButton(
                             icon="close",
-                            icon_size=18,
+                            icon_size=16,
                             icon_color="#64748b",
                             tooltip="Fermer",
-                            on_click=close_menu
+                            on_click=close_menu,
+                            style=ft.ButtonStyle(
+                                padding=ft.padding.all(8),
+                                shape=ft.CircleBorder()
+                            )
                         ),
-                        right=4,
-                        top=4
+                        right=0,
+                        top=0,
+                        alignment=ft.alignment.top_right
                     )
                 ]),
                 bgcolor="#f8fafc",
