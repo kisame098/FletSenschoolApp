@@ -5943,6 +5943,7 @@ class StudentRegistrationSystem:
         teacher_name = course_data.get('teacher_name', '')
         course_color = course_data.get('color', '#4f46e5')  # Utiliser la couleur sauvegardée
         course_id = course_data.get('id')
+        print(f"DEBUG: Création d'un bloc pour le cours ID: {course_id}, données: {course_data}")
         
         if day not in self.day_columns:
             return
@@ -5975,27 +5976,37 @@ class StudentRegistrationSystem:
                 padding=ft.padding.symmetric(horizontal=4, vertical=1),
                 border_radius=3
             ),
-            # Boutons d'action
+            # Boutons d'action avec meilleure visibilité
             ft.Row([
-                ft.IconButton(
-                    icon="edit",
-                    icon_size=16,
-                    icon_color="#ffffff",
-                    tooltip="Modifier",
-                    on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
+                ft.Container(
+                    content=ft.IconButton(
+                        icon="edit",
+                        icon_size=18,
+                        icon_color="#ffffff",
+                        tooltip="Modifier ce cours",
+                        on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
+                    ),
+                    bgcolor="rgba(255,255,255,0.1)",
+                    border_radius=4,
+                    padding=ft.padding.all(2)
                 ),
-                ft.IconButton(
-                    icon="delete",
-                    icon_size=16,
-                    icon_color="#ffffff",
-                    tooltip="Supprimer",
-                    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                ft.Container(
+                    content=ft.IconButton(
+                        icon="delete",
+                        icon_size=18,
+                        icon_color="#ffffff",
+                        tooltip="Supprimer ce cours",
+                        on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                    ),
+                    bgcolor="rgba(255,255,255,0.1)",
+                    border_radius=4,
+                    padding=ft.padding.all(2)
                 )
-            ], alignment=ft.MainAxisAlignment.CENTER, spacing=5)
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8)
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=2)
+        spacing=3)
         
         # Créer le bloc de cours
         course_block = ft.Container(
@@ -6248,11 +6259,16 @@ class StudentRegistrationSystem:
     
     def show_edit_course_dialog(self, course_id):
         """Afficher le dialogue de modification d'un cours"""
+        print(f"DEBUG: Tentative de modification du cours ID: {course_id}")
+        
         # Récupérer les données du cours
         course = self.data_manager.get_schedule_by_id(course_id)
         if not course:
+            print(f"DEBUG: Cours non trouvé pour l'ID: {course_id}")
             self.show_validation_alert("Erreur", "Cours introuvable")
             return
+            
+        print(f"DEBUG: Cours trouvé: {course}")
         
         # Récupérer les données pour les dropdowns
         classes = self.data_manager.get_all_classes()
@@ -6448,10 +6464,15 @@ class StudentRegistrationSystem:
     
     def show_delete_course_dialog(self, course_id):
         """Afficher le dialogue de confirmation de suppression"""
+        print(f"DEBUG: Tentative de suppression du cours ID: {course_id}")
+        
         course = self.data_manager.get_schedule_by_id(course_id)
         if not course:
+            print(f"DEBUG: Cours non trouvé pour suppression ID: {course_id}")
             self.show_validation_alert("Erreur", "Cours introuvable")
             return
+            
+        print(f"DEBUG: Cours trouvé pour suppression: {course}")
         
         def confirm_delete(e):
             if self.data_manager.delete_schedule_slot(course_id):
