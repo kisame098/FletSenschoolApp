@@ -5510,7 +5510,7 @@ class StudentRegistrationSystem:
                         ft.Icon(
                             "groups",
                             size=48,
-                            color="#1e293b"
+                            color="#4f46e5"
                         ),
                         ft.Text(
                             "Classes",
@@ -5543,7 +5543,7 @@ class StudentRegistrationSystem:
                         ft.Icon(
                             "school",
                             size=48,
-                            color="#1e293b"
+                            color="#4f46e5"
                         ),
                         ft.Text(
                             "Professeurs",
@@ -5705,6 +5705,29 @@ class StudentRegistrationSystem:
             expand=True
         )
         
+        # Sélecteur de couleur pour les blocs de cours
+        self.color_dropdown = ft.Dropdown(
+            label="Couleur du bloc",
+            options=[
+                ft.dropdown.Option(key="#4f46e5", text="🟦 Bleu"),
+                ft.dropdown.Option(key="#ef4444", text="🟥 Rouge"),
+                ft.dropdown.Option(key="#10b981", text="🟩 Vert"),
+                ft.dropdown.Option(key="#f59e0b", text="🟨 Orange"),
+                ft.dropdown.Option(key="#8b5cf6", text="🟪 Violet"),
+                ft.dropdown.Option(key="#06b6d4", text="🟦 Cyan"),
+                ft.dropdown.Option(key="#84cc16", text="🟢 Lime"),
+                ft.dropdown.Option(key="#ec4899", text="🩷 Rose"),
+                ft.dropdown.Option(key="#14b8a6", text="🟢 Teal"),
+                ft.dropdown.Option(key="#1f2937", text="⬛ Gris foncé")
+            ],
+            value="#4f46e5",  # Couleur par défaut
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=150
+        )
+        
         # Conteneur formulaire harmonisé
         form_container = ft.Card(
             content=ft.Container(
@@ -5720,11 +5743,13 @@ class StudentRegistrationSystem:
                         self.end_time_dropdown
                     ]),
                     ft.Container(height=16),
-                    # Deuxième ligne: Professeur, Matière, Bouton
+                    # Deuxième ligne: Professeur, Matière, Couleur, Bouton
                     ft.Row([
                         self.teacher_dropdown,
                         ft.Container(width=16),
                         self.subject_field,
+                        ft.Container(width=16),
+                        self.color_dropdown,
                         ft.Container(width=16),
                         ft.ElevatedButton(
                             text="+ Ajouter",
@@ -5794,14 +5819,15 @@ class StudentRegistrationSystem:
                 ft.Container(
                     content=ft.Text(
                         "Horaires",
-                        size=14,
+                        size=12,
                         weight=ft.FontWeight.W_600,
-                        color="#111827"
+                        color="#111827",
+                        text_align=ft.TextAlign.CENTER
                     ),
                     height=65,
                     bgcolor="#f9fafb",
                     border=ft.border.only(bottom=ft.border.BorderSide(2, "#e5e7eb")),
-                    padding=ft.padding.all(16),
+                    padding=ft.padding.all(8),
                     alignment=ft.alignment.center
                 ),
                 # Créneaux horaires
@@ -5909,12 +5935,14 @@ class StudentRegistrationSystem:
         self.page.update()
     
     def add_course_to_grid(self, course_data):
-        """Ajouter un bloc de cours à la grille"""
+        """Ajouter un bloc de cours à la grille avec options de modification/suppression"""
         day = course_data.get('day')
         start_time = course_data.get('start_time', '08:00')
         end_time = course_data.get('end_time', '09:00')
         subject = course_data.get('subject', '')
         teacher_name = course_data.get('teacher_name', '')
+        course_color = course_data.get('color', '#4f46e5')  # Utiliser la couleur sauvegardée
+        course_id = course_data.get('id')
         
         if day not in self.day_columns:
             return
@@ -5922,60 +5950,64 @@ class StudentRegistrationSystem:
         # Calculer la position et la taille du bloc
         position = self.calculate_course_position(start_time, end_time)
         
-        # Couleurs par matière
-        subject_colors = {
-            "Mathématiques": "#3b82f6",
-            "Français": "#ef4444", 
-            "Anglais": "#10b981",
-            "Sciences": "#f59e0b",
-            "Histoire": "#8b5cf6",
-            "Géographie": "#06b6d4",
-            "Sport": "#84cc16",
-            "Philosophie": "#f97316",
-            "Physique": "#ec4899",
-            "Chimie": "#14b8a6"
-        }
-        
-        course_color = subject_colors.get(subject, "#1f2937")
+        # Créer le contenu du bloc avec boutons d'action
+        content_column = ft.Column([
+            ft.Text(
+                subject,
+                size=12,
+                weight=ft.FontWeight.BOLD,
+                color="#ffffff",
+                text_align=ft.TextAlign.CENTER
+            ),
+            ft.Text(
+                teacher_name,
+                size=10,
+                color="rgba(255,255,255,0.8)",
+                text_align=ft.TextAlign.CENTER
+            ),
+            ft.Container(
+                content=ft.Text(
+                    f"{start_time}-{end_time}",
+                    size=9,
+                    color="#ffffff"
+                ),
+                bgcolor="rgba(255,255,255,0.2)",
+                padding=ft.padding.symmetric(horizontal=4, vertical=1),
+                border_radius=3
+            ),
+            # Boutons d'action
+            ft.Row([
+                ft.IconButton(
+                    icon=ft.icons.EDIT,
+                    icon_size=16,
+                    icon_color="#ffffff",
+                    tooltip="Modifier",
+                    on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
+                ),
+                ft.IconButton(
+                    icon=ft.icons.DELETE,
+                    icon_size=16,
+                    icon_color="#ffffff",
+                    tooltip="Supprimer",
+                    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                )
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=5)
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=2)
         
         # Créer le bloc de cours
         course_block = ft.Container(
-            content=ft.Column([
-                ft.Text(
-                    subject,
-                    size=12,
-                    weight=ft.FontWeight.BOLD,
-                    color="#ffffff",
-                    text_align=ft.TextAlign.CENTER
-                ),
-                ft.Text(
-                    teacher_name,
-                    size=11,
-                    color="rgba(255,255,255,0.8)",
-                    text_align=ft.TextAlign.CENTER
-                ),
-                ft.Container(
-                    content=ft.Text(
-                        f"{start_time}-{end_time}",
-                        size=10,
-                        color="#ffffff"
-                    ),
-                    bgcolor="rgba(255,255,255,0.2)",
-                    padding=ft.padding.symmetric(horizontal=6, vertical=2),
-                    border_radius=4
-                )
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=4),
+            content=content_column,
             left=6,
             right=6,
             top=position['top'],
             height=position['height'],
             bgcolor=course_color,
             border_radius=8,
-            padding=ft.padding.all(8),
-            on_click=lambda e, course_id=course_data.get('id'): self.delete_course_from_grid(course_id)
+            padding=ft.padding.all(6),
+            border=ft.border.all(2, "rgba(255,255,255,0.3)")
         )
         
         # Ajouter le bloc à la colonne du jour
@@ -6004,51 +6036,30 @@ class StudentRegistrationSystem:
         }
     
     def add_course_new(self, e):
-        """Ajouter un nouveau cours avec la nouvelle interface"""
+        """Ajouter un nouveau cours avec validation améliorée"""
         try:
-            # Validation des champs
-            if not all([
-                self.class_dropdown.value,
-                self.day_dropdown.value,
-                self.start_time_dropdown.value,
-                self.end_time_dropdown.value,
-                self.teacher_dropdown.value,
-                self.subject_field.value
-            ]):
-                self.show_snackbar("Veuillez remplir tous les champs", error=True)
+            # Validation complète des champs
+            validation_errors = self.validate_course_fields()
+            
+            if validation_errors:
+                error_message = "Veuillez corriger les erreurs suivantes :\n\n" + "\n".join(validation_errors)
+                self.show_validation_alert("Erreurs de validation", error_message)
                 return
             
-            # Vérifier que l'heure de fin est après l'heure de début
-            start_hour, start_min = map(int, self.start_time_dropdown.value.split(':'))
-            end_hour, end_min = map(int, self.end_time_dropdown.value.split(':'))
-            
-            if (end_hour * 60 + end_min) <= (start_hour * 60 + start_min):
-                self.show_snackbar("L'heure de fin doit être après l'heure de début", error=True)
-                return
-            
-            # Vérifier les conflits
-            if self.data_manager.check_schedule_conflict(
-                self.class_dropdown.value,
-                self.day_dropdown.value,
-                self.start_time_dropdown.value,
-                self.end_time_dropdown.value
-            ):
-                self.show_snackbar("Conflit d'horaire détecté", error=True)
-                return
-            
-            # Créer les données du cours
+            # Créer les données du cours avec couleur
             course_data = {
                 "class_name": self.class_dropdown.value,
                 "day": self.day_dropdown.value,
                 "start_time": self.start_time_dropdown.value,
                 "end_time": self.end_time_dropdown.value,
                 "teacher_name": self.teacher_dropdown.value,
-                "subject": self.subject_field.value.strip()
+                "subject": self.subject_field.value.strip(),
+                "color": self.color_dropdown.value or "#4f46e5"  # Couleur par défaut
             }
             
             # Sauvegarder
             if self.data_manager.add_schedule_slot(course_data):
-                self.show_snackbar("Cours ajouté avec succès !")
+                self.show_snackbar("✅ Cours ajouté avec succès !")
                 
                 # Réinitialiser tous les champs sauf la classe
                 self.day_dropdown.value = None
@@ -6056,17 +6067,18 @@ class StudentRegistrationSystem:
                 self.end_time_dropdown.value = None
                 self.teacher_dropdown.value = None
                 self.subject_field.value = ""
+                self.color_dropdown.value = "#4f46e5"  # Réinitialiser couleur
                 # La classe reste sélectionnée pour faciliter l'ajout de plusieurs cours
                 
                 # Recharger l'emploi du temps
                 self.load_class_schedule()
                 self.page.update()
             else:
-                self.show_snackbar("Erreur lors de l'ajout", error=True)
+                self.show_validation_alert("Erreur", "Impossible d'ajouter le cours. Veuillez réessayer.")
                 
         except Exception as e:
             print(f"Erreur lors de l'ajout du cours: {e}")
-            self.show_snackbar("Erreur lors de l'ajout", error=True)
+            self.show_validation_alert("Erreur technique", f"Une erreur s'est produite : {str(e)}")
     
     def delete_course_from_grid(self, course_id):
         """Supprimer un cours de la grille"""
@@ -6162,44 +6174,334 @@ class StudentRegistrationSystem:
         self.schedule_main_container.content = interface
         self.page.update()
     
-    # =================== SUPPRESSION DES ANCIENNES FONCTIONS D'EMPLOI DU TEMPS ===================
-    # Les fonctions suivantes ont été remplacées par la nouvelle interface professionnelle
-    # Elles seront supprimées lors du prochain nettoyage de code
+    # =================== FONCTIONS D'AMÉLIORATION DE L'EMPLOI DU TEMPS ===================
+    
+    def show_validation_alert(self, title, message):
+        """Afficher une alerte de validation"""
+        def close_dialog(e):
+            alert_dialog.open = False
+            self.page.update()
         
-        if teacher_id:
-            # Chercher le professeur par ID
-            teachers = self.data_manager.get_all_teachers()
-            teacher = None
+        alert_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(title, weight=ft.FontWeight.BOLD, color="#ef4444"),
+            content=ft.Text(message, color="#374151"),
+            actions=[
+                ft.TextButton(
+                    "OK",
+                    on_click=close_dialog,
+                    style=ft.ButtonStyle(
+                        color="#4f46e5",
+                        bgcolor="#f8fafc"
+                    )
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.dialog = alert_dialog
+        alert_dialog.open = True
+        self.page.update()
+    
+    def validate_course_fields(self):
+        """Valider tous les champs du formulaire de cours"""
+        errors = []
+        
+        # Vérification des champs obligatoires
+        if not self.class_dropdown.value:
+            errors.append("• La classe est obligatoire")
+        
+        if not self.day_dropdown.value:
+            errors.append("• Le jour est obligatoire")
+        
+        if not self.start_time_dropdown.value:
+            errors.append("• L'heure de début est obligatoire")
+        
+        if not self.end_time_dropdown.value:
+            errors.append("• L'heure de fin est obligatoire")
+        
+        if not self.teacher_dropdown.value:
+            errors.append("• Le professeur est obligatoire")
+        
+        if not self.subject_field.value or not self.subject_field.value.strip():
+            errors.append("• La matière est obligatoire")
+        
+        # Vérification des horaires si les champs sont remplis
+        if self.start_time_dropdown.value and self.end_time_dropdown.value:
+            start_hour, start_min = map(int, self.start_time_dropdown.value.split(':'))
+            end_hour, end_min = map(int, self.end_time_dropdown.value.split(':'))
             
-            for t in teachers:
-                if str(t.get('id', '')) == teacher_id:
-                    teacher = t
+            start_total_min = start_hour * 60 + start_min
+            end_total_min = end_hour * 60 + end_min
+            
+            if end_total_min <= start_total_min:
+                errors.append("• L'heure de fin doit être après l'heure de début")
+            
+            if end_total_min - start_total_min < 30:
+                errors.append("• Un cours doit durer au minimum 30 minutes")
+        
+        # Vérification des conflits d'horaire
+        if (self.class_dropdown.value and self.day_dropdown.value and 
+            self.start_time_dropdown.value and self.end_time_dropdown.value):
+            
+            if self.data_manager.check_schedule_conflict(
+                self.class_dropdown.value,
+                self.day_dropdown.value,
+                self.start_time_dropdown.value,
+                self.end_time_dropdown.value
+            ):
+                errors.append("• Ce créneau horaire est déjà occupé pour cette classe")
+        
+        return errors
+    
+    def show_edit_course_dialog(self, course_id):
+        """Afficher le dialogue de modification d'un cours"""
+        # Récupérer les données du cours
+        course = self.data_manager.get_schedule_by_id(course_id)
+        if not course:
+            self.show_validation_alert("Erreur", "Cours introuvable")
+            return
+        
+        # Récupérer les données pour les dropdowns
+        classes = self.data_manager.get_all_classes()
+        teachers = self.data_manager.get_all_teachers()
+        class_options = [ft.dropdown.Option(key=cls['nom'], text=cls['nom']) for cls in classes]
+        teacher_options = [ft.dropdown.Option(key=f"{t['prenom']} {t['nom']}", text=f"{t['prenom']} {t['nom']}") for t in teachers]
+        
+        # Options d'horaires
+        time_options = []
+        for hour in range(7, 20):
+            for minute in [0, 30]:
+                if hour == 19 and minute == 30:
                     break
-            
-            if teacher:
-                # Remplir automatiquement les champs
-                self.teacher_prenom_field.value = teacher.get('prenom', '')
-                self.teacher_nom_field.value = teacher.get('nom', '')
-                self.teacher_birth_field.value = teacher.get('date_naissance', '')
-                self.teacher_subject_field.value = teacher.get('matiere', '')
-                
-                # Sauvegarder les infos pour utilisation ultérieure
-                self.selected_teacher = teacher
-            else:
-                # Vider les champs si professeur non trouvé
-                self.teacher_prenom_field.value = ""
-                self.teacher_nom_field.value = ""
-                self.teacher_birth_field.value = ""
-                self.teacher_subject_field.value = ""
-                self.selected_teacher = None
-        else:
-            # Vider tous les champs si ID vide
-            self.teacher_prenom_field.value = ""
-            self.teacher_nom_field.value = ""
-            self.teacher_birth_field.value = ""
-            self.teacher_subject_field.value = ""
-            self.selected_teacher = None
+                time_str = f"{hour:02d}:{minute:02d}"
+                time_options.append(ft.dropdown.Option(key=time_str, text=time_str))
         
+        # Champs du formulaire de modification
+        edit_class_dropdown = ft.Dropdown(
+            label="Classe",
+            options=class_options,
+            value=course.get('class_name'),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        edit_day_dropdown = ft.Dropdown(
+            label="Jour",
+            options=[
+                ft.dropdown.Option(key="Lundi", text="Lundi"),
+                ft.dropdown.Option(key="Mardi", text="Mardi"),
+                ft.dropdown.Option(key="Mercredi", text="Mercredi"),
+                ft.dropdown.Option(key="Jeudi", text="Jeudi"),
+                ft.dropdown.Option(key="Vendredi", text="Vendredi"),
+                ft.dropdown.Option(key="Samedi", text="Samedi")
+            ],
+            value=course.get('day'),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        edit_start_time_dropdown = ft.Dropdown(
+            label="Début",
+            options=time_options,
+            value=course.get('start_time'),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        edit_end_time_dropdown = ft.Dropdown(
+            label="Fin",
+            options=time_options,
+            value=course.get('end_time'),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        edit_teacher_dropdown = ft.Dropdown(
+            label="Professeur",
+            options=teacher_options,
+            value=course.get('teacher_name'),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        edit_subject_field = ft.TextField(
+            label="Matière",
+            value=course.get('subject', ''),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            expand=True
+        )
+        
+        edit_color_dropdown = ft.Dropdown(
+            label="Couleur du bloc",
+            options=[
+                ft.dropdown.Option(key="#4f46e5", text="🟦 Bleu"),
+                ft.dropdown.Option(key="#ef4444", text="🟥 Rouge"),
+                ft.dropdown.Option(key="#10b981", text="🟩 Vert"),
+                ft.dropdown.Option(key="#f59e0b", text="🟨 Orange"),
+                ft.dropdown.Option(key="#8b5cf6", text="🟪 Violet"),
+                ft.dropdown.Option(key="#06b6d4", text="🟦 Cyan"),
+                ft.dropdown.Option(key="#84cc16", text="🟢 Lime"),
+                ft.dropdown.Option(key="#ec4899", text="🩷 Rose"),
+                ft.dropdown.Option(key="#14b8a6", text="🟢 Teal"),
+                ft.dropdown.Option(key="#1f2937", text="⬛ Gris foncé")
+            ],
+            value=course.get('color', '#4f46e5'),
+            bgcolor="#ffffff",
+            border_radius=8,
+            border_color="#e2e8f0",
+            focused_border_color="#4f46e5",
+            width=150
+        )
+        
+        def save_course_changes(e):
+            # Validation
+            if not all([
+                edit_class_dropdown.value,
+                edit_day_dropdown.value,
+                edit_start_time_dropdown.value,
+                edit_end_time_dropdown.value,
+                edit_teacher_dropdown.value,
+                edit_subject_field.value and edit_subject_field.value.strip()
+            ]):
+                self.show_validation_alert("Erreur", "Tous les champs sont obligatoires")
+                return
+            
+            # Vérifier les horaires
+            start_hour, start_min = map(int, edit_start_time_dropdown.value.split(':'))
+            end_hour, end_min = map(int, edit_end_time_dropdown.value.split(':'))
+            
+            if (end_hour * 60 + end_min) <= (start_hour * 60 + start_min):
+                self.show_validation_alert("Erreur", "L'heure de fin doit être après l'heure de début")
+                return
+            
+            # Données mises à jour
+            updated_course = {
+                "id": course_id,
+                "class_name": edit_class_dropdown.value,
+                "day": edit_day_dropdown.value,
+                "start_time": edit_start_time_dropdown.value,
+                "end_time": edit_end_time_dropdown.value,
+                "teacher_name": edit_teacher_dropdown.value,
+                "subject": edit_subject_field.value.strip(),
+                "color": edit_color_dropdown.value or "#4f46e5"
+            }
+            
+            # Sauvegarder
+            if self.data_manager.update_schedule_slot(course_id, updated_course):
+                self.show_snackbar("✅ Cours modifié avec succès !")
+                self.load_class_schedule()
+                dialog.open = False
+                self.page.update()
+            else:
+                self.show_validation_alert("Erreur", "Impossible de modifier le cours")
+        
+        def close_dialog(e):
+            dialog.open = False
+            self.page.update()
+        
+        # Créer le dialogue
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Modifier le cours", weight=ft.FontWeight.BOLD, color="#1e293b"),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([edit_class_dropdown, edit_day_dropdown]),
+                    ft.Container(height=8),
+                    ft.Row([edit_start_time_dropdown, edit_end_time_dropdown]),
+                    ft.Container(height=8),
+                    ft.Row([edit_teacher_dropdown, edit_subject_field]),
+                    ft.Container(height=8),
+                    edit_color_dropdown
+                ], spacing=8),
+                width=500,
+                height=300
+            ),
+            actions=[
+                ft.TextButton(
+                    "Annuler",
+                    on_click=close_dialog,
+                    style=ft.ButtonStyle(color="#64748b")
+                ),
+                ft.ElevatedButton(
+                    "Sauvegarder",
+                    on_click=save_course_changes,
+                    style=ft.ButtonStyle(bgcolor="#4f46e5", color="#ffffff")
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+    
+    def show_delete_course_dialog(self, course_id):
+        """Afficher le dialogue de confirmation de suppression"""
+        course = self.data_manager.get_schedule_by_id(course_id)
+        if not course:
+            self.show_validation_alert("Erreur", "Cours introuvable")
+            return
+        
+        def confirm_delete(e):
+            if self.data_manager.delete_schedule_slot(course_id):
+                self.show_snackbar("✅ Cours supprimé avec succès !")
+                self.load_class_schedule()
+                dialog.open = False
+                self.page.update()
+            else:
+                self.show_validation_alert("Erreur", "Impossible de supprimer le cours")
+        
+        def cancel_delete(e):
+            dialog.open = False
+            self.page.update()
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmer la suppression", weight=ft.FontWeight.BOLD, color="#ef4444"),
+            content=ft.Text(
+                f"Êtes-vous sûr de vouloir supprimer ce cours ?\n\n"
+                f"• Matière: {course.get('subject', '')}\n"
+                f"• Professeur: {course.get('teacher_name', '')}\n"
+                f"• Horaire: {course.get('start_time', '')} - {course.get('end_time', '')}\n"
+                f"• Jour: {course.get('day', '')}",
+                color="#374151"
+            ),
+            actions=[
+                ft.TextButton(
+                    "Annuler",
+                    on_click=cancel_delete,
+                    style=ft.ButtonStyle(color="#64748b")
+                ),
+                ft.ElevatedButton(
+                    "Supprimer",
+                    on_click=confirm_delete,
+                    style=ft.ButtonStyle(bgcolor="#ef4444", color="#ffffff")
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        self.page.dialog = dialog
+        dialog.open = True
         self.page.update()
     
     def add_schedule_slot(self, e):

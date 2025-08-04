@@ -18,5 +18,15 @@
     "subject": "math",
     "id": 2,
     "created_at": "2025-08-04T12:50:05.365471"
+  },
+  {
+    "class_name": "3AB",
+    "day": "Vendredi",
+    "start_time": "12:30",
+    "end_time": "13:30",
+    "teacher_name": "EDWARD FAYE",
+    "subject": "svt",
+    "id": 3,
+    "created_at": "2025-08-04T13:10:15.927174"
   }
 ]
