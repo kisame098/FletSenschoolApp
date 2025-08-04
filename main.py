@@ -5944,7 +5944,7 @@ class StudentRegistrationSystem:
         # Calculer la position et la taille du bloc
         position = self.calculate_course_position(start_time, end_time)
         
-        # Créer le contenu du bloc avec boutons d'action
+        # Créer le contenu du bloc sans icônes visibles
         content_column = ft.Column([
             ft.Text(
                 subject,
@@ -5968,40 +5968,13 @@ class StudentRegistrationSystem:
                 bgcolor="rgba(255,255,255,0.2)",
                 padding=ft.padding.symmetric(horizontal=4, vertical=1),
                 border_radius=3
-            ),
-            # Boutons d'action avec meilleure visibilité
-            ft.Row([
-                ft.Container(
-                    content=ft.IconButton(
-                        icon="edit",
-                        icon_size=18,
-                        icon_color="#ffffff",
-                        tooltip="Modifier ce cours",
-                        on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
-                    ),
-                    bgcolor="rgba(255,255,255,0.1)",
-                    border_radius=4,
-                    padding=ft.padding.all(2)
-                ),
-                ft.Container(
-                    content=ft.IconButton(
-                        icon="delete",
-                        icon_size=18,
-                        icon_color="#ffffff",
-                        tooltip="Supprimer ce cours",
-                        on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
-                    ),
-                    bgcolor="rgba(255,255,255,0.1)",
-                    border_radius=4,
-                    padding=ft.padding.all(2)
-                )
-            ], alignment=ft.MainAxisAlignment.CENTER, spacing=8)
+            )
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=3)
+        spacing=5)
         
-        # Créer le bloc de cours
+        # Créer le bloc de cours cliquable avec menu contextuel
         course_block = ft.Container(
             content=content_column,
             left=6,
@@ -6011,7 +5984,10 @@ class StudentRegistrationSystem:
             bgcolor=course_color,
             border_radius=8,
             padding=ft.padding.all(6),
-            border=ft.border.all(2, "rgba(255,255,255,0.3)")
+            border=ft.border.all(2, "rgba(255,255,255,0.3)"),
+            on_click=lambda e, cid=course_id: self.show_course_context_menu(e, cid),
+            ink=True,  # Effet de clic visuel
+            animate=ft.animation.Animation(100, "bounceOut")
         )
         
         # Ajouter le bloc à la colonne du jour
@@ -6038,6 +6014,119 @@ class StudentRegistrationSystem:
             'top': max(67, int(top_position)),  # Minimum après le header
             'height': max(30, int(height))  # Hauteur minimale
         }
+    
+    def show_course_context_menu(self, e, course_id):
+        """Afficher un menu contextuel pour les actions sur un cours"""
+        # Récupérer les données du cours pour affichage dans le titre
+        course = self.data_manager.get_schedule_by_id(course_id)
+        if not course:
+            self.show_validation_alert("Erreur", "Cours introuvable")
+            return
+        
+        def close_menu(e):
+            self.page.close(dialog)
+        
+        def edit_course(e):
+            self.page.close(dialog)
+            self.show_edit_course_dialog(course_id)
+        
+        def delete_course(e):
+            self.page.close(dialog)
+            self.show_delete_course_dialog(course_id)
+        
+        # Créer le contenu du menu avec style moderne
+        menu_content = ft.Column([
+            # En-tête du menu avec infos du cours
+            ft.Container(
+                content=ft.Column([
+                    ft.Text(
+                        course.get('subject', 'Matière'),
+                        size=16,
+                        weight=ft.FontWeight.BOLD,
+                        color="#1e293b",
+                        text_align=ft.TextAlign.CENTER
+                    ),
+                    ft.Text(
+                        f"{course.get('teacher_name', '')} • {course.get('start_time', '')}-{course.get('end_time', '')}",
+                        size=12,
+                        color="#64748b",
+                        text_align=ft.TextAlign.CENTER
+                    )
+                ], spacing=4),
+                padding=ft.padding.all(16),
+                bgcolor="#f8fafc",
+                border_radius=ft.border_radius.only(top_left=12, top_right=12)
+            ),
+            
+            # Séparateur
+            ft.Divider(height=1, color="#e2e8f0"),
+            
+            # Options du menu
+            ft.Container(
+                content=ft.Column([
+                    # Option Modifier
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon("edit", size=20, color="#4f46e5"),
+                            ft.Text(
+                                "Modifier ce cours",
+                                size=14,
+                                color="#374151",
+                                weight=ft.FontWeight.W_500
+                            )
+                        ], spacing=12),
+                        padding=ft.padding.all(12),
+                        on_click=edit_course,
+                        ink=True,
+                        border_radius=8,
+                        on_hover=lambda e: setattr(e.control, 'bgcolor', 
+                                                 "#f1f5f9" if e.data == "true" else "transparent") or self.page.update()
+                    ),
+                    
+                    # Option Supprimer
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon("delete", size=20, color="#ef4444"),
+                            ft.Text(
+                                "Supprimer ce cours",
+                                size=14,
+                                color="#ef4444",
+                                weight=ft.FontWeight.W_500
+                            )
+                        ], spacing=12),
+                        padding=ft.padding.all(12),
+                        on_click=delete_course,
+                        ink=True,
+                        border_radius=8,
+                        on_hover=lambda e: setattr(e.control, 'bgcolor', 
+                                                 "#fef2f2" if e.data == "true" else "transparent") or self.page.update()
+                    )
+                ], spacing=4),
+                padding=ft.padding.all(8)
+            )
+        ], spacing=0, tight=True)
+        
+        # Créer le dialogue modal
+        dialog = ft.AlertDialog(
+            modal=True,
+            content=ft.Container(
+                content=menu_content,
+                width=280,
+                bgcolor="#ffffff",
+                border_radius=12,
+                border=ft.border.all(1, "#e2e8f0")
+            ),
+            actions=[],  # Pas de boutons standards
+            actions_alignment=ft.MainAxisAlignment.CENTER,
+            on_dismiss=close_menu,
+            bgcolor="transparent",  # Fond transparent
+            elevation=0,  # Pas d'ombre du dialogue standard
+            title=None,  # Pas de titre standard
+            content_padding=0  # Pas de padding pour le contenu
+        )
+        
+        # Ouvrir le menu
+        self.page.open(dialog)
     
     def add_course_new(self, e):
         """Ajouter un nouveau cours avec validation améliorée"""
