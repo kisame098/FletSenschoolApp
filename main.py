@@ -3280,14 +3280,10 @@ class StudentRegistrationSystem:
                 self.show_teacher_management()
             else:
                 self.show_snackbar("Erreur lors de la suppression", error=True)
-            dialog.open = False
-            self.page.overlay.remove(dialog)
-            self.page.update()
+            self.page.close(dialog)
         
         def cancel_delete(e):
-            dialog.open = False
-            self.page.overlay.remove(dialog)
-            self.page.update()
+            self.page.close(dialog)
         
         dialog = ft.AlertDialog(
             modal=True,
@@ -3299,9 +3295,7 @@ class StudentRegistrationSystem:
             ]
         )
         
-        self.page.overlay.append(dialog)
-        dialog.open = True
-        self.page.update()
+        self.page.open(dialog)
     
     def show_class_management(self):
         """Afficher la gestion des classes"""
@@ -6181,9 +6175,7 @@ class StudentRegistrationSystem:
     def show_validation_alert(self, title, message):
         """Afficher une alerte de validation"""
         def close_dialog(e):
-            alert_dialog.open = False
-            self.page.overlay.remove(alert_dialog)
-            self.page.update()
+            self.page.close(alert_dialog)
         
         alert_dialog = ft.AlertDialog(
             modal=True,
@@ -6202,9 +6194,7 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.overlay.append(alert_dialog)
-        alert_dialog.open = True
-        self.page.update()
+        self.page.open(alert_dialog)
     
     def validate_course_fields(self):
         """Valider tous les champs du formulaire de cours"""
@@ -6412,16 +6402,12 @@ class StudentRegistrationSystem:
             if self.data_manager.update_schedule_slot(course_id, updated_course):
                 self.show_snackbar("✅ Cours modifié avec succès !")
                 self.load_class_schedule()
-                dialog.open = False
-                self.page.overlay.remove(dialog)
-                self.page.update()
+                self.page.close(dialog)
             else:
                 self.show_validation_alert("Erreur", "Impossible de modifier le cours")
         
         def close_dialog(e):
-            dialog.open = False
-            self.page.overlay.remove(dialog)
-            self.page.update()
+            self.page.close(dialog)
         
         # Créer le dialogue
         dialog = ft.AlertDialog(
@@ -6455,9 +6441,7 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.overlay.append(dialog)
-        dialog.open = True
-        self.page.update()
+        self.page.open(dialog)
     
     def show_delete_course_dialog(self, course_id):
         """Afficher le dialogue de confirmation de suppression"""
@@ -6470,16 +6454,12 @@ class StudentRegistrationSystem:
             if self.data_manager.delete_schedule_slot(course_id):
                 self.show_snackbar("✅ Cours supprimé avec succès !")
                 self.load_class_schedule()
-                dialog.open = False
-                self.page.overlay.remove(dialog)
-                self.page.update()
+                self.page.close(dialog)
             else:
                 self.show_validation_alert("Erreur", "Impossible de supprimer le cours")
         
         def cancel_delete(e):
-            dialog.open = False
-            self.page.overlay.remove(dialog)
-            self.page.update()
+            self.page.close(dialog)
         
         dialog = ft.AlertDialog(
             modal=True,
@@ -6507,10 +6487,8 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        # Ajouter le dialogue à la page et l'ouvrir
-        self.page.overlay.append(dialog)
-        dialog.open = True
-        self.page.update()
+        # Ouvrir le dialogue
+        self.page.open(dialog)
     
     def add_schedule_slot(self, e):
         """Ajouter un créneau à l'emploi du temps"""
