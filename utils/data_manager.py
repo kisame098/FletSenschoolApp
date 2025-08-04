@@ -509,3 +509,24 @@ class DataManager:
         schedules = self.get_all_schedules()
         schedules = [s for s in schedules if s.get("id") != schedule_id]
         return self._save_data(self.schedule_file, schedules)
+    
+    def get_schedule_by_id(self, schedule_id: int) -> Optional[Dict]:
+        """Récupérer un créneau d'emploi du temps par son ID"""
+        schedules = self.get_all_schedules()
+        for schedule in schedules:
+            if schedule.get("id") == schedule_id:
+                return schedule
+        return None
+    
+    def update_schedule_slot(self, schedule_id: int, schedule_data: Dict) -> bool:
+        """Mettre à jour un créneau d'emploi du temps"""
+        schedules = self.get_all_schedules()
+        for i, schedule in enumerate(schedules):
+            if schedule.get("id") == schedule_id:
+                # Conserver l'ID et la date de création originaux
+                schedule_data["id"] = schedule_id
+                schedule_data["created_at"] = schedule.get("created_at", datetime.now().isoformat())
+                schedule_data["updated_at"] = datetime.now().isoformat()
+                schedules[i] = schedule_data
+                return self._save_data(self.schedule_file, schedules)
+        return False

@@ -1,0 +1,90 @@
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'DataManager' object has no attribute 'get_schedule_by_id'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5992, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6451, in show_delete_course_dialog
+    course = self.data_manager.get_schedule_by_id(course_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataManager' object has no attribute 'get_schedule_by_id'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'DataManager' object has no attribute 'get_schedule_by_id'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5992, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6451, in show_delete_course_dialog
+    course = self.data_manager.get_schedule_by_id(course_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataManager' object has no attribute 'get_schedule_by_id'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'DataManager' object has no attribute 'get_schedule_by_id'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5992, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6451, in show_delete_course_dialog
+    course = self.data_manager.get_schedule_by_id(course_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataManager' object has no attribute 'get_schedule_by_id'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'DataManager' object has no attribute 'get_schedule_by_id'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5992, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6451, in show_delete_course_dialog
+    course = self.data_manager.get_schedule_by_id(course_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataManager' object has no attribute 'get_schedule_by_id'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'DataManager' object has no attribute 'get_schedule_by_id'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5985, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6252, in show_edit_course_dialog
+    course = self.data_manager.get_schedule_by_id(course_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataManager' object has no attribute 'get_schedule_by_id'
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'DataManager' object has no attribute 'get_schedule_by_id'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5985, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_edit_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6252, in show_edit_course_dialog
+    course = self.data_manager.get_schedule_by_id(course_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataManager' object has no attribute 'get_schedule_by_id'
