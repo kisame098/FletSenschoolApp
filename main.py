@@ -6035,12 +6035,12 @@ class StudentRegistrationSystem:
         
         # Créer le contenu du menu avec style moderne
         menu_content = ft.Column([
-            # En-tête du menu avec infos du cours et bouton fermer
+            # En-tête du menu avec infos du cours
             ft.Container(
-                content=ft.Stack([
+                content=ft.Row([
                     # Contenu principal de l'en-tête
-                    ft.Container(
-                        content=ft.Column([
+                    ft.Expanded(
+                        child=ft.Column([
                             ft.Text(
                                 course.get('subject', 'Matière'),
                                 size=16,
@@ -6054,27 +6054,21 @@ class StudentRegistrationSystem:
                                 color="#64748b",
                                 text_align=ft.TextAlign.CENTER
                             )
-                        ], spacing=4),
-                        padding=ft.padding.all(16)
+                        ], spacing=4)
                     ),
-                    # Bouton fermer en haut à droite
-                    ft.Container(
-                        content=ft.IconButton(
-                            icon="close",
-                            icon_size=16,
-                            icon_color="#64748b",
-                            tooltip="Fermer",
-                            on_click=close_menu,
-                            style=ft.ButtonStyle(
-                                padding=ft.padding.all(8),
-                                shape=ft.CircleBorder()
-                            )
-                        ),
-                        right=0,
-                        top=0,
-                        alignment=ft.alignment.top_right
+                    # Bouton fermer à droite
+                    ft.IconButton(
+                        icon="close",
+                        icon_size=18,
+                        icon_color="#64748b",
+                        tooltip="Fermer",
+                        on_click=close_menu,
+                        style=ft.ButtonStyle(
+                            padding=ft.padding.all(4)
+                        )
                     )
-                ]),
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                padding=ft.padding.symmetric(horizontal=16, vertical=12),
                 bgcolor="#f8fafc",
                 border_radius=ft.border_radius.only(top_left=12, top_right=12)
             ),
