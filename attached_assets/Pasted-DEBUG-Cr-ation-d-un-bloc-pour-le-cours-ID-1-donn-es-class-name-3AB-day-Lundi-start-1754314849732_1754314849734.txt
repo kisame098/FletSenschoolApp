@@ -1,0 +1,75 @@
+DEBUG: Création d'un bloc pour le cours ID: 1, données: {'class_name': '3AB', 'day': 'Lundi', 'start_time': '08:00', 'end_time': '10:00', 'teacher_name': 'EDWARD FAYE', 'subject': 'svt', 'id': 1, 'created_at': '2025-08-04T12:48:35.455024'}
+DEBUG: Création d'un bloc pour le cours ID: 2, données: {'class_name': '3AB', 'day': 'Mercredi', 'start_time': '08:00', 'end_time': '10:00', 'teacher_name': 'EDWARD FAYE', 'subject': 'math', 'id': 2, 'created_at': '2025-08-04T12:50:05.365471'}
+DEBUG: Création d'un bloc pour le cours ID: 3, données: {'class_name': '3AB', 'day': 'Vendredi', 'start_time': '12:30', 'end_time': '13:30', 'teacher_name': 'EDWARD FAYE', 'subject': 'svt', 'id': 3, 'created_at': '2025-08-04T13:10:15.927174'}
+DEBUG: Tentative de suppression du cours ID: 1
+DEBUG: Cours trouvé pour suppression: {'class_name': '3AB', 'day': 'Lundi', 'start_time': '08:00', 'end_time': '10:00', 'teacher_name': 'EDWARD FAYE', 'subject': 'svt', 'id': 1, 'created_at': '2025-08-04T12:48:35.455024'}
+DEBUG: Création du dialogue de suppression...
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'Page' object has no attribute 'dialog'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5999, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6519, in show_delete_course_dialog
+    if self.page.dialog:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'Page' object has no attribute 'dialog'
+DEBUG: Tentative de suppression du cours ID: 1
+DEBUG: Cours trouvé pour suppression: {'class_name': '3AB', 'day': 'Lundi', 'start_time': '08:00', 'end_time': '10:00', 'teacher_name': 'EDWARD FAYE', 'subject': 'svt', 'id': 1, 'created_at': '2025-08-04T12:48:35.455024'}
+DEBUG: Création du dialogue de suppression...
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'Page' object has no attribute 'dialog'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5999, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6519, in show_delete_course_dialog
+    if self.page.dialog:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'Page' object has no attribute 'dialog'
+DEBUG: Tentative de suppression du cours ID: 1
+DEBUG: Cours trouvé pour suppression: {'class_name': '3AB', 'day': 'Lundi', 'start_time': '08:00', 'end_time': '10:00', 'teacher_name': 'EDWARD FAYE', 'subject': 'svt', 'id': 1, 'created_at': '2025-08-04T12:48:35.455024'}
+DEBUG: Création du dialogue de suppression...
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'Page' object has no attribute 'dialog'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5999, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6519, in show_delete_course_dialog
+    if self.page.dialog:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'Page' object has no attribute 'dialog'
+DEBUG: Tentative de suppression du cours ID: 1
+DEBUG: Cours trouvé pour suppression: {'class_name': '3AB', 'day': 'Lundi', 'start_time': '08:00', 'end_time': '10:00', 'teacher_name': 'EDWARD FAYE', 'subject': 'svt', 'id': 1, 'created_at': '2025-08-04T12:48:35.455024'}
+DEBUG: Création du dialogue de suppression...
+Future exception was never retrieved
+future: <Future finished exception=AttributeError("'Page' object has no attribute 'dialog'")>
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flet/core/page.py", line 906, in wrapper
+    handler(*args)
+  File "/home/runner/workspace/main.py", line 5999, in <lambda>
+    on_click=lambda e, cid=course_id: self.show_delete_course_dialog(cid)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6519, in show_delete_course_dialog
+    if self.page.dialog:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'Page' object has no attribute 'dialog'

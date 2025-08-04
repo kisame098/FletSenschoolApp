@@ -6418,12 +6418,14 @@ class StudentRegistrationSystem:
                 self.show_snackbar("✅ Cours modifié avec succès !")
                 self.load_class_schedule()
                 dialog.open = False
+                self.page.overlay.remove(dialog)
                 self.page.update()
             else:
                 self.show_validation_alert("Erreur", "Impossible de modifier le cours")
         
         def close_dialog(e):
             dialog.open = False
+            self.page.overlay.remove(dialog)
             self.page.update()
         
         # Créer le dialogue
@@ -6458,7 +6460,7 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.dialog = dialog
+        self.page.overlay.append(dialog)
         dialog.open = True
         self.page.update()
     
@@ -6479,12 +6481,14 @@ class StudentRegistrationSystem:
                 self.show_snackbar("✅ Cours supprimé avec succès !")
                 self.load_class_schedule()
                 dialog.open = False
+                self.page.overlay.remove(dialog)
                 self.page.update()
             else:
                 self.show_validation_alert("Erreur", "Impossible de supprimer le cours")
         
         def cancel_delete(e):
             dialog.open = False
+            self.page.overlay.remove(dialog)
             self.page.update()
         
         dialog = ft.AlertDialog(
@@ -6515,11 +6519,8 @@ class StudentRegistrationSystem:
         
         print(f"DEBUG: Création du dialogue de suppression...")
         
-        # S'assurer qu'aucun autre dialogue n'est ouvert
-        if self.page.dialog:
-            self.page.dialog.open = False
-        
-        self.page.dialog = dialog
+        # Ajouter le dialogue à la page et l'ouvrir
+        self.page.overlay.append(dialog)
         dialog.open = True
         print(f"DEBUG: Mise à jour de la page...")
         self.page.update()
