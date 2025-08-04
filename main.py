@@ -3281,10 +3281,12 @@ class StudentRegistrationSystem:
             else:
                 self.show_snackbar("Erreur lors de la suppression", error=True)
             dialog.open = False
+            self.page.overlay.remove(dialog)
             self.page.update()
         
         def cancel_delete(e):
             dialog.open = False
+            self.page.overlay.remove(dialog)
             self.page.update()
         
         dialog = ft.AlertDialog(
@@ -3297,7 +3299,7 @@ class StudentRegistrationSystem:
             ]
         )
         
-        self.page.dialog = dialog
+        self.page.overlay.append(dialog)
         dialog.open = True
         self.page.update()
     
@@ -3647,9 +3649,7 @@ class StudentRegistrationSystem:
     
     def close_class_dialog(self, e):
         """Fermer le dialog de classe"""
-        if hasattr(self, 'page') and self.page and hasattr(self.page, 'dialog') and self.page.dialog:
-            self.page.dialog.open = False
-            self.page.update()
+        # Cette fonction est dépréciée, les dialogues sont maintenant gérés avec overlay
     
     def show_grade_management(self):
         """Afficher la gestion des notes - Sélection du semestre"""
@@ -5943,7 +5943,6 @@ class StudentRegistrationSystem:
         teacher_name = course_data.get('teacher_name', '')
         course_color = course_data.get('color', '#4f46e5')  # Utiliser la couleur sauvegardée
         course_id = course_data.get('id')
-        print(f"DEBUG: Création d'un bloc pour le cours ID: {course_id}, données: {course_data}")
         
         if day not in self.day_columns:
             return
@@ -6183,6 +6182,7 @@ class StudentRegistrationSystem:
         """Afficher une alerte de validation"""
         def close_dialog(e):
             alert_dialog.open = False
+            self.page.overlay.remove(alert_dialog)
             self.page.update()
         
         alert_dialog = ft.AlertDialog(
@@ -6202,7 +6202,7 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        self.page.dialog = alert_dialog
+        self.page.overlay.append(alert_dialog)
         alert_dialog.open = True
         self.page.update()
     
@@ -6259,16 +6259,11 @@ class StudentRegistrationSystem:
     
     def show_edit_course_dialog(self, course_id):
         """Afficher le dialogue de modification d'un cours"""
-        print(f"DEBUG: Tentative de modification du cours ID: {course_id}")
-        
         # Récupérer les données du cours
         course = self.data_manager.get_schedule_by_id(course_id)
         if not course:
-            print(f"DEBUG: Cours non trouvé pour l'ID: {course_id}")
             self.show_validation_alert("Erreur", "Cours introuvable")
             return
-            
-        print(f"DEBUG: Cours trouvé: {course}")
         
         # Récupérer les données pour les dropdowns
         classes = self.data_manager.get_all_classes()
@@ -6466,15 +6461,10 @@ class StudentRegistrationSystem:
     
     def show_delete_course_dialog(self, course_id):
         """Afficher le dialogue de confirmation de suppression"""
-        print(f"DEBUG: Tentative de suppression du cours ID: {course_id}")
-        
         course = self.data_manager.get_schedule_by_id(course_id)
         if not course:
-            print(f"DEBUG: Cours non trouvé pour suppression ID: {course_id}")
             self.show_validation_alert("Erreur", "Cours introuvable")
             return
-            
-        print(f"DEBUG: Cours trouvé pour suppression: {course}")
         
         def confirm_delete(e):
             if self.data_manager.delete_schedule_slot(course_id):
@@ -6517,14 +6507,10 @@ class StudentRegistrationSystem:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         
-        print(f"DEBUG: Création du dialogue de suppression...")
-        
         # Ajouter le dialogue à la page et l'ouvrir
         self.page.overlay.append(dialog)
         dialog.open = True
-        print(f"DEBUG: Mise à jour de la page...")
         self.page.update()
-        print(f"DEBUG: Dialogue de suppression affiché")
     
     def add_schedule_slot(self, e):
         """Ajouter un créneau à l'emploi du temps"""
