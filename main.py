@@ -6396,34 +6396,17 @@ class StudentRegistrationSystem:
         # Grille d'emploi du temps (similaire aux classes mais adaptée)
         schedule_grid = self.create_teacher_schedule_grid()
         
-        # Interface principale
-        main_content = ft.Row([
-            # Formulaire à gauche
-            ft.Container(
-                content=form_content,
-                width=350,
-                bgcolor="#ffffff",
-                border_radius=12,
-                padding=ft.padding.all(24),
-                border=ft.border.all(1, "#e2e8f0")
-            ),
-            # Grille à droite
-            ft.Container(
-                content=schedule_grid,
-                expand=True,
-                margin=ft.margin.only(left=16)
-            )
-        ], spacing=0, expand=True)
-        
-        # Interface complète
+        # Interface EXACTEMENT identique aux classes (structure VERTICALE)
         interface = ft.Column([
             header,
             ft.Container(
-                content=main_content,
-                expand=True,
-                padding=ft.padding.symmetric(horizontal=32, vertical=16)
+                content=ft.Column([
+                    form_content,
+                    schedule_grid
+                ], scroll=ft.ScrollMode.AUTO),
+                expand=True
             )
-        ], spacing=0)
+        ])
         
         self.schedule_main_container.content = interface
         # Charger l'emploi du temps du professeur
@@ -6546,38 +6529,47 @@ class StudentRegistrationSystem:
             width=200
         )
         
-        # Layout du formulaire
-        form_content = ft.Column([
-            ft.Text(
-                "Ajouter un cours",
-                size=18,
-                weight=ft.FontWeight.BOLD,
-                color="#1e293b"
+        # Conteneur formulaire EXACTEMENT identique aux classes
+        form_container = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    # Première ligne: Classe, Jour, Début, Fin
+                    ft.Row([
+                        self.teacher_class_dropdown,
+                        ft.Container(width=16),
+                        self.teacher_day_dropdown,
+                        ft.Container(width=16),
+                        self.teacher_start_time_dropdown,
+                        ft.Container(width=16),
+                        self.teacher_end_time_dropdown
+                    ]),
+                    ft.Container(height=16),
+                    # Deuxième ligne: Matière, Couleur, Bouton
+                    ft.Row([
+                        self.teacher_subject_field,
+                        ft.Container(width=16),
+                        self.teacher_color_dropdown,
+                        ft.Container(width=16),
+                        ft.ElevatedButton(
+                            text="+ Ajouter",
+                            on_click=self.add_teacher_course,
+                            style=ft.ButtonStyle(
+                                bgcolor="#4f46e5",
+                                color="#ffffff",
+                                padding=ft.padding.symmetric(horizontal=24, vertical=16)
+                            )
+                        )
+                    ])
+                ]),
+                padding=28
             ),
-            ft.Container(height=16),
-            
-            # Première ligne : Classe et Jour
-            ft.Row([
-                self.teacher_class_dropdown,
-                self.teacher_day_dropdown
-            ], spacing=12),
-            
-            # Deuxième ligne : Horaires
-            ft.Row([
-                self.teacher_start_time_dropdown,
-                self.teacher_end_time_dropdown
-            ], spacing=12),
-            
-            # Troisième ligne : Matière et Couleur
-            self.teacher_subject_field,
-            self.teacher_color_dropdown,
-            
-            # Bouton
-            ft.Container(height=16),
-            add_button
-        ], spacing=12)
+            elevation=0,
+            surface_tint_color="#ffffff",
+            color="#ffffff",
+            margin=ft.margin.only(bottom=24)
+        )
         
-        return form_content
+        return form_container
     
     def create_teacher_schedule_grid(self):
         """Créer la grille d'emploi du temps pour un professeur"""
