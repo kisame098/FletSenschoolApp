@@ -21,5 +21,17 @@
     "color": "#ef4444",
     "id": 5,
     "created_at": "2025-08-04T19:18:05.423895"
+  },
+  {
+    "class_name": "TS2",
+    "day": "Mercredi",
+    "start_time": "10:00",
+    "end_time": "12:00",
+    "teacher_id": "1",
+    "teacher_name": "EDWARD FAYE",
+    "subject": "svt",
+    "color": "#4f46e5",
+    "id": 6,
+    "created_at": "2025-08-04T21:55:58.160405"
   }
 ]
